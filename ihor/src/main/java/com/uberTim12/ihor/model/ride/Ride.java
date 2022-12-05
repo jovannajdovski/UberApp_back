@@ -55,7 +55,7 @@ public class Ride {
     private Set<Path> paths = new HashSet<>();
 
     @Column(name = "estimated_time", nullable = false)
-    private LocalDateTime estimatedTime;
+    private Integer estimatedTime;
 
     @OneToMany(mappedBy = "ride", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Review> reviews = new HashSet<>();
