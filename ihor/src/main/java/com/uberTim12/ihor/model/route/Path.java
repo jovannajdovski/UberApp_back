@@ -1,4 +1,4 @@
-package com.uberTim12.ihor.model;
+package com.uberTim12.ihor.model.route;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -15,11 +15,14 @@ public class Path {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "startpoint_id", referencedColumnName = "id")
     private Location startPoint;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "endpoint_id", referencedColumnName = "id")
     private Location endPoint;
 
+    @Column(name = "distance", nullable = false)
     private Double distance;
 }

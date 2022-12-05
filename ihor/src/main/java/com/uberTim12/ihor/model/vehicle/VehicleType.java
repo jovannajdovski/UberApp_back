@@ -1,4 +1,4 @@
-package com.uberTim12.ihor.model;
+package com.uberTim12.ihor.model.vehicle;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -16,8 +16,10 @@ public class VehicleType {
     private Integer id;
 
     @Enumerated
+    @Column(name = "vehicle_category", nullable = false)
     private VehicleCategory vehicleCategory;
 
+    @Column(name = "price_per_km", nullable = false)
     private Double pricePerKM;
 
 }

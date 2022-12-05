@@ -1,9 +1,6 @@
-package com.uberTim12.ihor.model;
+package com.uberTim12.ihor.model.route;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,9 +15,12 @@ public class Location {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name = "address", nullable = false)
     private String address;
 
+    @Column(name = "latitude", nullable = false)
     private String latitude;
 
+    @Column(name = "longitude", nullable = false)
     private String longitude;
 }

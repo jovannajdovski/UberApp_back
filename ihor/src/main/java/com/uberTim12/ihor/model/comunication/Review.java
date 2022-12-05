@@ -1,5 +1,7 @@
-package com.uberTim12.ihor.model;
+package com.uberTim12.ihor.model.comunication;
 
+import com.uberTim12.ihor.model.ride.Ride;
+import com.uberTim12.ihor.model.users.Passenger;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,13 +17,17 @@ public class Review {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name = "rate", nullable = false)
     private Double rate;
 
+    @Column(name = "comment")
     private String comment;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "ride_id")
     private Ride ride;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "passenger_id")
     private Passenger passenger;
 }

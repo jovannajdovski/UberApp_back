@@ -1,4 +1,4 @@
-package com.uberTim12.ihor.model;
+package com.uberTim12.ihor.model.users;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -17,17 +17,24 @@ public abstract class User {
     @GeneratedValue(strategy = GenerationType.TABLE)
     private Integer id;
 
+    @Column(name = "name", nullable = false)
     private String name;
 
+    @Column(name = "surname", nullable = false)
     private String surname;
 
+    @Column(name = "profile_picture")
     private String profilePicture;
 
+    @Column(name = "telephone_number")
     private String telephoneNumber;
 
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
+    @Column(name = "address")
     private String address;
 
+    @Column(name = "password", nullable = false)
     private String password;
 }
