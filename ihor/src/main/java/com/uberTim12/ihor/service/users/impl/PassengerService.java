@@ -14,6 +14,7 @@ public class PassengerService implements IPassengerService {
     @Autowired
     private IPassengerRepository passengerRepository;
 
+
     public Page<Passenger> findAll(Pageable page){
         return passengerRepository.findAll(page);
     }
@@ -22,7 +23,16 @@ public class PassengerService implements IPassengerService {
         return passengerRepository.findById(id).orElseGet(null);
     }
 
+    public boolean exists(String email){
+        return passengerRepository.existsByEmail(email);
+    }
+
     public Passenger save(Passenger passenger) {
         return passengerRepository.save(passenger);
+    }
+
+
+    public Passenger findByIdWithRides(Integer id) {
+        return passengerRepository.findByIdWithRides(id);
     }
 }
