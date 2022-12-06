@@ -5,13 +5,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import static jakarta.persistence.InheritanceType.JOINED;
 import static jakarta.persistence.InheritanceType.TABLE_PER_CLASS;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
 @Entity
-@Inheritance(strategy=TABLE_PER_CLASS)
+@Inheritance(strategy=JOINED)
 public abstract class User {
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE)
