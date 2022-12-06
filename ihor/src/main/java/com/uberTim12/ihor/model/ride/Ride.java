@@ -33,7 +33,6 @@ public class Ride {
     @Column(name = "total_price", nullable = false)
     private Double totalPrice;
 
-
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "driver_id")
     private Driver driver;
