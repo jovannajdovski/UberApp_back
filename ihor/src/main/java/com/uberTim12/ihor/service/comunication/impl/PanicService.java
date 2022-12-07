@@ -7,6 +7,8 @@ import com.uberTim12.ihor.repository.ride.IRideRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class PanicService {
 
@@ -15,5 +17,9 @@ public class PanicService {
 
     public Panic save(Panic panic){
         return panicRepository.save(panic);
+    }
+
+    public List<Panic> findAll(){
+        return panicRepository.findAll();
     }
 }
