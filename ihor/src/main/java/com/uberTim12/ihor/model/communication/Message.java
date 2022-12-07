@@ -41,5 +41,12 @@ public class Message {
     @JoinColumn(name = "ride_id")
     private Ride ride;
 
-
+    public Message(User sender, User receiver, String content, LocalDateTime sendTime, MessageType type, Ride ride) {
+        this.sender = sender;
+        this.receiver = receiver;
+        this.content = content;
+        this.sendTime = sendTime;
+        this.type = type;
+        this.ride = ride;
+    }
 }

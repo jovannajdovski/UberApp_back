@@ -7,8 +7,10 @@ import org.springframework.data.domain.Page;
 
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDateTime;
+
 public interface IRideService {
     RideResponseDTO getEstimatedRoute(RideRequestDTO rideRequestDTO);
 
-    Page<Ride> getRides(Integer id, Pageable page);
+    Page<Ride> getRides(Integer userId, LocalDateTime start, LocalDateTime end, Pageable page);
 }

@@ -1,7 +1,7 @@
 package com.uberTim12.ihor.model.ride;
 
-import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.communication.Review;
+import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.users.Passenger;
 import com.uberTim12.ihor.model.vehicle.VehicleType;
