@@ -41,4 +41,8 @@ public abstract class User {
 
     @Column(name = "is_blocked", nullable = false)
     private boolean isBlocked;
+
+    @Column(name="is_active")
+    private boolean isActive;
+
 }

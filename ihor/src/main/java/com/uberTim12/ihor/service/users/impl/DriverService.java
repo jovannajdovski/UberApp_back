@@ -1,6 +1,5 @@
 package com.uberTim12.ihor.service.users.impl;
 
-
 import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.repository.users.IDriverRepository;
 import com.uberTim12.ihor.service.users.interfaces.IDriverService;
@@ -34,5 +33,8 @@ public class DriverService implements IDriverService {
         return driverRepository.findAll(page);
     }
 
+    public Driver findById(Integer id){
+        return driverRepository.findById(id).orElseGet(null);
+    }
 
 }
