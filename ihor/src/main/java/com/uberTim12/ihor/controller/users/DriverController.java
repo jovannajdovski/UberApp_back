@@ -26,6 +26,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -282,9 +283,9 @@ public class DriverController {
                                                            @RequestParam int page,
                                                            @RequestParam int size,
                                                            @RequestParam(required = false)
-                                                                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+                                                                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDateTime from,
                                                            @RequestParam(required = false)
-                                                                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+                                                                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDateTime to) {
 
         Pageable paging = PageRequest.of(page, size);
 
