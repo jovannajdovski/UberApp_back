@@ -1,5 +1,6 @@
 package com.uberTim12.ihor.dto.communication;
 
+import com.uberTim12.ihor.dto.users.PassengerIdentificatorsDTO;
 import com.uberTim12.ihor.model.communication.Review;
 import com.uberTim12.ihor.model.users.Passenger;
 import jakarta.persistence.Column;
@@ -20,9 +21,9 @@ public class ReviewDTO {
 
     private String comment;
 
-    private Passenger passenger;
+    private PassengerIdentificatorsDTO passengerIdentificatorsDTO;
     public ReviewDTO(Review review, boolean isVehicleReview)
     {
-        this(review.getId(),(isVehicleReview)?review.getVehicleRate(): review.getDriverRate(), (isVehicleReview)?review.getVehicleComment():review.getDriverComment(),review.getPassenger());
+        this(review.getId(),(isVehicleReview)?review.getVehicleRate(): review.getDriverRate(), (isVehicleReview)?review.getVehicleComment():review.getDriverComment(),new PassengerIdentificatorsDTO(review.getPassenger()));
     }
 }

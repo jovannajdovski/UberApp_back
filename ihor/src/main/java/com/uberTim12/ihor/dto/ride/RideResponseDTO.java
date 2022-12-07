@@ -5,15 +5,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
 public class RideResponseDTO {
-    private Double estimatedTime;
+    private Double estimatedTimeInMinutes;
 
-    private Double estimatedPrice;
+    private Double estimatedCost;
     public RideResponseDTO(Ride ride)
     {
         this(ride.getEstimatedTime(),ride.getTotalPrice());

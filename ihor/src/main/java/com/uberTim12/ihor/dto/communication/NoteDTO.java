@@ -11,6 +11,6 @@ import java.time.LocalDateTime;
 @Data
 public class NoteDTO {
     Integer id;
-    LocalDateTime creationTime;
+    LocalDateTime date;
     String message;
 }

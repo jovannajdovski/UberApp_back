@@ -1,5 +1,6 @@
 package com.uberTim12.ihor.service.communication.impl;
 
+import com.uberTim12.ihor.dto.communication.MessageDTO;
 import com.uberTim12.ihor.model.communication.Message;
 import com.uberTim12.ihor.dto.communication.SendingMessageDTO;
 import com.uberTim12.ihor.repository.communication.IMessageRepository;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class MessageService implements IMessageService {
@@ -23,17 +25,19 @@ public class MessageService implements IMessageService {
     private IRideRepository rideRepository;
 
     @Override
-    public List<Message> getMessages(Integer id) {
-        return messageRepository.findAllBySenderIdOrReceiverId(id,id);
+    public List<MessageDTO> getMessages(Integer id) {
+        List<Message> messages= messageRepository.findAllBySenderIdOrReceiverId(id,id);
+        return messages.stream().map(MessageDTO::new).collect(Collectors.toList());
     }
 
     @Override
-    public Message sendMessage(Integer senderId, SendingMessageDTO sendingMessageDTO) {
-        return messageRepository.saveAndFlush(new Message(userRepository.findById(senderId).get(),
+    public MessageDTO sendMessage(Integer senderId, SendingMessageDTO sendingMessageDTO) {
+        Message message=messageRepository.saveAndFlush(new Message(userRepository.findById(senderId).get(),
                 userRepository.findById(sendingMessageDTO.getReceiverId()).get(),
-                sendingMessageDTO.getContent(),
+                sendingMessageDTO.getMessage(),
                 LocalDateTime.now(),
                 sendingMessageDTO.getType(),
                 rideRepository.findById(sendingMessageDTO.getRideId()).get()));
+        return new MessageDTO(message);
     }
 }

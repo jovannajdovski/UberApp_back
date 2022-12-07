@@ -1,10 +1,7 @@
 package com.uberTim12.ihor.controller.users;
 
-import com.uberTim12.ihor.dto.communication.ObjectListResponseDTO;
+import com.uberTim12.ihor.dto.communication.*;
 import com.uberTim12.ihor.model.communication.Message;
-import com.uberTim12.ihor.dto.communication.NoteDTO;
-import com.uberTim12.ihor.dto.communication.RequestNoteDTO;
-import com.uberTim12.ihor.dto.communication.SendingMessageDTO;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.dto.ride.RideDTO;
 import com.uberTim12.ihor.model.users.User;
@@ -79,11 +76,11 @@ public class UserController {
     @GetMapping(value = "/{id}/message",produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getUserMessages(@PathVariable Integer id)
     {
-        List<Message> messages = messageService.getMessages(id);
+        List<MessageDTO> messages = messageService.getMessages(id);
         if(messages==null) //TODO sve greske
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
         else {
-            ObjectListResponseDTO<Message> res = new ObjectListResponseDTO<>(messages.size(),messages);
+            ObjectListResponseDTO<MessageDTO> res = new ObjectListResponseDTO<>(messages.size(),messages);
             return new ResponseEntity<>(res, HttpStatus.OK);
         }
     }
@@ -91,7 +88,7 @@ public class UserController {
     @PostMapping(value = "/{id}/message",consumes=MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> sendMessage(@PathVariable("id") Integer senderId, @RequestBody SendingMessageDTO sendingMessageDTO)
     {
-        Message message = messageService.sendMessage(senderId, sendingMessageDTO);
+        MessageDTO message = messageService.sendMessage(senderId, sendingMessageDTO);
         if(message==null) //TODO sve greske
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
         else {

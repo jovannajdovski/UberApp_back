@@ -16,7 +16,8 @@ import lombok.NoArgsConstructor;
 public class SendingMessageDTO {
 
     private Integer receiverId;
-    private String content;
+    private String message;
     private MessageType type;
     private Integer rideId;
 }
+

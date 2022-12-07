@@ -6,6 +6,7 @@ import com.uberTim12.ihor.dto.ride.RideRequestDTO;
 import com.uberTim12.ihor.dto.ride.RideResponseDTO;
 import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.users.Passenger;
+import com.uberTim12.ihor.model.vehicle.Vehicle;
 import com.uberTim12.ihor.repository.ride.IRideRepository;
 import com.uberTim12.ihor.repository.users.IDriverRepository;
 import com.uberTim12.ihor.repository.users.IPassengerRepository;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Optional;
 
 import java.util.List;

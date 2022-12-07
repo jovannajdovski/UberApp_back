@@ -1,5 +1,6 @@
 package com.uberTim12.ihor.dto.communication;
 
+import com.uberTim12.ihor.dto.users.PassengerIdentificatorsDTO;
 import com.uberTim12.ihor.model.communication.Review;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.users.Passenger;
@@ -15,15 +16,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 public class FullReviewDTO {
-    private Integer id;
-    private Double vehicleRate;
-    private String vehicleComment;
-    private Double driverRate;
-    private String driverComment;
-    private Passenger passenger;
+    private ReviewDTO vehicleReviewDTO;
+    private ReviewDTO driverReviewDTO;
 
     public FullReviewDTO(Review review)
     {
-        this(review.getId(),review.getVehicleRate(),review.getVehicleComment(),review.getDriverRate(),review.getDriverComment(),review.getPassenger());
+        this(new ReviewDTO(review.getId(),review.getVehicleRate(),review.getVehicleComment(),new PassengerIdentificatorsDTO(review.getPassenger())),
+                new ReviewDTO(review.getId(),review.getDriverRate(),review.getDriverComment(),new PassengerIdentificatorsDTO(review.getPassenger())));
     }
 }

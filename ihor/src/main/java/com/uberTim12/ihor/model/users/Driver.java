@@ -31,4 +31,5 @@ public class Driver extends User{
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Review> reviews = new HashSet<>();
+
 }
