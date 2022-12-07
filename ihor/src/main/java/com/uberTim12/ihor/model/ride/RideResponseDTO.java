@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Data
 public class RideResponseDTO {
-    private LocalDateTime estimatedTime;
+    private Double estimatedTime;
 
     private Double estimatedPrice;
     public RideResponseDTO(Ride ride)

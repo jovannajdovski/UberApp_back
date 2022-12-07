@@ -278,7 +278,7 @@ public class DriverController {
         return new ResponseEntity<>(new WorkHoursDTO(workHours), HttpStatus.CREATED);
     }
 
-    @GetMapping(value = "/{driverId}/working-hours")
+    @GetMapping(value = "/{driverId}/ride")
     public ResponseEntity<List<RideDTO>> getRidesForDriver(@PathVariable Integer driverId,
                                                            @RequestParam int page,
                                                            @RequestParam int size,

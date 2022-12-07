@@ -15,7 +15,7 @@ import static jakarta.persistence.InheritanceType.TABLE_PER_CLASS;
 @Inheritance(strategy=JOINED)
 public abstract class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Column(name = "name", nullable = false)

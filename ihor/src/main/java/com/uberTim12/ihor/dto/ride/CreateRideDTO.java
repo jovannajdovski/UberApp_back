@@ -2,22 +2,14 @@ package com.uberTim12.ihor.dto.ride;
 
 import com.uberTim12.ihor.dto.route.PathDTO;
 import com.uberTim12.ihor.dto.users.UserRideDTO;
-import com.uberTim12.ihor.model.comunication.Review;
 import com.uberTim12.ihor.model.ride.Ride;
-import com.uberTim12.ihor.model.ride.RideRejection;
-import com.uberTim12.ihor.model.ride.RideStatus;
 import com.uberTim12.ihor.model.route.Path;
-import com.uberTim12.ihor.model.users.Driver;
-import com.uberTim12.ihor.model.users.Passenger;
 import com.uberTim12.ihor.model.users.User;
 import com.uberTim12.ihor.model.vehicle.VehicleCategory;
-import com.uberTim12.ihor.model.vehicle.VehicleType;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 

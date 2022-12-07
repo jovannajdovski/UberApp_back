@@ -1,8 +1,8 @@
-package com.uberTim12.ihor.service.comunication.impl;
+package com.uberTim12.ihor.service.communication.impl;
 
-import com.uberTim12.ihor.model.comunication.Panic;
+import com.uberTim12.ihor.model.communication.Panic;
 import com.uberTim12.ihor.model.ride.Ride;
-import com.uberTim12.ihor.repository.comunication.IPanicRepository;
+import com.uberTim12.ihor.repository.communication.IPanicRepository;
 import com.uberTim12.ihor.repository.ride.IRideRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -106,3 +106,234 @@ java.sql.SQLClientInfoException: Client info name 'ApplicationName' not supporte
 	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
 	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
 	at java.base/java.lang.Thread.run(Thread.java:833)
+2022-12-07 11:25:56 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "drop table if exists [*]user cascade "; expected "identifier"; SQL statement:
+drop table if exists user cascade  [42001-214]
+2022-12-07 11:25:56 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "create table [*]user (id integer not null, address varchar(255), email varchar(255) not null, is_active boolean, is_blocked boolean not null, name varchar(255) not null, password varchar(255) not null, profile_picture varchar(255), surname varchar(255) not null, telephone_number varchar(255), primary key (id))"; expected "identifier"; SQL statement:
+create table user (id integer not null, address varchar(255), email varchar(255) not null, is_active boolean, is_blocked boolean not null, name varchar(255) not null, password varchar(255) not null, profile_picture varchar(255), surname varchar(255) not null, telephone_number varchar(255), primary key (id)) [42001-214]
+2022-12-07 11:25:56 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists [*]user add constraint UK_ob8kqyqqgmefl0aco34akdtpe unique (email)"; expected "identifier"; SQL statement:
+alter table if exists user add constraint UK_ob8kqyqqgmefl0aco34akdtpe unique (email) [42001-214]
+2022-12-07 11:25:56 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists administrator add constraint FKqw9yow5v72k7e6a2gw45dfv1s foreign key (id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists administrator add constraint FKqw9yow5v72k7e6a2gw45dfv1s foreign key (id) references user [42001-214]
+2022-12-07 11:25:56 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists driver add constraint FK1kg15l31b2xdtcrtio4je8y5r foreign key (id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists driver add constraint FK1kg15l31b2xdtcrtio4je8y5r foreign key (id) references user [42001-214]
+2022-12-07 11:25:56 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists message add constraint FK86f0kc2mt26ifwupnivu6v8oa foreign key (receiver_id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists message add constraint FK86f0kc2mt26ifwupnivu6v8oa foreign key (receiver_id) references user [42001-214]
+2022-12-07 11:25:56 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists message add constraint FKcnj2qaf5yc36v2f90jw2ipl9b foreign key (sender_id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists message add constraint FKcnj2qaf5yc36v2f90jw2ipl9b foreign key (sender_id) references user [42001-214]
+2022-12-07 11:25:56 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists panic add constraint FK94eo42x46oax4qv1jyvmsm5p1 foreign key (user_id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists panic add constraint FK94eo42x46oax4qv1jyvmsm5p1 foreign key (user_id) references user [42001-214]
+2022-12-07 11:25:56 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists passenger add constraint FKcbqv0tk1j49mimsqk4j8rulof foreign key (id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists passenger add constraint FKcbqv0tk1j49mimsqk4j8rulof foreign key (id) references user [42001-214]
+2022-12-07 11:25:56 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists ride_rejection add constraint FK5sf1nimsk5lw8o2sb4l770fly foreign key (user_id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists ride_rejection add constraint FK5sf1nimsk5lw8o2sb4l770fly foreign key (user_id) references user [42001-214]
+2022-12-07 11:25:56 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists suggestion add constraint FKnocwtfc34pk1e7upvi1plaedu foreign key (user_id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists suggestion add constraint FKnocwtfc34pk1e7upvi1plaedu foreign key (user_id) references user [42001-214]
+2022-12-07 11:25:56 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists user_activation add constraint FKidgebcgp5cij94pf1tup1f62p foreign key (user_id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists user_activation add constraint FKidgebcgp5cij94pf1tup1f62p foreign key (user_id) references user [42001-214]
+2022-12-07 11:25:56 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "drop table if exists [*]user cascade "; expected "identifier"; SQL statement:
+drop table if exists user cascade  [42001-214]
+2022-12-07 11:31:18 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "drop table if exists [*]user cascade "; expected "identifier"; SQL statement:
+drop table if exists user cascade  [42001-214]
+2022-12-07 11:31:18 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "create table [*]user (id integer not null, address varchar(255), email varchar(255) not null, is_active boolean, is_blocked boolean not null, name varchar(255) not null, password varchar(255) not null, profile_picture varchar(255), surname varchar(255) not null, telephone_number varchar(255), primary key (id))"; expected "identifier"; SQL statement:
+create table user (id integer not null, address varchar(255), email varchar(255) not null, is_active boolean, is_blocked boolean not null, name varchar(255) not null, password varchar(255) not null, profile_picture varchar(255), surname varchar(255) not null, telephone_number varchar(255), primary key (id)) [42001-214]
+2022-12-07 11:31:18 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists [*]user add constraint UK_ob8kqyqqgmefl0aco34akdtpe unique (email)"; expected "identifier"; SQL statement:
+alter table if exists user add constraint UK_ob8kqyqqgmefl0aco34akdtpe unique (email) [42001-214]
+2022-12-07 11:31:18 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists administrator add constraint FKqw9yow5v72k7e6a2gw45dfv1s foreign key (id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists administrator add constraint FKqw9yow5v72k7e6a2gw45dfv1s foreign key (id) references user [42001-214]
+2022-12-07 11:31:18 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists driver add constraint FK1kg15l31b2xdtcrtio4je8y5r foreign key (id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists driver add constraint FK1kg15l31b2xdtcrtio4je8y5r foreign key (id) references user [42001-214]
+2022-12-07 11:31:18 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists message add constraint FK86f0kc2mt26ifwupnivu6v8oa foreign key (receiver_id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists message add constraint FK86f0kc2mt26ifwupnivu6v8oa foreign key (receiver_id) references user [42001-214]
+2022-12-07 11:31:18 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists message add constraint FKcnj2qaf5yc36v2f90jw2ipl9b foreign key (sender_id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists message add constraint FKcnj2qaf5yc36v2f90jw2ipl9b foreign key (sender_id) references user [42001-214]
+2022-12-07 11:31:18 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists panic add constraint FK94eo42x46oax4qv1jyvmsm5p1 foreign key (user_id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists panic add constraint FK94eo42x46oax4qv1jyvmsm5p1 foreign key (user_id) references user [42001-214]
+2022-12-07 11:31:18 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists passenger add constraint FKcbqv0tk1j49mimsqk4j8rulof foreign key (id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists passenger add constraint FKcbqv0tk1j49mimsqk4j8rulof foreign key (id) references user [42001-214]
+2022-12-07 11:31:18 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists ride_rejection add constraint FK5sf1nimsk5lw8o2sb4l770fly foreign key (user_id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists ride_rejection add constraint FK5sf1nimsk5lw8o2sb4l770fly foreign key (user_id) references user [42001-214]
+2022-12-07 11:31:18 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists suggestion add constraint FKnocwtfc34pk1e7upvi1plaedu foreign key (user_id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists suggestion add constraint FKnocwtfc34pk1e7upvi1plaedu foreign key (user_id) references user [42001-214]
+2022-12-07 11:31:18 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists user_activation add constraint FKidgebcgp5cij94pf1tup1f62p foreign key (user_id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists user_activation add constraint FKidgebcgp5cij94pf1tup1f62p foreign key (user_id) references user [42001-214]
+2022-12-07 11:31:19 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "drop table if exists [*]user cascade "; expected "identifier"; SQL statement:
+drop table if exists user cascade  [42001-214]
+2022-12-07 11:45:50 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "drop table if exists [*]user cascade "; expected "identifier"; SQL statement:
+drop table if exists user cascade  [42001-214]
+2022-12-07 11:45:50 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "create table [*]user (id integer generated by default as identity, address varchar(255), email varchar(255) not null, is_active boolean, is_blocked boolean not null, name varchar(255) not null, password varchar(255) not null, profile_picture varchar(255), surname varchar(255) not null, telephone_number varchar(255), primary key (id))"; expected "identifier"; SQL statement:
+create table user (id integer generated by default as identity, address varchar(255), email varchar(255) not null, is_active boolean, is_blocked boolean not null, name varchar(255) not null, password varchar(255) not null, profile_picture varchar(255), surname varchar(255) not null, telephone_number varchar(255), primary key (id)) [42001-214]
+2022-12-07 11:45:50 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists [*]user add constraint UK_ob8kqyqqgmefl0aco34akdtpe unique (email)"; expected "identifier"; SQL statement:
+alter table if exists user add constraint UK_ob8kqyqqgmefl0aco34akdtpe unique (email) [42001-214]
+2022-12-07 11:45:50 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists administrator add constraint FKqw9yow5v72k7e6a2gw45dfv1s foreign key (id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists administrator add constraint FKqw9yow5v72k7e6a2gw45dfv1s foreign key (id) references user [42001-214]
+2022-12-07 11:45:50 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists driver add constraint FK1kg15l31b2xdtcrtio4je8y5r foreign key (id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists driver add constraint FK1kg15l31b2xdtcrtio4je8y5r foreign key (id) references user [42001-214]
+2022-12-07 11:45:50 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists message add constraint FK86f0kc2mt26ifwupnivu6v8oa foreign key (receiver_id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists message add constraint FK86f0kc2mt26ifwupnivu6v8oa foreign key (receiver_id) references user [42001-214]
+2022-12-07 11:45:50 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists message add constraint FKcnj2qaf5yc36v2f90jw2ipl9b foreign key (sender_id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists message add constraint FKcnj2qaf5yc36v2f90jw2ipl9b foreign key (sender_id) references user [42001-214]
+2022-12-07 11:45:50 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists panic add constraint FK94eo42x46oax4qv1jyvmsm5p1 foreign key (user_id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists panic add constraint FK94eo42x46oax4qv1jyvmsm5p1 foreign key (user_id) references user [42001-214]
+2022-12-07 11:45:50 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists passenger add constraint FKcbqv0tk1j49mimsqk4j8rulof foreign key (id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists passenger add constraint FKcbqv0tk1j49mimsqk4j8rulof foreign key (id) references user [42001-214]
+2022-12-07 11:45:50 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists ride_rejection add constraint FK5sf1nimsk5lw8o2sb4l770fly foreign key (user_id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists ride_rejection add constraint FK5sf1nimsk5lw8o2sb4l770fly foreign key (user_id) references user [42001-214]
+2022-12-07 11:45:50 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists suggestion add constraint FKnocwtfc34pk1e7upvi1plaedu foreign key (user_id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists suggestion add constraint FKnocwtfc34pk1e7upvi1plaedu foreign key (user_id) references user [42001-214]
+2022-12-07 11:45:50 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists user_activation add constraint FKidgebcgp5cij94pf1tup1f62p foreign key (user_id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists user_activation add constraint FKidgebcgp5cij94pf1tup1f62p foreign key (user_id) references user [42001-214]
+2022-12-07 11:45:50 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "drop table if exists [*]user cascade "; expected "identifier"; SQL statement:
+drop table if exists user cascade  [42001-214]
+2022-12-07 11:49:32 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "drop table if exists [*]user cascade "; expected "identifier"; SQL statement:
+drop table if exists user cascade  [42001-214]
+2022-12-07 11:49:32 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "create table [*]user (id integer generated by default as identity, address varchar(255), email varchar(255) not null, is_active boolean, is_blocked boolean not null, name varchar(255) not null, password varchar(255) not null, profile_picture varchar(255), surname varchar(255) not null, telephone_number varchar(255), primary key (id))"; expected "identifier"; SQL statement:
+create table user (id integer generated by default as identity, address varchar(255), email varchar(255) not null, is_active boolean, is_blocked boolean not null, name varchar(255) not null, password varchar(255) not null, profile_picture varchar(255), surname varchar(255) not null, telephone_number varchar(255), primary key (id)) [42001-214]
+2022-12-07 11:49:32 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists [*]user add constraint UK_ob8kqyqqgmefl0aco34akdtpe unique (email)"; expected "identifier"; SQL statement:
+alter table if exists user add constraint UK_ob8kqyqqgmefl0aco34akdtpe unique (email) [42001-214]
+2022-12-07 11:49:32 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists administrator add constraint FKqw9yow5v72k7e6a2gw45dfv1s foreign key (id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists administrator add constraint FKqw9yow5v72k7e6a2gw45dfv1s foreign key (id) references user [42001-214]
+2022-12-07 11:49:32 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists driver add constraint FK1kg15l31b2xdtcrtio4je8y5r foreign key (id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists driver add constraint FK1kg15l31b2xdtcrtio4je8y5r foreign key (id) references user [42001-214]
+2022-12-07 11:49:32 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists message add constraint FK86f0kc2mt26ifwupnivu6v8oa foreign key (receiver_id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists message add constraint FK86f0kc2mt26ifwupnivu6v8oa foreign key (receiver_id) references user [42001-214]
+2022-12-07 11:49:32 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists message add constraint FKcnj2qaf5yc36v2f90jw2ipl9b foreign key (sender_id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists message add constraint FKcnj2qaf5yc36v2f90jw2ipl9b foreign key (sender_id) references user [42001-214]
+2022-12-07 11:49:32 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists panic add constraint FK94eo42x46oax4qv1jyvmsm5p1 foreign key (user_id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists panic add constraint FK94eo42x46oax4qv1jyvmsm5p1 foreign key (user_id) references user [42001-214]
+2022-12-07 11:49:32 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists passenger add constraint FKcbqv0tk1j49mimsqk4j8rulof foreign key (id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists passenger add constraint FKcbqv0tk1j49mimsqk4j8rulof foreign key (id) references user [42001-214]
+2022-12-07 11:49:32 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists ride_rejection add constraint FK5sf1nimsk5lw8o2sb4l770fly foreign key (user_id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists ride_rejection add constraint FK5sf1nimsk5lw8o2sb4l770fly foreign key (user_id) references user [42001-214]
+2022-12-07 11:49:32 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists suggestion add constraint FKnocwtfc34pk1e7upvi1plaedu foreign key (user_id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists suggestion add constraint FKnocwtfc34pk1e7upvi1plaedu foreign key (user_id) references user [42001-214]
+2022-12-07 11:49:32 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists user_activation add constraint FKidgebcgp5cij94pf1tup1f62p foreign key (user_id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists user_activation add constraint FKidgebcgp5cij94pf1tup1f62p foreign key (user_id) references user [42001-214]
+2022-12-07 11:49:33 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "drop table if exists [*]user cascade "; expected "identifier"; SQL statement:
+drop table if exists user cascade  [42001-214]
+2022-12-07 11:52:58 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "drop table if exists [*]user cascade "; expected "identifier"; SQL statement:
+drop table if exists user cascade  [42001-214]
+2022-12-07 11:52:58 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "create table [*]user (id integer generated by default as identity, address varchar(255), email varchar(255) not null, is_active boolean, is_blocked boolean not null, name varchar(255) not null, password varchar(255) not null, profile_picture varchar(255), surname varchar(255) not null, telephone_number varchar(255), primary key (id))"; expected "identifier"; SQL statement:
+create table user (id integer generated by default as identity, address varchar(255), email varchar(255) not null, is_active boolean, is_blocked boolean not null, name varchar(255) not null, password varchar(255) not null, profile_picture varchar(255), surname varchar(255) not null, telephone_number varchar(255), primary key (id)) [42001-214]
+2022-12-07 11:52:58 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists [*]user add constraint UK_ob8kqyqqgmefl0aco34akdtpe unique (email)"; expected "identifier"; SQL statement:
+alter table if exists user add constraint UK_ob8kqyqqgmefl0aco34akdtpe unique (email) [42001-214]
+2022-12-07 11:52:58 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists administrator add constraint FKqw9yow5v72k7e6a2gw45dfv1s foreign key (id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists administrator add constraint FKqw9yow5v72k7e6a2gw45dfv1s foreign key (id) references user [42001-214]
+2022-12-07 11:52:58 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists driver add constraint FK1kg15l31b2xdtcrtio4je8y5r foreign key (id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists driver add constraint FK1kg15l31b2xdtcrtio4je8y5r foreign key (id) references user [42001-214]
+2022-12-07 11:52:58 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists message add constraint FK86f0kc2mt26ifwupnivu6v8oa foreign key (receiver_id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists message add constraint FK86f0kc2mt26ifwupnivu6v8oa foreign key (receiver_id) references user [42001-214]
+2022-12-07 11:52:58 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists message add constraint FKcnj2qaf5yc36v2f90jw2ipl9b foreign key (sender_id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists message add constraint FKcnj2qaf5yc36v2f90jw2ipl9b foreign key (sender_id) references user [42001-214]
+2022-12-07 11:52:58 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists panic add constraint FK94eo42x46oax4qv1jyvmsm5p1 foreign key (user_id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists panic add constraint FK94eo42x46oax4qv1jyvmsm5p1 foreign key (user_id) references user [42001-214]
+2022-12-07 11:52:58 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists passenger add constraint FKcbqv0tk1j49mimsqk4j8rulof foreign key (id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists passenger add constraint FKcbqv0tk1j49mimsqk4j8rulof foreign key (id) references user [42001-214]
+2022-12-07 11:52:58 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists ride_rejection add constraint FK5sf1nimsk5lw8o2sb4l770fly foreign key (user_id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists ride_rejection add constraint FK5sf1nimsk5lw8o2sb4l770fly foreign key (user_id) references user [42001-214]
+2022-12-07 11:52:58 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists suggestion add constraint FKnocwtfc34pk1e7upvi1plaedu foreign key (user_id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists suggestion add constraint FKnocwtfc34pk1e7upvi1plaedu foreign key (user_id) references user [42001-214]
+2022-12-07 11:52:58 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists user_activation add constraint FKidgebcgp5cij94pf1tup1f62p foreign key (user_id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists user_activation add constraint FKidgebcgp5cij94pf1tup1f62p foreign key (user_id) references user [42001-214]
+2022-12-07 11:52:59 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "drop table if exists [*]user cascade "; expected "identifier"; SQL statement:
+drop table if exists user cascade  [42001-214]
+2022-12-07 11:58:54 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "drop table if exists [*]user cascade "; expected "identifier"; SQL statement:
+drop table if exists user cascade  [42001-214]
+2022-12-07 11:58:54 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "create table [*]user (id integer generated by default as identity, address varchar(255), email varchar(255) not null, is_active boolean, is_blocked boolean not null, name varchar(255) not null, password varchar(255) not null, profile_picture varchar(255), surname varchar(255) not null, telephone_number varchar(255), primary key (id))"; expected "identifier"; SQL statement:
+create table user (id integer generated by default as identity, address varchar(255), email varchar(255) not null, is_active boolean, is_blocked boolean not null, name varchar(255) not null, password varchar(255) not null, profile_picture varchar(255), surname varchar(255) not null, telephone_number varchar(255), primary key (id)) [42001-214]
+2022-12-07 11:58:54 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists [*]user add constraint UK_ob8kqyqqgmefl0aco34akdtpe unique (email)"; expected "identifier"; SQL statement:
+alter table if exists user add constraint UK_ob8kqyqqgmefl0aco34akdtpe unique (email) [42001-214]
+2022-12-07 11:58:54 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists administrator add constraint FKqw9yow5v72k7e6a2gw45dfv1s foreign key (id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists administrator add constraint FKqw9yow5v72k7e6a2gw45dfv1s foreign key (id) references user [42001-214]
+2022-12-07 11:58:54 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists driver add constraint FK1kg15l31b2xdtcrtio4je8y5r foreign key (id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists driver add constraint FK1kg15l31b2xdtcrtio4je8y5r foreign key (id) references user [42001-214]
+2022-12-07 11:58:54 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists message add constraint FK86f0kc2mt26ifwupnivu6v8oa foreign key (receiver_id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists message add constraint FK86f0kc2mt26ifwupnivu6v8oa foreign key (receiver_id) references user [42001-214]
+2022-12-07 11:58:54 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists message add constraint FKcnj2qaf5yc36v2f90jw2ipl9b foreign key (sender_id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists message add constraint FKcnj2qaf5yc36v2f90jw2ipl9b foreign key (sender_id) references user [42001-214]
+2022-12-07 11:58:54 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists panic add constraint FK94eo42x46oax4qv1jyvmsm5p1 foreign key (user_id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists panic add constraint FK94eo42x46oax4qv1jyvmsm5p1 foreign key (user_id) references user [42001-214]
+2022-12-07 11:58:54 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists passenger add constraint FKcbqv0tk1j49mimsqk4j8rulof foreign key (id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists passenger add constraint FKcbqv0tk1j49mimsqk4j8rulof foreign key (id) references user [42001-214]
+2022-12-07 11:58:54 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists ride_rejection add constraint FK5sf1nimsk5lw8o2sb4l770fly foreign key (user_id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists ride_rejection add constraint FK5sf1nimsk5lw8o2sb4l770fly foreign key (user_id) references user [42001-214]
+2022-12-07 11:58:54 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists suggestion add constraint FKnocwtfc34pk1e7upvi1plaedu foreign key (user_id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists suggestion add constraint FKnocwtfc34pk1e7upvi1plaedu foreign key (user_id) references user [42001-214]
+2022-12-07 11:58:54 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists user_activation add constraint FKidgebcgp5cij94pf1tup1f62p foreign key (user_id) references [*]user"; expected "identifier"; SQL statement:
+alter table if exists user_activation add constraint FKidgebcgp5cij94pf1tup1f62p foreign key (user_id) references user [42001-214]

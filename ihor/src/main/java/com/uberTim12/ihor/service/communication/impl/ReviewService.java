@@ -19,9 +19,9 @@ import java.util.stream.Collectors;
 @Service
 public class ReviewService implements IReviewService {
     @Autowired
-    private IReviewRepository IReviewRepository;
+    private IReviewRepository reviewRepository;
     @Autowired
-    private IRideRepository IRideRepository;
+    private IRideRepository rideRepository;
 
     @Override
     public NoteDTO createNote(Integer id, RequestNoteDTO requestNoteDTO) {
@@ -38,10 +38,10 @@ public class ReviewService implements IReviewService {
 
     @Override
     public ReviewDTO createVehicleReview(Integer rideId, Integer vehicleId, ReviewRequestDTO reviewRequestDTO) {
-        Optional<Ride> ride=IRideRepository.findById(rideId);
+        Optional<Ride> ride=rideRepository.findById(rideId);
         if(ride.isEmpty()) return null;
         else {
-            Review review = IReviewRepository.saveAndFlush(new Review(
+            Review review = reviewRepository.saveAndFlush(new Review(
                     reviewRequestDTO.getRating(),
                     reviewRequestDTO.getComment(),
                     null,
@@ -55,10 +55,10 @@ public class ReviewService implements IReviewService {
 
     @Override
     public ReviewDTO createDriverReview(Integer rideId, Integer driverId, ReviewRequestDTO reviewRequestDTO) {
-        Optional<Ride> ride=IRideRepository.findById(rideId);
+        Optional<Ride> ride=rideRepository.findById(rideId);
         if(ride.isEmpty()) return null;
         else {
-            Review review = IReviewRepository.saveAndFlush(new Review(
+            Review review = reviewRepository.saveAndFlush(new Review(
                     reviewRequestDTO.getRating(),
                     reviewRequestDTO.getComment(),
                     null,
@@ -72,19 +72,19 @@ public class ReviewService implements IReviewService {
 
     @Override
     public List<ReviewDTO> getReviewsForVehicle(Integer vehicleId) {
-        List<Review> reviews = IReviewRepository.getReviewsForVehicle(vehicleId);
+        List<Review> reviews = reviewRepository.getReviewsForVehicle(vehicleId);
         return reviews.stream().map(r->new ReviewDTO(r,true)).collect(Collectors.toList());
     }
 
     @Override
     public List<ReviewDTO> getReviewsForDriver(Integer driverId) {
-        List<Review> reviews = IReviewRepository.getReviewsForDriver(driverId);
+        List<Review> reviews = reviewRepository.getReviewsForDriver(driverId);
         return reviews.stream().map(r->new ReviewDTO(r,false)).collect(Collectors.toList());
     }
 
     @Override
     public List<FullReviewDTO> getReviewsForRide(Integer rideId) {
-        List<Review> reviews = IReviewRepository.getReviewsForRide(rideId);
+        List<Review> reviews = reviewRepository.getReviewsForRide(rideId);
         return reviews.stream().map(FullReviewDTO::new).collect(Collectors.toList());
     }
 }

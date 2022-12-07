@@ -1,8 +1,8 @@
-package com.uberTim12.ihor.dto.comunication;
+package com.uberTim12.ihor.dto.communication;
 
 import com.uberTim12.ihor.dto.ride.RideDTO;
 import com.uberTim12.ihor.dto.users.UserPanicDTO;
-import com.uberTim12.ihor.model.comunication.Panic;
+import com.uberTim12.ihor.model.communication.Panic;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.users.User;
 import jakarta.persistence.*;

@@ -48,6 +48,6 @@ public class Vehicle {
     @Column(name = "pets_allowed", nullable = false)
     private boolean petsAllowed;
 
-    @OneToMany(mappedBy = "vehicle", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Review> reviews = new HashSet<>();
 }

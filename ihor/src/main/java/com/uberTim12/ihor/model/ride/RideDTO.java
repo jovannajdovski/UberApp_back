@@ -21,7 +21,7 @@ public class RideDTO {
     private Double totalPrice;
     private Driver driver;
     private Set<Passenger> passengers = new HashSet<>();
-    private LocalDateTime estimatedTime;
+    private Double estimatedTime;
     private boolean babiesAllowed;
     private boolean petsAllowed;
     private VehicleType vehicleType;

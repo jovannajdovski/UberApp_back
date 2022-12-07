@@ -59,7 +59,7 @@ public class RideService implements IRideService {
     @Override
     public RideResponseDTO getEstimatedRoute (RideRequestDTO rideRequestDTO)
     {
-        return new RideResponseDTO(LocalDateTime.of(2022,10,10,20,20), 450.0);
+        return new RideResponseDTO(20.0, 450.0);
     }
 
     @Override

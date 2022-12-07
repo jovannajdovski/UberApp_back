@@ -14,13 +14,13 @@ import java.util.List;
 
 @Repository
 public interface IRideRepository extends JpaRepository<Ride, Integer> {
-    @Query("select R from Ride R where R.driver.id =?1")
+    @Query("select r from Ride r where r.driver.id =?1")
     Page<Ride> findByDriverId(Integer driverId, Pageable pageable);
 
     @Query("select r from Ride r where r.driver.id =?1 and r.startTime between ?2 and ?3")
     public Page<Ride> findAllInRangeForDriver(Integer id, LocalDateTime start, LocalDateTime end, Pageable pageable);
 
-    @Query("select r from Ride r where ?1 in r.passengers and r.startTime between ?2 and ?3")
+    @Query("select r from Ride r where ?1 member of r.passengers and r.startTime between ?2 and ?3")
     public Page<Ride> findAllInRangeForPassenger(Passenger passenger, LocalDateTime start, LocalDateTime end, Pageable pageable);
 
     @Query("select r from Ride r join fetch r.passengers p join fetch r.paths l where r.driver =?1 and ?2 between r.startTime and r.endTime")

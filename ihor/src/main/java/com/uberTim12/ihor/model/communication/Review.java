@@ -30,7 +30,6 @@ public class Review {
     @Column(name = "driver_comment")
     private String driverComment;
 
-
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "passenger_id")
     private Passenger passenger;

@@ -2,16 +2,11 @@ package com.uberTim12.ihor.dto.ride;
 
 import com.uberTim12.ihor.dto.route.PathDTO;
 import com.uberTim12.ihor.dto.users.UserRideDTO;
-import com.uberTim12.ihor.model.comunication.Review;
 import com.uberTim12.ihor.model.ride.Ride;
-import com.uberTim12.ihor.model.ride.RideRejection;
 import com.uberTim12.ihor.model.ride.RideStatus;
 import com.uberTim12.ihor.model.route.Path;
-import com.uberTim12.ihor.model.users.Driver;
-import com.uberTim12.ihor.model.users.Passenger;
 import com.uberTim12.ihor.model.users.User;
 import com.uberTim12.ihor.model.vehicle.VehicleCategory;
-import com.uberTim12.ihor.model.vehicle.VehicleType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -35,7 +30,7 @@ public class RideDTO {
 
     private Set<UserRideDTO> passengers = new HashSet<>();
 
-    private Integer estimatedTimeInMinutes;
+    private Double estimatedTimeInMinutes;
 
     private VehicleCategory vehicleType;
     private boolean babyTransport;
@@ -70,7 +65,7 @@ public class RideDTO {
         this.locations = locations;
     }
 
-    public RideDTO(Integer id, LocalDateTime startTime, LocalDateTime endTime, Double totalPrice, Integer estimatedTime,
+    public RideDTO(Integer id, LocalDateTime startTime, LocalDateTime endTime, Double totalPrice, Double estimatedTime,
                    VehicleCategory vehicleCategory, boolean babiesAllowed, boolean petsAllowed, RideStatus rideStatus) {
         this.id = id;
         this.startTime = startTime;

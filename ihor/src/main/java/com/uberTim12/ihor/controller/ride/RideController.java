@@ -1,13 +1,13 @@
 package com.uberTim12.ihor.controller.ride;
 
-import com.uberTim12.ihor.dto.comunication.PanicDTO;
+import com.uberTim12.ihor.dto.communication.PanicDTO;
 import com.uberTim12.ihor.dto.ride.CreateRideDTO;
 import com.uberTim12.ihor.dto.ride.RideDTO;
 import com.uberTim12.ihor.dto.route.PathDTO;
 import com.uberTim12.ihor.dto.users.PassengerDTO;
 import com.uberTim12.ihor.dto.users.PassengerRegistrationDTO;
 import com.uberTim12.ihor.dto.users.UserRideDTO;
-import com.uberTim12.ihor.model.comunication.Panic;
+import com.uberTim12.ihor.model.communication.Panic;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.ride.RideRejection;
 import com.uberTim12.ihor.model.ride.RideStatus;
@@ -15,7 +15,7 @@ import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.users.Passenger;
 import com.uberTim12.ihor.model.users.UserActivation;
-import com.uberTim12.ihor.service.comunication.impl.PanicService;
+import com.uberTim12.ihor.service.communication.impl.PanicService;
 import com.uberTim12.ihor.service.ride.impl.RideService;
 import com.uberTim12.ihor.service.route.impl.PathService;
 import com.uberTim12.ihor.service.users.impl.DriverService;
@@ -82,7 +82,7 @@ public class RideController {
         ride.setStartTime(LocalDateTime.now());
         ride.setEndTime(LocalDateTime.now().plusMinutes(20));
         ride.setTotalPrice(666.0);
-        ride.setEstimatedTime(20);
+        ride.setEstimatedTime(20.0);
         ride.setRideStatus(RideStatus.PENDING);
 //        RideRejection mokapRideRejection = new RideRejection();
 //        mokapRideRejection.setReason("exit");

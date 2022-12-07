@@ -13,9 +13,9 @@ public class LocationDTO {
 
     private String address;
 
-    private String latitude;
+    private Double latitude;
 
-    private String longitude;
+    private Double longitude;
 
     public LocationDTO(Location location)
     {
