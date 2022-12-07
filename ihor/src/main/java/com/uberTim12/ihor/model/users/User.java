@@ -13,6 +13,7 @@ import static jakarta.persistence.InheritanceType.TABLE_PER_CLASS;
 @Data
 @Entity
 @Inheritance(strategy=JOINED)
+@Table(name = "ihor")
 public abstract class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

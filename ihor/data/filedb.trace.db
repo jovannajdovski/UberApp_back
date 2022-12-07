@@ -337,3 +337,6 @@ alter table if exists suggestion add constraint FKnocwtfc34pk1e7upvi1plaedu fore
 2022-12-07 11:58:54 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "alter table if exists user_activation add constraint FKidgebcgp5cij94pf1tup1f62p foreign key (user_id) references [*]user"; expected "identifier"; SQL statement:
 alter table if exists user_activation add constraint FKidgebcgp5cij94pf1tup1f62p foreign key (user_id) references user [42001-214]
+2022-12-07 12:08:19 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "drop table if exists [*]user cascade "; expected "identifier"; SQL statement:
+drop table if exists user cascade  [42001-214]
