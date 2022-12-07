@@ -1,5 +1,6 @@
 package com.uberTim12.ihor.model.users;
 
+import com.uberTim12.ihor.model.communication.Review;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.vehicle.Vehicle;
 import jakarta.persistence.*;
@@ -26,4 +27,7 @@ public class Driver extends User{
 
     @OneToOne(cascade = CascadeType.ALL)
     private Vehicle vehicle;
+
+    @OneToMany(mappedBy = "driver", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<Review> reviews = new HashSet<>();
 }

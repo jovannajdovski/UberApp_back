@@ -1,7 +1,7 @@
 package com.uberTim12.ihor.model.vehicle;
 
+import com.uberTim12.ihor.model.communication.Review;
 import com.uberTim12.ihor.model.route.Location;
-import com.uberTim12.ihor.model.comunication.Review;
 import com.uberTim12.ihor.model.users.Driver;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -48,6 +48,6 @@ public class Vehicle {
     @Column(name = "pets_allowed", nullable = false)
     private boolean petsAllowed;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "vehicle", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Review> reviews = new HashSet<>();
 }
