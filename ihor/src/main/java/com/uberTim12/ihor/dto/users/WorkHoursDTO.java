@@ -1,5 +1,7 @@
-package com.uberTim12.ihor.model.users;
+package com.uberTim12.ihor.dto.users;
 
+import com.uberTim12.ihor.model.users.Driver;
+import com.uberTim12.ihor.model.users.WorkHours;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -1,18 +1,15 @@
-package com.uberTim12.ihor.controller;
+package com.uberTim12.ihor.controller.users;
 
-import com.uberTim12.ihor.model.ride.RideRequestDTO;
-import com.uberTim12.ihor.model.ride.RideResponseDTO;
-import com.uberTim12.ihor.model.users.User;
-import com.uberTim12.ihor.model.users.UserCredentialsDTO;
-import com.uberTim12.ihor.model.users.UserTokensDTO;
+import com.uberTim12.ihor.dto.ride.RideRequestDTO;
+import com.uberTim12.ihor.dto.ride.RideResponseDTO;
+import com.uberTim12.ihor.dto.users.UserCredentialsDTO;
+import com.uberTim12.ihor.dto.users.UserTokensDTO;
 import com.uberTim12.ihor.service.ride.impl.RideService;
-import com.uberTim12.ihor.service.route.impl.LocationService;
 import com.uberTim12.ihor.service.users.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController

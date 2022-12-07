@@ -1,6 +1,8 @@
-package com.uberTim12.ihor.model.users;
+package com.uberTim12.ihor.dto.users;
 
 import com.uberTim12.ihor.model.ride.Ride;
+import com.uberTim12.ihor.model.users.Driver;
+import com.uberTim12.ihor.model.users.DriverDocument;
 import com.uberTim12.ihor.model.vehicle.Vehicle;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,9 +21,6 @@ public class DriverDTO {
     private String telephoneNumber;
     private String email;
     private String address;
-    private Set<DriverDocument> documents;
-    private Set<Ride> rides;
-    private Vehicle vehicle;
 
     public DriverDTO(Driver driver)
     {
@@ -31,10 +30,7 @@ public class DriverDTO {
                 driver.getProfilePicture(),
                 driver.getTelephoneNumber(),
                 driver.getEmail(),
-                driver.getAddress(),
-                driver.getDocuments(),
-                driver.getRides(),
-                driver.getVehicle()
+                driver.getAddress()
         );
     }
 }

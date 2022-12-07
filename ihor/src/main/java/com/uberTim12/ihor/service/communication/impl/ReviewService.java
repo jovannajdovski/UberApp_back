@@ -1,5 +1,6 @@
 package com.uberTim12.ihor.service.communication.impl;
 
+import com.uberTim12.ihor.dto.communication.*;
 import com.uberTim12.ihor.model.communication.*;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.repository.communication.IReviewRepository;

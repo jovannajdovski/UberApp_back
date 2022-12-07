@@ -1,7 +1,7 @@
 package com.uberTim12.ihor.controller.communication;
 
 import com.uberTim12.ihor.dto.communication.PanicDTO;
-import com.uberTim12.ihor.dto.communication.PanicListResponseDTO;
+import com.uberTim12.ihor.dto.communication.ObjectListResponseDTO;
 import com.uberTim12.ihor.model.communication.Panic;
 import com.uberTim12.ihor.service.communication.impl.PanicService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ public class PanicController {
             panicsDTO.add(new PanicDTO(p));
         }
 
-        PanicListResponseDTO res = new PanicListResponseDTO(panicsDTO.size(),panicsDTO);
+        ObjectListResponseDTO<PanicDTO> res = new ObjectListResponseDTO<PanicDTO>(panicsDTO.size(),panicsDTO);
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 }

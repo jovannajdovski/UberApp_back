@@ -2,19 +2,15 @@ package com.uberTim12.ihor.controller.ride;
 
 import com.uberTim12.ihor.dto.communication.PanicDTO;
 import com.uberTim12.ihor.dto.ride.CreateRideDTO;
-import com.uberTim12.ihor.dto.ride.RideDTO;
+import com.uberTim12.ihor.dto.ride.RideFullDTO;
 import com.uberTim12.ihor.dto.route.PathDTO;
-import com.uberTim12.ihor.dto.users.PassengerDTO;
-import com.uberTim12.ihor.dto.users.PassengerRegistrationDTO;
 import com.uberTim12.ihor.dto.users.UserRideDTO;
 import com.uberTim12.ihor.model.communication.Panic;
 import com.uberTim12.ihor.model.ride.Ride;
-import com.uberTim12.ihor.model.ride.RideRejection;
 import com.uberTim12.ihor.model.ride.RideStatus;
 import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.users.Passenger;
-import com.uberTim12.ihor.model.users.UserActivation;
 import com.uberTim12.ihor.service.communication.impl.PanicService;
 import com.uberTim12.ihor.service.ride.impl.RideService;
 import com.uberTim12.ihor.service.route.impl.PathService;
@@ -90,7 +86,7 @@ public class RideController {
 //        ride.setRideRejection(mokapRideRejection);
 
         ride = rideService.save(ride);
-        return new ResponseEntity<>(new RideDTO(ride), HttpStatus.OK);
+        return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
 
     }
 
@@ -106,7 +102,7 @@ public class RideController {
             if (ride == null){
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             } else {
-                return new ResponseEntity<>(new RideDTO(ride), HttpStatus.OK);
+                return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
             }
         }
     }
@@ -123,7 +119,7 @@ public class RideController {
             if (ride == null){
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             } else {
-                return new ResponseEntity<>(new RideDTO(ride), HttpStatus.OK);
+                return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
             }
         }
     }
@@ -136,7 +132,7 @@ public class RideController {
         if (ride == null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
         } else {
-            return new ResponseEntity<>(new RideDTO(ride), HttpStatus.OK);
+            return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
         }
     }
 
@@ -153,7 +149,7 @@ public class RideController {
 
         ride = rideService.save(ride);
 
-        return new ResponseEntity<>(new RideDTO(ride), HttpStatus.OK);
+        return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
     }
 
     @PutMapping(value = "/{id}/panic")
@@ -198,7 +194,7 @@ public class RideController {
 
         ride = rideService.save(ride);
 
-        return new ResponseEntity<>(new RideDTO(ride), HttpStatus.OK);
+        return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
     }
 
     @PutMapping(value = "/{id}/end")
@@ -214,7 +210,7 @@ public class RideController {
 
         ride = rideService.save(ride);
 
-        return new ResponseEntity<>(new RideDTO(ride), HttpStatus.OK);
+        return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
     }
 
     @PutMapping(value = "/{id}/cancel")
@@ -232,7 +228,7 @@ public class RideController {
 
         ride = rideService.save(ride);
 
-        return new ResponseEntity<>(new RideDTO(ride), HttpStatus.OK);
+        return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
     }
 
 

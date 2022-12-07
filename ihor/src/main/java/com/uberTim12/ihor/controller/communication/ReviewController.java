@@ -1,9 +1,9 @@
-package com.uberTim12.ihor.controller;
+package com.uberTim12.ihor.controller.communication;
 
-import com.uberTim12.ihor.model.communication.FullReviewDTO;
-import com.uberTim12.ihor.model.communication.Review;
-import com.uberTim12.ihor.model.communication.ReviewDTO;
-import com.uberTim12.ihor.model.communication.ReviewRequestDTO;
+import com.uberTim12.ihor.dto.communication.FullReviewDTO;
+import com.uberTim12.ihor.dto.communication.ObjectListResponseDTO;
+import com.uberTim12.ihor.dto.communication.ReviewDTO;
+import com.uberTim12.ihor.dto.communication.ReviewRequestDTO;
 import com.uberTim12.ihor.service.communication.impl.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -37,7 +37,8 @@ public class ReviewController {
     public ResponseEntity<?> getReviewsForVehicle(@PathVariable("id") Integer vehicleId)
     {
         List<ReviewDTO> reviews=reviewService.getReviewsForVehicle(vehicleId);
-        return new ResponseEntity<>(reviews, HttpStatus.OK);
+        ObjectListResponseDTO<ReviewDTO> res = new ObjectListResponseDTO<>(reviews.size(),reviews);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
     @PostMapping(value = "/{rideId}/driver/{id}",consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
@@ -58,7 +59,8 @@ public class ReviewController {
     public ResponseEntity<?> getReviewsForDriver(@PathVariable("id") Integer driverId)
     {
         List<ReviewDTO> reviews=reviewService.getReviewsForDriver(driverId);
-        return new ResponseEntity<>(reviews, HttpStatus.OK);
+        ObjectListResponseDTO<ReviewDTO> res = new ObjectListResponseDTO<>(reviews.size(),reviews);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
     @GetMapping(value = "/{rideId}",produces = MediaType.APPLICATION_JSON_VALUE)

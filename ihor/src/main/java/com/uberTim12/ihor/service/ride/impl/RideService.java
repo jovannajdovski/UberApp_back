@@ -2,8 +2,8 @@ package com.uberTim12.ihor.service.ride.impl;
 
 
 import com.uberTim12.ihor.model.ride.Ride;
-import com.uberTim12.ihor.model.ride.RideRequestDTO;
-import com.uberTim12.ihor.model.ride.RideResponseDTO;
+import com.uberTim12.ihor.dto.ride.RideRequestDTO;
+import com.uberTim12.ihor.dto.ride.RideResponseDTO;
 import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.users.Passenger;
 import com.uberTim12.ihor.repository.ride.IRideRepository;
@@ -18,22 +18,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import com.uberTim12.ihor.dto.users.PassengerDTO;
-import com.uberTim12.ihor.dto.users.PassengerRegistrationDTO;
-import com.uberTim12.ihor.model.ride.Ride;
-import com.uberTim12.ihor.model.users.Driver;
-import com.uberTim12.ihor.model.users.Passenger;
-import com.uberTim12.ihor.model.users.UserActivation;
-import com.uberTim12.ihor.repository.ride.IRideRepository;
-import com.uberTim12.ihor.repository.users.IPassengerRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -46,21 +30,25 @@ public class RideService implements IRideService {
     @Autowired
     private IPassengerRepository passengerRepository;
 
+
     @Override
     public Page<Ride> findFilteredRides(Integer driverId, Pageable pageable) {
         return rideRepository.findByDriverId(driverId, pageable);
     }
+
 
     @Override
     public Page<Ride> findFilteredRides(Integer driverId, LocalDateTime from, LocalDateTime to, Pageable pageable) {
         return rideRepository.findAllInRangeForDriver(driverId, from, to, pageable);
     }
 
+
     @Override
-    public RideResponseDTO getEstimatedRoute (RideRequestDTO rideRequestDTO)
+    public RideResponseDTO getEstimatedRoute(RideRequestDTO rideRequestDTO)
     {
         return new RideResponseDTO(20.0, 450.0);
     }
+
 
     @Override
     public Page<Ride> getRides(Integer userId, LocalDateTime start, LocalDateTime end, Pageable page) {
@@ -72,14 +60,17 @@ public class RideService implements IRideService {
 
     }
 
+    @Override
     public Ride save(Ride ride){
         return rideRepository.save(ride);
     }
 
+    @Override
     public Ride findById(Integer id){
         return rideRepository.findById(id).orElseGet(null);
     }
 
+    @Override
     public Ride findActiveByDriver(Driver driver){
         List<Ride> rides = rideRepository.findActiveByDriver(driver, LocalDateTime.now());
         if (rides.isEmpty()){
@@ -89,6 +80,7 @@ public class RideService implements IRideService {
         }
     }
 
+    @Override
     public Ride findActiveByPassenger(Passenger passenger){
         List<Ride> rides = rideRepository.findActiveByPassenger(passenger, LocalDateTime.now());
         if (rides.isEmpty()){

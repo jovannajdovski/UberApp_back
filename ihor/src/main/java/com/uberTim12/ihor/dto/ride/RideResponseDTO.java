@@ -1,5 +1,6 @@
-package com.uberTim12.ihor.model.ride;
+package com.uberTim12.ihor.dto.ride;
 
+import com.uberTim12.ihor.model.ride.Ride;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

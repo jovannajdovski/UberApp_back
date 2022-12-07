@@ -18,6 +18,7 @@ public class DriverDocumentService implements IDriverDocumentService {
     public DriverDocument save(DriverDocument driverDocument) {
         return driverDocumentRepository.save(driverDocument);
     }
+    @Override
     public void remove(Integer id) {
         driverDocumentRepository.deleteById(id);
     }
