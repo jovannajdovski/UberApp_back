@@ -1,5 +1,6 @@
-package com.uberTim12.ihor.model.ride;
+package com.uberTim12.ihor.dto.ride;
 
+import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.vehicle.VehicleType;
 import lombok.AllArgsConstructor;

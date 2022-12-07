@@ -9,5 +9,5 @@ public interface IDriverService {
     Driver findOne(Integer id);
     Driver findOneWithDocuments(Integer driverId);
     Page<Driver> findAll(Pageable page);
-
+    Driver findById(Integer id);
 }

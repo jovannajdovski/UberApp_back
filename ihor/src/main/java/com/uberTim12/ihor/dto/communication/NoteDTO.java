@@ -1,4 +1,4 @@
-package com.uberTim12.ihor.model.communication;
+package com.uberTim12.ihor.dto.communication;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

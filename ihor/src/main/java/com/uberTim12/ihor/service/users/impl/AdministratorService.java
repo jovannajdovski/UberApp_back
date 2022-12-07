@@ -8,5 +8,5 @@ import org.springframework.stereotype.Service;
 @Service
 public class AdministratorService implements IAdministratorService {
     @Autowired
-    private IAdministratorRepository IAdministratorRepository;
+    private IAdministratorRepository administratorRepository;
 }

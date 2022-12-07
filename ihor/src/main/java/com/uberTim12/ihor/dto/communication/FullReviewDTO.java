@@ -1,5 +1,6 @@
-package com.uberTim12.ihor.model.communication;
+package com.uberTim12.ihor.dto.communication;
 
+import com.uberTim12.ihor.model.communication.Review;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.users.Passenger;
 import jakarta.persistence.Column;

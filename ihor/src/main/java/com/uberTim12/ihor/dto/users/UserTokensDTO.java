@@ -1,4 +1,4 @@
-package com.uberTim12.ihor.model.communication;
+package com.uberTim12.ihor.dto.users;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class ReviewRequestDTO {
-    private Double rating;
-    private String comment;
+public class UserTokensDTO {
+    private String accessToken;
+    private String refreshToken;
 }

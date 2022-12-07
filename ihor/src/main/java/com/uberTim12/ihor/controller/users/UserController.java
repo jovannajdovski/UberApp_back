@@ -1,22 +1,23 @@
-package com.uberTim12.ihor.controller;
+package com.uberTim12.ihor.controller.users;
 
+import com.uberTim12.ihor.dto.communication.ObjectListResponseDTO;
 import com.uberTim12.ihor.model.communication.Message;
-import com.uberTim12.ihor.model.communication.NoteDTO;
-import com.uberTim12.ihor.model.communication.RequestNoteDTO;
-import com.uberTim12.ihor.model.communication.SendingMessageDTO;
+import com.uberTim12.ihor.dto.communication.NoteDTO;
+import com.uberTim12.ihor.dto.communication.RequestNoteDTO;
+import com.uberTim12.ihor.dto.communication.SendingMessageDTO;
 import com.uberTim12.ihor.model.ride.Ride;
-import com.uberTim12.ihor.model.ride.RideDTO;
+import com.uberTim12.ihor.dto.ride.RideDTO;
 import com.uberTim12.ihor.model.users.User;
-import com.uberTim12.ihor.model.users.UserDTO;
+import com.uberTim12.ihor.dto.users.UserDTO;
 import com.uberTim12.ihor.service.communication.impl.MessageService;
 import com.uberTim12.ihor.service.communication.impl.ReviewService;
 import com.uberTim12.ihor.service.ride.impl.RideService;
 import com.uberTim12.ihor.service.users.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,16 +42,21 @@ public class UserController {
     private ReviewService reviewService;
 
     @GetMapping(value = "/{id}/ride",produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getUserRides(@PathVariable Integer id, LocalDateTime start, LocalDateTime end, Pageable page)
+    public ResponseEntity<?> getUserRides(@PathVariable Integer id, @RequestParam(required = false)
+                                          @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDateTime from,
+                                          @RequestParam(required = false)
+                                              @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDateTime to, Pageable page)
     {
-        Page<Ride> rides = rideService.getRides(id,start,end,page);
+        Page<Ride> rides = rideService.getRides(id,from,to,page);
         List<RideDTO> ridesDTO=new ArrayList<>();
         if(rides==null) //TODO sve greske
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
         else {
             for (Ride r : rides)
                 ridesDTO.add(new RideDTO(r));
-            return new ResponseEntity<>(ridesDTO, HttpStatus.OK);
+
+            ObjectListResponseDTO<RideDTO> res = new ObjectListResponseDTO<>(ridesDTO.size(),ridesDTO);
+            return new ResponseEntity<>(res, HttpStatus.OK);
         }
     }
 
@@ -64,7 +70,8 @@ public class UserController {
         else {
             for (User u : users)
                 usersDTO.add(new UserDTO(u));
-            return new ResponseEntity<>(usersDTO, HttpStatus.OK);
+            ObjectListResponseDTO<UserDTO> res = new ObjectListResponseDTO<>(usersDTO.size(),usersDTO);
+            return new ResponseEntity<>(res, HttpStatus.OK);
         }
     }
 
@@ -76,7 +83,8 @@ public class UserController {
         if(messages==null) //TODO sve greske
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
         else {
-            return new ResponseEntity<>(messages, HttpStatus.OK);
+            ObjectListResponseDTO<Message> res = new ObjectListResponseDTO<>(messages.size(),messages);
+            return new ResponseEntity<>(res, HttpStatus.OK);
         }
     }
 
@@ -141,8 +149,13 @@ public class UserController {
             Page<NoteDTO> notes = reviewService.getNotes(id);
             if(notes==null)
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            else
-                return new ResponseEntity<>(notes, HttpStatus.OK);
+            else{
+                List<NoteDTO> noteDTOS = new ArrayList<>();
+                for (NoteDTO n : notes){
+                    noteDTOS.add(n);
+                }
+                ObjectListResponseDTO<NoteDTO> res = new ObjectListResponseDTO<>(noteDTOS.size(),noteDTOS);
+                return new ResponseEntity<>(res, HttpStatus.OK);}
         }
     }
 }

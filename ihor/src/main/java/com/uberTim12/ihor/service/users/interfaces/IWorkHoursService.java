@@ -9,7 +9,7 @@ import java.time.LocalDate;
 public interface IWorkHoursService {
 
     WorkHours save(WorkHours workHours);
-    public WorkHours findOne(Integer id);
+    WorkHours findOne(Integer id);
     Page<WorkHours> findFilteredWorkHours(Integer driverId, Pageable pageable);
     Page<WorkHours> findFilteredWorkHours(Integer driverId, LocalDate from, LocalDate to, Pageable pageable);
 }

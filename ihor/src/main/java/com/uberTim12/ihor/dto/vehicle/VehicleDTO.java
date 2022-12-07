@@ -1,9 +1,11 @@
-package com.uberTim12.ihor.model.vehicle;
+package com.uberTim12.ihor.dto.vehicle;
 
 import com.uberTim12.ihor.model.communication.Review;
 import com.uberTim12.ihor.model.route.Location;
 import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.users.DriverDocument;
+import com.uberTim12.ihor.model.vehicle.Vehicle;
+import com.uberTim12.ihor.model.vehicle.VehicleType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

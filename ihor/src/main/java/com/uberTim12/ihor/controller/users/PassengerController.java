@@ -1,5 +1,7 @@
 package com.uberTim12.ihor.controller.users;
 
+import com.uberTim12.ihor.dto.communication.ObjectListResponseDTO;
+import com.uberTim12.ihor.dto.ride.RideDTO;
 import com.uberTim12.ihor.dto.users.PassengerDTO;
 import com.uberTim12.ihor.dto.users.PassengerRegistrationDTO;
 import com.uberTim12.ihor.model.ride.Ride;
@@ -10,6 +12,7 @@ import com.uberTim12.ihor.service.users.impl.UserActivationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -53,7 +56,7 @@ public class PassengerController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PassengerDTO>> getPassengersPage(Pageable page) {
+    public ResponseEntity<?> getPassengersPage(Pageable page) {
 
         Page<Passenger> passengers = passengerService.findAll(page);
 
@@ -62,7 +65,8 @@ public class PassengerController {
             passengersDTO.add(new PassengerDTO(p));
         }
 
-        return new ResponseEntity<>(passengersDTO, HttpStatus.OK);
+        ObjectListResponseDTO<PassengerDTO> res = new ObjectListResponseDTO<>(passengersDTO.size(),passengersDTO);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
     @GetMapping(value = "/{activationId}")
@@ -119,8 +123,11 @@ public class PassengerController {
         return new ResponseEntity<>(new PassengerDTO(passenger), HttpStatus.OK);
     }
 
-    @GetMapping(value = "{id}/ride")   // TODO
-    public ResponseEntity<?> getPassengerRidesPage(@PathVariable Integer id, Pageable page, @RequestParam String from, @RequestParam String to) {
+    @GetMapping(value = "{id}/ride")
+    public ResponseEntity<?> getPassengerRidesPage(@PathVariable Integer id, @RequestParam Pageable page,  @RequestParam(required = false)
+                                                   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDateTime from,
+                                                   @RequestParam(required = false)
+                                                       @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDateTime to) {
 
         Passenger passenger = passengerService.findByIdWithRides(id);
 
@@ -128,15 +135,14 @@ public class PassengerController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
         }
 
-//        Page<Ride> rides = (Page<Ride>) passenger.getRides();
-//
-//        List<PassengerDTO> passengersDTO = new ArrayList<>();
-//        for (Passenger p : passengers) {
-//            passengersDTO.add(new PassengerDTO(p));
-//        }
-//
-//        return new ResponseEntity<>(passengersDTO, HttpStatus.OK);
-        return null;
+        Page<Ride> rides = passengerService.findAllById(id, from, to, page);
+
+        List<RideDTO> rideDTOs = new ArrayList<>();
+        for (Ride r : rides)
+            rideDTOs.add(new RideDTO(r));
+
+        ObjectListResponseDTO<RideDTO> res = new ObjectListResponseDTO<>(rideDTOs.size(),rideDTOs);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
 

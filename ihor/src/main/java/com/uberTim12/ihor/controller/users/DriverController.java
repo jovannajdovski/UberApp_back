@@ -1,10 +1,14 @@
 package com.uberTim12.ihor.controller.users;
 
+import com.uberTim12.ihor.dto.communication.ObjectListResponseDTO;
+import com.uberTim12.ihor.dto.users.DriverDTO;
+import com.uberTim12.ihor.dto.users.DriverDocumentDTO;
+import com.uberTim12.ihor.dto.users.WorkHoursDTO;
 import com.uberTim12.ihor.model.ride.Ride;
-import com.uberTim12.ihor.model.ride.RideDTO;
+import com.uberTim12.ihor.dto.ride.RideDTO;
 import com.uberTim12.ihor.model.users.*;
 import com.uberTim12.ihor.model.vehicle.Vehicle;
-import com.uberTim12.ihor.model.vehicle.VehicleDTO;
+import com.uberTim12.ihor.dto.vehicle.VehicleDTO;
 import com.uberTim12.ihor.service.ride.impl.RideService;
 import com.uberTim12.ihor.service.ride.interfaces.IRideService;
 import com.uberTim12.ihor.service.users.impl.DriverDocumentService;
@@ -113,9 +117,6 @@ public class DriverController {
         driver.setTelephoneNumber(driverDTO.getTelephoneNumber());
         driver.setEmail(driverDTO.getEmail());
         driver.setAddress(driverDTO.getAddress());
-        driver.setDocuments(new HashSet<>());
-        driver.setRides(new HashSet<>());
-        driver.setVehicle(new Vehicle());
 
         driver = driverService.save(driver);
         return new ResponseEntity<>(new DriverDTO(driver), HttpStatus.OK);
@@ -135,10 +136,12 @@ public class DriverController {
         return new ResponseEntity<>(documentsDTO, HttpStatus.OK);
     }
 
-    @DeleteMapping(value = "/{driverId}/documents")
-    public ResponseEntity<Void> deleteDriverDocuments(@PathVariable Integer driverId) {
 
-        Driver driver = driverService.findOne(driverId);
+    //IZMENI da se brise dokument
+    @DeleteMapping(value = "/{documentId}/documents")
+    public ResponseEntity<Void> deleteDriverDocuments(@PathVariable Integer documentId) {
+
+        Driver driver = driverService.findOne(documentId);
 
         if (driver == null)
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -237,11 +240,11 @@ public class DriverController {
 
     @GetMapping(value = "/{driverId}/working-hours")
     public ResponseEntity<List<WorkHoursDTO>> getDriverWorkingHours(@PathVariable Integer driverId,
-                                                            @RequestParam int page,
-                                                            @RequestParam int size,
-                                                            @RequestParam(required = false)
+                                                                    @RequestParam int page,
+                                                                    @RequestParam int size,
+                                                                    @RequestParam(required = false)
                                                                 @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-                                                            @RequestParam(required = false)
+                                                                    @RequestParam(required = false)
                                                                 @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
 
         Pageable paging = PageRequest.of(page, size);
@@ -279,7 +282,7 @@ public class DriverController {
     }
 
     @GetMapping(value = "/{driverId}/ride")
-    public ResponseEntity<List<RideDTO>> getRidesForDriver(@PathVariable Integer driverId,
+    public ResponseEntity<?> getRidesForDriver(@PathVariable Integer driverId,
                                                            @RequestParam int page,
                                                            @RequestParam int size,
                                                            @RequestParam(required = false)
@@ -299,7 +302,8 @@ public class DriverController {
         for (Ride r : rides)
             rideDTOs.add(new RideDTO(r));
 
-        return new ResponseEntity<>(rideDTOs, HttpStatus.OK);
+        ObjectListResponseDTO<RideDTO> res = new ObjectListResponseDTO<>(rideDTOs.size(),rideDTOs);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
     @GetMapping(value = "/working-hour/{workingHourId}")
