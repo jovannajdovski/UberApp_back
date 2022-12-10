@@ -1,6 +1,8 @@
 package com.uberTim12.ihor.controller.users;
 
 import com.uberTim12.ihor.dto.communication.*;
+import com.uberTim12.ihor.dto.users.UserCredentialsDTO;
+import com.uberTim12.ihor.dto.users.UserTokensDTO;
 import com.uberTim12.ihor.model.communication.Message;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.dto.ride.RideDTO;
@@ -72,6 +74,15 @@ public class UserController {
         }
     }
 
+    @PostMapping(value = "api/user/login",consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> loginUser(@RequestBody UserCredentialsDTO userCredentialDTO)
+    {
+        UserTokensDTO userTokensDto=userService.getUserTokens(userCredentialDTO);
+        if(userTokensDto==null)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
+        else
+            return new ResponseEntity<>(userTokensDto, HttpStatus.OK);
+    }
 
     @GetMapping(value = "/{id}/message",produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getUserMessages(@PathVariable Integer id)
