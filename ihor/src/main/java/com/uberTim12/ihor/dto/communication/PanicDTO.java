@@ -1,6 +1,7 @@
 package com.uberTim12.ihor.dto.communication;
 
 import com.uberTim12.ihor.dto.ride.RideFullDTO;
+import com.uberTim12.ihor.dto.ride.RideNoStatusDTO;
 import com.uberTim12.ihor.dto.users.UserPanicDTO;
 import com.uberTim12.ihor.model.communication.Panic;
 import lombok.AllArgsConstructor;
@@ -18,7 +19,7 @@ public class PanicDTO {
 
     private UserPanicDTO user;
 
-    private RideFullDTO ride;
+    private RideNoStatusDTO ride;
 
     private LocalDateTime time;
 
@@ -27,7 +28,7 @@ public class PanicDTO {
     public PanicDTO(Panic panic){
         this.id = panic.getId();
         this.user = new UserPanicDTO(panic.getUser());
-        this.ride = new RideFullDTO(panic.getCurrentRide());
+        this.ride = new RideNoStatusDTO(panic.getCurrentRide());
         this.time = panic.getTime();
         this.reason = panic.getReason();
     }

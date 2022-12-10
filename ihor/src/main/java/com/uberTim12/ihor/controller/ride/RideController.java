@@ -8,6 +8,7 @@ import com.uberTim12.ihor.dto.users.UserRideDTO;
 import com.uberTim12.ihor.model.communication.Panic;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.ride.RideStatus;
+import com.uberTim12.ihor.model.route.Location;
 import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.users.Passenger;
@@ -58,8 +59,12 @@ public class RideController {
 
         for (PathDTO pdto: rideDTO.getLocations()){
             Path path = new Path();
-            path.setStartPoint(pdto.getDeparture());
-            path.setEndPoint(pdto.getDestination());
+
+            Location departure = pdto.getDeparture().generateLocation();
+            Location destination = pdto.getDestination().generateLocation();
+
+            path.setStartPoint(departure);
+            path.setEndPoint(destination);
 
             path = pathService.save(path);
             paths.add(path);

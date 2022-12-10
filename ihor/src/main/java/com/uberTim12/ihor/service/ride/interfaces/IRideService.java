@@ -3,6 +3,7 @@ package com.uberTim12.ihor.service.ride.interfaces;
 import com.uberTim12.ihor.dto.ride.RideRequestDTO;
 import com.uberTim12.ihor.dto.ride.RideResponseDTO;
 import com.uberTim12.ihor.model.ride.Ride;
+import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.users.Passenger;
 import org.springframework.data.domain.Page;
@@ -30,4 +31,6 @@ public interface IRideService {
     Ride findActiveByPassenger(Passenger passenger);
 
     List<Passenger> findPassengersForRide(Integer id);
+
+    List<Path> findPathsForRide(Integer id);
 }

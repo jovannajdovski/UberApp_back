@@ -4,6 +4,7 @@ package com.uberTim12.ihor.service.ride.impl;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.dto.ride.RideRequestDTO;
 import com.uberTim12.ihor.dto.ride.RideResponseDTO;
+import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.users.Passenger;
 import com.uberTim12.ihor.model.vehicle.Vehicle;
@@ -97,4 +98,10 @@ public class RideService implements IRideService {
     public List<Passenger> findPassengersForRide(Integer id) {
         return rideRepository.findPassengersForRide(id);
     }
+
+    @Override
+    public List<Path> findPathsForRide(Integer id) {
+        return rideRepository.findPathsForRide(id);
+    }
+
 }

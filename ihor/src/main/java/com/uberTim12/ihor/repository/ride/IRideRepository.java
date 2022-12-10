@@ -1,6 +1,7 @@
 package com.uberTim12.ihor.repository.ride;
 
 import com.uberTim12.ihor.model.ride.Ride;
+import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.users.Passenger;
 import org.springframework.data.domain.Page;
@@ -33,5 +34,8 @@ public interface IRideRepository extends JpaRepository<Ride, Integer> {
 
     @Query("select r.passengers from Ride as r join r.passengers as p where r.id =?1")
     public List<Passenger> findPassengersForRide(Integer id);
+
+    @Query("select r.paths from Ride as r join r.paths as p where r.id =?1")
+    public List<Path> findPathsForRide(Integer id);
 
 }

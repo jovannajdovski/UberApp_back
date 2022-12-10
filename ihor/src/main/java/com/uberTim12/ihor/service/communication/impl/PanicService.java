@@ -2,6 +2,7 @@ package com.uberTim12.ihor.service.communication.impl;
 
 import com.uberTim12.ihor.model.communication.Panic;
 import com.uberTim12.ihor.model.ride.Ride;
+import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.users.Passenger;
 import com.uberTim12.ihor.repository.communication.IPanicRepository;
 import com.uberTim12.ihor.repository.ride.IRideRepository;
@@ -35,7 +36,11 @@ public class PanicService implements IPanicService {
             Ride curRide = panic.getCurrentRide();
             Set<Passenger> passengers = new HashSet<>(rideService.findPassengersForRide(curRide.getId()));
             curRide.setPassengers(passengers);
+
+            Set<Path> paths = new HashSet<>(rideService.findPathsForRide(curRide.getId()));
+            curRide.setPaths(paths);
         }
+
         return panics;
     }
 }
