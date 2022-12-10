@@ -50,4 +50,16 @@ public class Vehicle {
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Review> reviews = new HashSet<>();
+
+    public Vehicle(String vehicleModel, VehicleType vehicleType, String registrationPlate,
+                   Integer seats, Location currentLocation, boolean babiesAllowed,
+                   boolean petsAllowed) {
+        this.vehicleModel = vehicleModel;
+        this.vehicleType = vehicleType;
+        this.registrationPlate = registrationPlate;
+        this.seats = seats;
+        this.currentLocation = currentLocation;
+        this.babiesAllowed = babiesAllowed;
+        this.petsAllowed = petsAllowed;
+    }
 }

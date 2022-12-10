@@ -10,8 +10,6 @@ import lombok.NoArgsConstructor;
 @Data
 public class LocationDTO {
 
-    private Integer id;
-
     private String address;
 
     private Double latitude;
@@ -20,8 +18,7 @@ public class LocationDTO {
 
     public LocationDTO(Location location)
     {
-        this(location.getId(),
-                location.getAddress(),
+        this(location.getAddress(),
                 location.getLatitude(),
                 location.getLongitude());
     }

@@ -10,8 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class VehicleDTO {
-    private Integer id;
+public class VehicleAddDTO {
     private VehicleCategory vehicleType;
     private String model;
     private String licenseNumber;
@@ -20,10 +19,9 @@ public class VehicleDTO {
     private boolean babyTransport;
     private boolean petTransport;
 
-    public VehicleDTO(Vehicle vehicle)
+    public VehicleAddDTO(Vehicle vehicle)
     {
-        this(vehicle.getId(),
-                vehicle.getVehicleType().getVehicleCategory(),
+        this(vehicle.getVehicleType().getVehicleCategory(),
                 vehicle.getVehicleModel(),
                 vehicle.getRegistrationPlate(),
                 vehicle.getCurrentLocation(),
@@ -32,5 +30,4 @@ public class VehicleDTO {
                 vehicle.isPetsAllowed()
         );
     }
-
 }

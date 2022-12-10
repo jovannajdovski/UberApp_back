@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class DriverDTO {
+public class DriverDetailsDTO {
     private Integer id;
     private String name;
     private String surname;
@@ -16,9 +16,8 @@ public class DriverDTO {
     private String telephoneNumber;
     private String email;
     private String address;
-    private String password;
 
-    public DriverDTO(Driver driver)
+    public DriverDetailsDTO(Driver driver)
     {
         this(driver.getId(),
                 driver.getName(),
@@ -26,8 +25,7 @@ public class DriverDTO {
                 driver.getProfilePicture(),
                 driver.getTelephoneNumber(),
                 driver.getEmail(),
-                driver.getAddress(),
-                driver.getPassword()
+                driver.getAddress()
         );
     }
 }

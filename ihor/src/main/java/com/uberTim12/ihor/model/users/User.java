@@ -46,4 +46,17 @@ public abstract class User {
     @Column(name="is_active")
     private boolean isActive;
 
+
+    protected User(String name, String surname, String profilePicture, String telephoneNumber, String email, String address, String password) {
+        super();
+        this.setName(name);
+        this.setSurname(surname);
+        this.setProfilePicture(profilePicture);
+        this.setTelephoneNumber(telephoneNumber);
+        this.setEmail(email);
+        this.setAddress(address);
+        this.setPassword(password);
+        this.setBlocked(false);
+        this.setActive(true);
+    }
 }

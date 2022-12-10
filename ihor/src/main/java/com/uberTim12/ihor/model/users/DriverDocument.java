@@ -23,4 +23,10 @@ public class DriverDocument {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "driver_id")
     private Driver driver;
+
+    public DriverDocument(String name, String picture, Driver driver) {
+        this.name = name;
+        this.picture = picture;
+        this.driver = driver;
+    }
 }

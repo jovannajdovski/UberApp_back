@@ -8,7 +8,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface IDriverRepository extends JpaRepository<Driver, Integer> {
 
-    @Query("select d from Driver d join fetch d.documents e where d.id =?1")
-    public Driver findOneWithDocuments(Integer teacherId);
+    @Query("select d from Driver d where d.email = ?1")
+    Driver findByEmail(String email);
+
+    @Query("select d from Driver d join fetch d.documents where d.id =?1")
+    Driver findOneWithDocuments(Integer driverId);
 
 }

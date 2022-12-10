@@ -27,24 +27,21 @@ public class VehicleController {
     }
 
     @PutMapping(value = "/{vehicleId}/location", consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<LocationDTO> changeVehicleLocation(@PathVariable Integer vehicleId,
-                                                                 @RequestBody LocationDTO locationDTO) {
+    public ResponseEntity<?> changeVehicleLocation(@PathVariable Integer vehicleId,
+                                                   @RequestBody LocationDTO locationDTO) {
 
         Vehicle vehicle = vehicleService.findOne(vehicleId);
 
         if (vehicle == null)
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
-        Location location = new Location();
-        location.setAddress(locationDTO.getAddress());
-        location.setLatitude(locationDTO.getLatitude());
-        location.setLongitude(locationDTO.getLongitude());
+        Location location = new Location(locationDTO.getAddress(), locationDTO.getLatitude(), locationDTO.getLongitude());
 
         location = locationService.save(location);
 
         vehicle.setCurrentLocation(location);
         vehicleService.save(vehicle);
 
-        return new ResponseEntity<>(new LocationDTO(location), HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK).body("Coordinates successfully updated");
     }
 }

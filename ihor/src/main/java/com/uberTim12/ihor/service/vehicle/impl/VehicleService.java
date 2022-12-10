@@ -20,6 +20,10 @@ public class VehicleService implements IVehicleService {
         return vehicleRepository.save(vehicle);
     }
     @Override
+    public void remove(Integer id) {
+        vehicleRepository.deleteById(id);
+    }
+    @Override
     public Vehicle findOne(Integer id) {
         return vehicleRepository.findById(id).orElse(null);
     }

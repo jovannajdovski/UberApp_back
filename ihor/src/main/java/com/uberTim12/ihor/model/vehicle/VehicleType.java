@@ -22,4 +22,9 @@ public class VehicleType {
     @Column(name = "price_per_km", nullable = false)
     private Double pricePerKM;
 
+
+    public VehicleType(VehicleCategory vehicleCategory, Double pricePerKM) {
+        this.vehicleCategory = vehicleCategory;
+        this.pricePerKM = pricePerKM;
+    }
 }
