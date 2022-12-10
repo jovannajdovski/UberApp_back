@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.Optional;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class RideService implements IRideService {
@@ -90,5 +91,10 @@ public class RideService implements IRideService {
         } else {
             return rides.get(0);
         }
+    }
+
+    @Override
+    public List<Passenger> findPassengersForRide(Integer id) {
+        return rideRepository.findPassengersForRide(id);
     }
 }

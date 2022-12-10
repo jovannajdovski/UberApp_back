@@ -15,7 +15,6 @@ import java.util.Set;
 @AllArgsConstructor
 @Data
 @Entity
-@PrimaryKeyJoinColumn(name = "id")
 public class Passenger extends User {
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH}, fetch = FetchType.LAZY)

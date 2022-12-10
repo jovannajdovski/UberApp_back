@@ -56,7 +56,9 @@ public class RideFullDTO {
         }
         this.passengers = passengers;
 
-        this.rejection = new RideRejectionDTO(ride.getRideRejection());
+        if (ride.getRideRejection()!=null) {
+            this.rejection = new RideRejectionDTO(ride.getRideRejection());
+        }
 
         Set<PathDTO> locations = new HashSet<>();
         for (Path p : ride.getPaths()){

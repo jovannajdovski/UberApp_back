@@ -9,6 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
 
 public interface IRideService {
     Page<Ride> findFilteredRides(Integer driverId, Pageable pageable);
@@ -26,4 +28,6 @@ public interface IRideService {
     Ride findActiveByDriver(Driver driver);
 
     Ride findActiveByPassenger(Passenger passenger);
+
+    List<Passenger> findPassengersForRide(Integer id);
 }

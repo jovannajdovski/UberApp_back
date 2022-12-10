@@ -340,3 +340,99 @@ alter table if exists user_activation add constraint FKidgebcgp5cij94pf1tup1f62p
 2022-12-07 12:08:19 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "drop table if exists [*]user cascade "; expected "identifier"; SQL statement:
 drop table if exists user cascade  [42001-214]
+2022-12-09 21:38:14 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLDataException: Data conversion error converting "'ds' (IHOR: ""IS_ACTIVE"" BOOLEAN)"; SQL statement:
+INSERT INTO "PUBLIC"."IHOR"("ID","ADDRESS","EMAIL","IS_ACTIVE","IS_BLOCKED","NAME","PASSWORD","PROFILE_PICTURE","SURNAME","TELEPHONE_NUMBER")VALUES(?,?,?,?,?,?,?,?,?,?) [22018-214]
+2022-12-09 21:38:14 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLDataException: Data conversion error converting "'ds' (IHOR: ""IS_ACTIVE"" BOOLEAN)"; SQL statement:
+INSERT INTO "PUBLIC"."IHOR"("ID","ADDRESS","EMAIL","IS_ACTIVE","IS_BLOCKED","NAME","PASSWORD","PROFILE_PICTURE","SURNAME","TELEPHONE_NUMBER")VALUES(?,?,?,?,?,?,?,?,?,?) [22018-214]
+2022-12-09 22:13:59 jdbc[3]: exception
+java.sql.SQLClientInfoException: Client info name 'ApplicationName' not supported.
+	at org.h2.jdbc.JdbcConnection.setClientInfo(JdbcConnection.java:1573)
+	at com.intellij.database.remote.jdbc.impl.RemoteConnectionImpl.setClientInfo(RemoteConnectionImpl.java:470)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at java.rmi/sun.rmi.server.UnicastServerRef.dispatch(UnicastServerRef.java:360)
+	at java.rmi/sun.rmi.transport.Transport$1.run(Transport.java:200)
+	at java.rmi/sun.rmi.transport.Transport$1.run(Transport.java:197)
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:712)
+	at java.rmi/sun.rmi.transport.Transport.serviceCall(Transport.java:196)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport.handleMessages(TCPTransport.java:587)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run0(TCPTransport.java:828)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.lambda$run$0(TCPTransport.java:705)
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:399)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run(TCPTransport.java:704)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:833)
+2022-12-10 10:49:33 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "INSERT INTO panic () [*]"; expected "OVERRIDING USER VALUE, OVERRIDING SYSTEM VALUE, DIRECT, SORTED, DEFAULT VALUES, VALUES, SET, WITH, (, SELECT, TABLE, VALUES"; SQL statement:
+INSERT INTO panic ()  [42001-214]
+2022-12-10 11:20:01 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "INSERT INTO USER_ACTIVATION (id, [*]'2022-12-10T09:52:06.134Z', '2022-12-10T09:52:06.134Z',1)"; expected "identifier"; SQL statement:
+INSERT INTO USER_ACTIVATION (id, '2022-12-10T09:52:06.134Z', '2022-12-10T09:52:06.134Z',1) [42001-214]
+2022-12-10 11:20:45 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Column "I1" not found; SQL statement:
+INSERT INTO USER_ACTIVATION (id,creation_date,expiry_date,user_id) values (i1, '2022-12-10T09:52:06.134Z', '2022-12-10T09:52:06.134Z',1) [42122-214]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:502)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:477)
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.expression.ExpressionColumn.getColumnException(ExpressionColumn.java:244)
+	at org.h2.expression.ExpressionColumn.optimizeOther(ExpressionColumn.java:226)
+	at org.h2.expression.ExpressionColumn.optimize(ExpressionColumn.java:213)
+	at org.h2.command.dml.Insert.doPrepare(Insert.java:300)
+	at org.h2.command.dml.DataChangeStatement.prepare(DataChangeStatement.java:37)
+	at org.h2.command.Parser.prepareCommand(Parser.java:575)
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:631)
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:554)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1116)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:237)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:223)
+	at org.h2.server.web.WebApp.getResult(WebApp.java:1339)
+	at org.h2.server.web.WebApp.query(WebApp.java:1137)
+	at org.h2.server.web.WebApp.query(WebApp.java:1113)
+	at org.h2.server.web.WebApp.process(WebApp.java:244)
+	at org.h2.server.web.WebApp.processRequest(WebApp.java:176)
+	at org.h2.server.web.JakartaWebServlet.doGet(JakartaWebServlet.java:129)
+	at org.h2.server.web.JakartaWebServlet.doPost(JakartaWebServlet.java:166)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:731)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:814)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:223)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:158)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:185)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:158)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:185)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:158)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:185)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:158)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:185)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:158)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:197)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:97)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:542)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:119)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:92)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:78)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:357)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:400)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:65)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:861)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1739)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1191)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.base/java.lang.Thread.run(Thread.java:833)
+2022-12-10 11:36:35 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLDataException: Data conversion error converting "'PENDING' (RIDE: ""RIDE_STATUS"" SMALLINT NOT NULL)"; SQL statement:
+INSERT INTO RIDE ( START_TIME , END_TIME , TOTAL_PRICE , DRIVER_ID , ESTIMATED_TIME , RIDE_STATUS , BABIES_ALLOWED , PETS_ALLOWED , VEHICLE_TYPE, IS_PANIC_ACTIVATED  ) VALUES ('2022-12-10T09:52:06.134Z', '2022-12-10T10:52:06.134Z', 200.0, 2, 32.0, 'PENDING', true, true, 1, false) [22018-214]

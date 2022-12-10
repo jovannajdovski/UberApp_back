@@ -69,7 +69,7 @@ public class PassengerController {
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/{activationId}")
+    @GetMapping(value = "/activate/{activationId}")
     public ResponseEntity<?> activatePassenger(@PathVariable Integer activationId) {
 
         UserActivation ua = userActivationService.findById(activationId);
@@ -123,7 +123,7 @@ public class PassengerController {
         return new ResponseEntity<>(new PassengerDTO(passenger), HttpStatus.OK);
     }
 
-    @GetMapping(value = "{id}/ride")
+    @GetMapping(value = "/{id}/ride")
     public ResponseEntity<?> getPassengerRidesPage(@PathVariable Integer id, @RequestParam Pageable page,  @RequestParam(required = false)
                                                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDateTime from,
                                                    @RequestParam(required = false)

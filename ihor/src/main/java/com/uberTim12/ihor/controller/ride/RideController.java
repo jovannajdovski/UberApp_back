@@ -11,6 +11,7 @@ import com.uberTim12.ihor.model.ride.RideStatus;
 import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.users.Passenger;
+import com.uberTim12.ihor.model.vehicle.VehicleType;
 import com.uberTim12.ihor.service.communication.impl.PanicService;
 import com.uberTim12.ihor.service.ride.impl.RideService;
 import com.uberTim12.ihor.service.route.impl.PathService;
@@ -48,6 +49,7 @@ public class RideController {
     public ResponseEntity<?> createRide(@RequestBody CreateRideDTO rideDTO) {
 
         Ride ride = new Ride();
+        ride.setVehicleType(new VehicleType());
         ride.getVehicleType().setVehicleCategory(rideDTO.getVehicleType());
         ride.setBabiesAllowed(rideDTO.isBabyTransport());
         ride.setPetsAllowed(rideDTO.isPetTransport());
@@ -71,20 +73,25 @@ public class RideController {
         }
         ride.setPassengers(passengers);
 
-        Driver mokapDriver = new Driver();        // mockup data
-        mokapDriver.setId(9999);
-        mokapDriver.setEmail("mokap@gmail.com");
+//        Driver mokapDriver = new Driver();        // mockup data
+//        mokapDriver.setId(9999);
+//        mokapDriver.setEmail("mokap@gmail.com");
+
+        Driver mokapDriver = driverService.findById(2);
+
         ride.setDriver(mokapDriver);
         ride.setStartTime(LocalDateTime.now());
         ride.setEndTime(LocalDateTime.now().plusMinutes(20));
         ride.setTotalPrice(666.0);
         ride.setEstimatedTime(20.0);
         ride.setRideStatus(RideStatus.PENDING);
+
 //        RideRejection mokapRideRejection = new RideRejection();
 //        mokapRideRejection.setReason("exit");
 //        mokapRideRejection.setTime(LocalDateTime.now());
 //        ride.setRideRejection(mokapRideRejection);
 
+        System.out.println(ride.getId());
         ride = rideService.save(ride);
         return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
 

@@ -40,8 +40,8 @@ public class Ride {
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH}, fetch = FetchType.LAZY)
     @JoinTable(
             name="passenger_ride",
-            joinColumns = @JoinColumn(name = "passenger_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "ride_id", referencedColumnName = "id")
+            joinColumns = @JoinColumn(name = "ride_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "passenger_id", referencedColumnName = "id")
     )
     private Set<Passenger> passengers = new HashSet<>();
 
@@ -74,7 +74,7 @@ public class Ride {
     @Column(name = "pets_allowed", nullable = false)
     private boolean petsAllowed;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH})
     @JoinColumn(name = "vehicle_type")
     private VehicleType vehicleType;
 
