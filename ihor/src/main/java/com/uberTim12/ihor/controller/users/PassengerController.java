@@ -118,10 +118,9 @@ public class PassengerController {
     }
 
     @GetMapping(value = "/{id}/ride")
-    public ResponseEntity<?> getPassengerRidesPage(@PathVariable Integer id, @RequestParam(required = false) Pageable page,  @RequestParam(required = false)
-                                                   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
-                                                   @RequestParam(required = false)
-                                                       @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to) {
+    public ResponseEntity<?> getPassengerRidesPage(@PathVariable Integer id, Pageable page,
+                                                   @RequestParam(required = false) String from,
+                                                   @RequestParam(required = false) String to) {
 
         Passenger passenger = passengerService.findByIdWithRides(id);
 
@@ -129,13 +128,16 @@ public class PassengerController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
         }
 
+
         Page<Ride> rides;
 
         if (from == null || to == null)
             rides = passengerService.findAllById(passenger, page);
-        else
-            rides = passengerService.findAllById(id, from, to, page);
-
+        else {
+            LocalDateTime start = LocalDateTime.parse(from);
+            LocalDateTime end = LocalDateTime.parse(to);
+            rides = passengerService.findAllById(id, start, end, page);
+        }
 
         List<RideNoStatusDTO> rideDTOs = new ArrayList<>();
         for (Ride r : rides)
