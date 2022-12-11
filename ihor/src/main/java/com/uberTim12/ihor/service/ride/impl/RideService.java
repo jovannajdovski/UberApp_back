@@ -57,10 +57,16 @@ public class RideService implements IRideService {
     @Override
     public Page<Ride> getRides(Integer userId, LocalDateTime start, LocalDateTime end, Pageable page) {
         Optional<Driver> driver = driverRepository.findById(userId);
-        if (driver.isPresent()) return rideRepository.findAllInRangeForDriver(userId, start, end, page);
+        if(start==null) start=LocalDateTime.MIN;
+        if(end==null) end=LocalDateTime.MAX;
+        if (driver.isPresent())
+            return rideRepository.findAllInRangeForDriver(userId, start, end, page);
+
 
         Optional<Passenger> passenger = passengerRepository.findById(userId);
-        return passenger.map(value -> rideRepository.findAllInRangeForPassenger(value, start, end, page)).orElse(null);
+        LocalDateTime finalStart = start;
+        LocalDateTime finalEnd = end;
+        return passenger.map(value -> rideRepository.findAllInRangeForPassenger(value, finalStart, finalEnd, page)).orElse(null);
 
     }
 

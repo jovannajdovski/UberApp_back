@@ -7,9 +7,12 @@ import com.uberTim12.ihor.repository.communication.IReviewRepository;
 import com.uberTim12.ihor.repository.ride.IRideRepository;
 import com.uberTim12.ihor.repository.users.IPassengerRepository;
 import com.uberTim12.ihor.service.communication.interfaces.IReviewService;
+import org.aspectj.weaver.ast.Not;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.support.PagedListHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -34,11 +37,15 @@ public class ReviewService implements IReviewService {
     }
 
     @Override
-    public Page<NoteDTO> getNotes(Integer id) {
+    public Page<NoteDTO> getNotes(Integer id, Pageable pageable) {
         List<NoteDTO> notes=new ArrayList<>();
         notes.add(new NoteDTO(1,LocalDateTime.now(),"prva poruka"));
         notes.add(new NoteDTO(2,LocalDateTime.now(),"druga poruka"));
-        return new PageImpl<>(notes);
+        notes.add(new NoteDTO(3,LocalDateTime.now(),"treca poruka"));
+        int from=pageable.getPageSize()* pageable.getPageNumber(), to=from+ pageable.getPageSize();
+        if(from>notes.size()) from=notes.size();
+        if(to> notes.size()) to=notes.size();
+        return new PageImpl<>(notes.subList(from, to));
     }
 
     @Override

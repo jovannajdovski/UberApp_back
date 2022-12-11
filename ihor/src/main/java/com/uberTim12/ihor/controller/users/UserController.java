@@ -1,6 +1,7 @@
 package com.uberTim12.ihor.controller.users;
 
 import com.uberTim12.ihor.dto.communication.*;
+import com.uberTim12.ihor.dto.ride.RideFullDTO;
 import com.uberTim12.ihor.dto.users.UserCredentialsDTO;
 import com.uberTim12.ihor.dto.users.UserTokensDTO;
 import com.uberTim12.ihor.model.communication.Message;
@@ -14,6 +15,7 @@ import com.uberTim12.ihor.service.ride.impl.RideService;
 import com.uberTim12.ihor.service.users.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,20 +44,24 @@ public class UserController {
     private ReviewService reviewService;
 
     @GetMapping(value = "/{id}/ride",produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getUserRides(@PathVariable Integer id, @RequestParam(required = false)
-                                          @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDateTime from,
-                                          @RequestParam(required = false)
-                                              @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDateTime to, Pageable page)
+    public ResponseEntity<?> getUserRides(@PathVariable Integer id,
+                                          Pageable page,
+                                          @RequestParam(required = false) String from,
+                                          @RequestParam(required = false) String to
+                                          )
     {
-        Page<Ride> rides = rideService.getRides(id,from,to,page);
-        List<RideDTO> ridesDTO=new ArrayList<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime start = LocalDateTime.parse(from, formatter);
+        LocalDateTime end = LocalDateTime.parse(to, formatter);
+        Page<Ride> rides = rideService.getRides(id,start,end,page);
+        List<RideFullDTO> ridesDTO=new ArrayList<>();
         if(rides==null) //TODO sve greske
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
         else {
             for (Ride r : rides)
-                ridesDTO.add(new RideDTO(r));
+                ridesDTO.add(new RideFullDTO(r));
 
-            ObjectListResponseDTO<RideDTO> res = new ObjectListResponseDTO<>(ridesDTO.size(),ridesDTO);
+            ObjectListResponseDTO<RideFullDTO> res = new ObjectListResponseDTO<>(ridesDTO.size(),ridesDTO);
             return new ResponseEntity<>(res, HttpStatus.OK);
         }
     }
@@ -74,7 +81,7 @@ public class UserController {
         }
     }
 
-    @PostMapping(value = "api/user/login",consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/login",consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> loginUser(@RequestBody UserCredentialsDTO userCredentialDTO)
     {
         UserTokensDTO userTokensDto=userService.getUserTokens(userCredentialDTO);
@@ -149,12 +156,12 @@ public class UserController {
         }
     }
     @GetMapping(value = "/{id}/note",produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getNotes(@PathVariable Integer id)
+    public ResponseEntity<?> getNotes(@PathVariable Integer id, Pageable page)
     {
         if(id==null) //TODO sve greske
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
         else {
-            Page<NoteDTO> notes = reviewService.getNotes(id);
+            Page<NoteDTO> notes = reviewService.getNotes(id, page);
             if(notes==null)
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             else{

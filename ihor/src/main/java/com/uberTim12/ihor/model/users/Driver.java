@@ -25,7 +25,7 @@ public class Driver extends User{
     @OneToMany(mappedBy = "driver", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Ride> rides = new HashSet<>();
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "driver",cascade = CascadeType.ALL, orphanRemoval = true)
     private Vehicle vehicle;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
