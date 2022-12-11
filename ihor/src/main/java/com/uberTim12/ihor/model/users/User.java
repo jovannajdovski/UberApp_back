@@ -31,7 +31,7 @@ public abstract class User {
     @Column(name = "telephone_number")
     private String telephoneNumber;
 
-    @Column(name = "email", nullable = false, unique = true)
+    @Column(name = "email", nullable = false) //unique=true
     private String email;
 
     @Column(name = "address")

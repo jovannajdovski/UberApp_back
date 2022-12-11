@@ -35,7 +35,11 @@ public class DriverService implements IDriverService {
     }
     @Override
     public Vehicle getVehicleFor(Integer driverId) {
-        return findOne(driverId).getVehicle();
+        Driver driver = findOne(driverId);
+        if (driver != null)
+            return driver.getVehicle();
+
+        return null;
     }
     @Override
     public Page<Driver> findAll(Pageable page) {

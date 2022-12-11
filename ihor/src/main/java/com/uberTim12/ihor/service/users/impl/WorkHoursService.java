@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Service
 public class WorkHoursService implements IWorkHoursService {
@@ -35,7 +36,7 @@ public class WorkHoursService implements IWorkHoursService {
     }
 
     @Override
-    public Page<WorkHours> findFilteredWorkHours(Integer driverId, LocalDate from, LocalDate to, Pageable pageable) {
+    public Page<WorkHours> findFilteredWorkHours(Integer driverId, LocalDateTime from, LocalDateTime to, Pageable pageable) {
         return workHoursRepository.findByDriverIdAndDateRange(driverId, from, to, pageable);
     }
 }

@@ -1,0 +1,6 @@
+#FileLock
+#Sun Dec 11 12:40:31 CET 2022
+server=192.168.3.6\:50018
+hostName=192.168.3.6
+method=file
+id=18500fc96abce2731b0dce23726d365becdaf9c27f1
