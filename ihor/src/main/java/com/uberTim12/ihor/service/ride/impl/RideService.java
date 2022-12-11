@@ -71,7 +71,14 @@ public class RideService implements IRideService {
 
     @Override
     public Ride findById(Integer id){
-        return rideRepository.findById(id).orElseGet(null);
+        Ride ride = rideRepository.findById(id).orElse(null);
+        if (ride==null){
+            return null;
+        } else {
+            Set<Passenger> passengers = new HashSet<>(findPassengersForRide(ride.getId()));
+            ride.setPassengers(passengers);
+            return ride;
+        }
     }
 
     @Override
@@ -80,7 +87,10 @@ public class RideService implements IRideService {
         if (rides.isEmpty()){
             return null;
         } else {
-            return rides.get(0);
+            Ride ride = rides.get(0);
+            Set<Passenger> passengers = new HashSet<>(findPassengersForRide(ride.getId()));
+            ride.setPassengers(passengers);
+            return ride;
         }
     }
 
@@ -90,7 +100,10 @@ public class RideService implements IRideService {
         if (rides.isEmpty()){
             return null;
         } else {
-            return rides.get(0);
+            Ride ride = rides.get(0);
+            Set<Passenger> passengers = new HashSet<>(findPassengersForRide(ride.getId()));
+            ride.setPassengers(passengers);
+            return ride;
         }
     }
 
