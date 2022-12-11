@@ -15,14 +15,14 @@ public class Path {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH})
     @JoinColumn(name = "startpoint_id", referencedColumnName = "id")
     private Location startPoint;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH})
     @JoinColumn(name = "endpoint_id", referencedColumnName = "id")
     private Location endPoint;
 
-    @Column(name = "distance", nullable = false)
+    @Column(name = "distance")
     private Double distance;
 }

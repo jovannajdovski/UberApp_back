@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 
 
 @Entity
-@PrimaryKeyJoinColumn(name = "id")
 public class Administrator extends  User{
 
 }

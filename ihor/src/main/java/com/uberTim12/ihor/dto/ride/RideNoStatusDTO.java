@@ -14,10 +14,11 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class RideFullDTO {
+public class RideNoStatusDTO {
 
     private Integer id;
     private LocalDateTime startTime;
@@ -42,11 +43,10 @@ public class RideFullDTO {
 
     private Set<PathDTO> locations = new HashSet<>();
 
-    private RideStatus status;
 
-    public RideFullDTO(Ride ride){
+    public RideNoStatusDTO(Ride ride){
         this(ride.getId(), ride.getStartTime(), ride.getEndTime(), ride.getTotalPrice(), ride.getEstimatedTime(),
-                ride.getVehicleType().getVehicleCategory(), ride.isBabiesAllowed(), ride.isPetsAllowed(), ride.getRideStatus());
+                ride.getVehicleType().getVehicleCategory(), ride.isBabiesAllowed(), ride.isPetsAllowed());
 
         this.driver = new UserRideDTO(ride.getDriver());
 
@@ -67,8 +67,8 @@ public class RideFullDTO {
         this.locations = locations;
     }
 
-    public RideFullDTO(Integer id, LocalDateTime startTime, LocalDateTime endTime, Double totalPrice, Double estimatedTime,
-                       VehicleCategory vehicleCategory, boolean babiesAllowed, boolean petsAllowed, RideStatus rideStatus) {
+    public RideNoStatusDTO(Integer id, LocalDateTime startTime, LocalDateTime endTime, Double totalPrice, Double estimatedTime,
+                       VehicleCategory vehicleCategory, boolean babiesAllowed, boolean petsAllowed) {
         this.id = id;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -77,6 +77,5 @@ public class RideFullDTO {
         this.vehicleType = vehicleCategory;
         this.babyTransport = babiesAllowed;
         this.petTransport = petsAllowed;
-        this.status = rideStatus;
     }
 }

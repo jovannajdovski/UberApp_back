@@ -21,7 +21,7 @@ public class ReviewDTO {
 
     private String comment;
 
-    private PassengerIdentificatorsDTO passengerIdentificatorsDTO;
+    private PassengerIdentificatorsDTO passenger;
     public ReviewDTO(Review review, boolean isVehicleReview)
     {
         this(review.getId(),(isVehicleReview)?review.getVehicleRate(): review.getDriverRate(), (isVehicleReview)?review.getVehicleComment():review.getDriverComment(),new PassengerIdentificatorsDTO(review.getPassenger()));

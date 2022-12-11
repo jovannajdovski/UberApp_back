@@ -29,7 +29,7 @@ public class UserService implements IUserService {
     public UserTokensDTO getUserTokens(UserCredentialsDTO userCredentialDTO) {
         User user=userRepository.findByEmailAndPassword(userCredentialDTO.getEmail(), encryptPassword(userCredentialDTO.getPassword()));
         UserTokensDTO userTokensDTO=null;
-        if(user!=null)
+        //if(user!=null)
             //TODO
             userTokensDTO=new UserTokensDTO("accessToken","refreshToken");
         return userTokensDTO;

@@ -22,4 +22,13 @@ public class LocationDTO {
                 location.getLatitude(),
                 location.getLongitude());
     }
+
+    public Location generateLocation(){
+        Location location = new Location();
+        location.setAddress(this.address);
+        location.setLongitude(this.longitude);
+        location.setLatitude(this.latitude);
+        return location;
+    }
+
 }

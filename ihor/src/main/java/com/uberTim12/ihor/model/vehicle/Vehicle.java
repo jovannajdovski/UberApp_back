@@ -4,10 +4,7 @@ import com.uberTim12.ihor.model.communication.Review;
 import com.uberTim12.ihor.model.route.Location;
 import com.uberTim12.ihor.model.users.Driver;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -29,7 +26,7 @@ public class Vehicle {
     private String vehicleModel;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "vehicleType_id")
+    @JoinColumn(name = "vehicle_Type_id")
     private VehicleType vehicleType;  // da li enum?
 
     @Column(name = "registration_plate", nullable = false) //unique=true

@@ -18,7 +18,6 @@ import java.util.Set;
 @AllArgsConstructor
 @Data
 @Entity
-@PrimaryKeyJoinColumn(name = "id")
 public class Driver extends User{
 
     @OneToMany(mappedBy = "driver", fetch = FetchType.LAZY, cascade = CascadeType.ALL)

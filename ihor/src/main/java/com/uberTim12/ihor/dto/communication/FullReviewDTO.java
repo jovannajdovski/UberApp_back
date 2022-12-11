@@ -16,8 +16,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 public class FullReviewDTO {
-    private ReviewDTO vehicleReviewDTO;
-    private ReviewDTO driverReviewDTO;
+    private ReviewDTO vehicleReview;
+    private ReviewDTO driverReview;
 
     public FullReviewDTO(Review review)
     {
