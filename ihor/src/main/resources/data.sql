@@ -28,6 +28,10 @@ INSERT INTO PASSENGER_RIDE ( PASSENGER_ID , RIDE_ID ) VALUES (1, 1);
 INSERT INTO panic (ride_id, user_id, reason, time)
 VALUES (1, 1, 'Driver is crazy', '2022-12-10T09:52:06.134Z');
 
+INSERT INTO VEHICLE (id, vehicle_model, vehicle_Type_id, registration_plate, seats,location_id,babies_allowed,pets_allowed, driver_id) 
+values (1, 'Seat', 1, 'SA157AJ', 5,2,TRUE,TRUE,2);
+
+update driver set vehicle_id=1 where id=2;
 
 -- INSERT INTO location (id, address, latitude, longitude)
 -- VALUES ( 10, 'mika', 3.44, 5.44);

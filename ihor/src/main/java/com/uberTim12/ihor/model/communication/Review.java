@@ -18,13 +18,13 @@ public class Review {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "vehicle_rate", nullable = false)
+    @Column(name = "vehicle_rate")
     private Double vehicleRate;
 
     @Column(name = "vehicle_comment")
     private String vehicleComment;
 
-    @Column(name = "driver_rate", nullable = false)
+    @Column(name = "driver_rate")
     private Double driverRate;
 
     @Column(name = "driver_comment")
