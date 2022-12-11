@@ -2,6 +2,7 @@ package com.uberTim12.ihor.controller.users;
 
 import com.uberTim12.ihor.dto.communication.ObjectListResponseDTO;
 import com.uberTim12.ihor.dto.ride.RideDTO;
+import com.uberTim12.ihor.dto.ride.RideNoStatusDTO;
 import com.uberTim12.ihor.dto.users.PassengerDTO;
 import com.uberTim12.ihor.dto.users.PassengerRegistrationDTO;
 import com.uberTim12.ihor.model.ride.Ride;
@@ -39,14 +40,7 @@ public class PassengerController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
         } else {
 
-            Passenger passenger = new Passenger();
-            passenger.setName(passengerDTO.getName());
-            passenger.setSurname(passengerDTO.getSurname());
-            passenger.setProfilePicture(passengerDTO.getProfilePicture());
-            passenger.setTelephoneNumber(passengerDTO.getTelephoneNumber());
-            passenger.setEmail(passengerDTO.getEmail());
-            passenger.setAddress(passengerDTO.getAddress());
-            passenger.setPassword(passengerDTO.getPassword());
+            Passenger passenger = passengerDTO.generatePassenger();
             passenger.setActive(false);
 
             passenger = passengerService.save(passenger);
@@ -124,10 +118,9 @@ public class PassengerController {
     }
 
     @GetMapping(value = "/{id}/ride")
-    public ResponseEntity<?> getPassengerRidesPage(@PathVariable Integer id, @RequestParam Pageable page,  @RequestParam(required = false)
-                                                   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDateTime from,
-                                                   @RequestParam(required = false)
-                                                       @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDateTime to) {
+    public ResponseEntity<?> getPassengerRidesPage(@PathVariable Integer id, Pageable page,
+                                                   @RequestParam(required = false) String from,
+                                                   @RequestParam(required = false) String to) {
 
         Passenger passenger = passengerService.findByIdWithRides(id);
 
@@ -135,13 +128,22 @@ public class PassengerController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
         }
 
-        Page<Ride> rides = passengerService.findAllById(id, from, to, page);
 
-        List<RideDTO> rideDTOs = new ArrayList<>();
+        Page<Ride> rides;
+
+        if (from == null || to == null)
+            rides = passengerService.findAllById(passenger, page);
+        else {
+            LocalDateTime start = LocalDateTime.parse(from);
+            LocalDateTime end = LocalDateTime.parse(to);
+            rides = passengerService.findAllById(id, start, end, page);
+        }
+
+        List<RideNoStatusDTO> rideDTOs = new ArrayList<>();
         for (Ride r : rides)
-            rideDTOs.add(new RideDTO(r));
+            rideDTOs.add(new RideNoStatusDTO(r));
 
-        ObjectListResponseDTO<RideDTO> res = new ObjectListResponseDTO<>(rideDTOs.size(),rideDTOs);
+        ObjectListResponseDTO<RideNoStatusDTO> res = new ObjectListResponseDTO<>(rideDTOs.size(),rideDTOs);
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
