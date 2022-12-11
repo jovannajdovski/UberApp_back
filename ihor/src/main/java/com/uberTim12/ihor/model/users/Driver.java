@@ -13,7 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, exclude = "vehicle")
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
@@ -26,7 +26,7 @@ public class Driver extends User{
     @OneToMany(mappedBy = "driver", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Ride> rides = new HashSet<>();
 
-    @OneToOne(mappedBy = "driver", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "driver", cascade = CascadeType.ALL)
     private Vehicle vehicle;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)

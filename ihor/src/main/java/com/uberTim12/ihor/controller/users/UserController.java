@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -50,9 +51,11 @@ public class UserController {
                                           @RequestParam(required = false) String to
                                           )
     {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime start = LocalDateTime.parse(from, formatter);
-        LocalDateTime end = LocalDateTime.parse(to, formatter);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+
+        LocalDateTime start = LocalDate.parse(from, formatter).atStartOfDay();
+        LocalDateTime end = LocalDate.parse(to, formatter).atStartOfDay();
         Page<Ride> rides = rideService.getRides(id,start,end,page);
         List<RideFullDTO> ridesDTO=new ArrayList<>();
         if(rides==null) //TODO sve greske

@@ -48,7 +48,7 @@ public class DriverService implements IDriverService {
 
     @Override
     public Driver findById(Integer id){
-        return driverRepository.findById(id).orElseGet(null);
+        return driverRepository.findById(id).orElse(null);
     }
 
 }

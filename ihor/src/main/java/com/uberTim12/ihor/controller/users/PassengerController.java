@@ -18,7 +18,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -134,8 +136,9 @@ public class PassengerController {
         if (from == null || to == null)
             rides = passengerService.findAllById(passenger, page);
         else {
-            LocalDateTime start = LocalDateTime.parse(from);
-            LocalDateTime end = LocalDateTime.parse(to);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            LocalDateTime start =  LocalDate.parse(from, formatter).atStartOfDay();
+            LocalDateTime end =  LocalDate.parse(to, formatter).atStartOfDay();
             rides = passengerService.findAllById(id, start, end, page);
         }
 

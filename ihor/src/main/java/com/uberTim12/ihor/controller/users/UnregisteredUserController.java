@@ -19,7 +19,7 @@ public class UnregisteredUserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping(value = "api/unregisteredUser",consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "api/unregisteredUser/",consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getEstimatedRoute(@RequestBody RideRequestDTO rideRequestDTO)
     {
         RideResponseDTO estimatedRoute=rideService.getEstimatedRoute(rideRequestDTO);

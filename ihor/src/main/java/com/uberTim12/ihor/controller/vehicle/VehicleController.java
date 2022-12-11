@@ -33,7 +33,7 @@ public class VehicleController {
         Vehicle vehicle = vehicleService.findOne(vehicleId);
 
         if (vehicle == null)
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
         Location location = new Location(locationDTO.getAddress(), locationDTO.getLatitude(), locationDTO.getLongitude());
 
@@ -42,6 +42,6 @@ public class VehicleController {
         vehicle.setCurrentLocation(location);
         vehicleService.save(vehicle);
 
-        return ResponseEntity.status(HttpStatus.OK).body("Coordinates successfully updated");
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Coordinates successfully updated");
     }
 }

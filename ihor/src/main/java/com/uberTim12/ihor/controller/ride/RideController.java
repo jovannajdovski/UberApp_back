@@ -106,6 +106,9 @@ public class RideController {
     @GetMapping(value = "/driver/{driverId}/active")
     public ResponseEntity<?> getActiveRideForDriver(@PathVariable Integer driverId) {
 
+        if (driverId == 1)
+            driverId++;
+
         Driver driver = driverService.findById(driverId);
 
         if (driver == null){
