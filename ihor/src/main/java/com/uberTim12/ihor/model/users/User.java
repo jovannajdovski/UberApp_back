@@ -31,7 +31,7 @@ public abstract class User {
     @Column(name = "telephone_number")
     private String telephoneNumber;
 
-    @Column(name = "email", nullable = false, unique = true)
+    @Column(name = "email", nullable = false) //unique=true
     private String email;
 
     @Column(name = "address")
@@ -40,10 +40,27 @@ public abstract class User {
     @Column(name = "password", nullable = false)
     private String password;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "authority_id")
+    private Authority authority;
+
     @Column(name = "is_blocked", nullable = false)
     private boolean isBlocked;
 
     @Column(name="is_active")
     private boolean isActive;
 
+
+    protected User(String name, String surname, String profilePicture, String telephoneNumber, String email, String address, String password) {
+        super();
+        this.setName(name);
+        this.setSurname(surname);
+        this.setProfilePicture(profilePicture);
+        this.setTelephoneNumber(telephoneNumber);
+        this.setEmail(email);
+        this.setAddress(address);
+        this.setPassword(password);
+        this.setBlocked(false);
+        this.setActive(true);
+    }
 }

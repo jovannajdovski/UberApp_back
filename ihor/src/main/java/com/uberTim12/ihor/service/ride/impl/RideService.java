@@ -4,6 +4,7 @@ package com.uberTim12.ihor.service.ride.impl;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.dto.ride.RideRequestDTO;
 import com.uberTim12.ihor.dto.ride.RideResponseDTO;
+import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.users.Passenger;
 import com.uberTim12.ihor.model.vehicle.Vehicle;
@@ -21,6 +22,7 @@ import java.util.HashSet;
 import java.util.Optional;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class RideService implements IRideService {
@@ -55,10 +57,16 @@ public class RideService implements IRideService {
     @Override
     public Page<Ride> getRides(Integer userId, LocalDateTime start, LocalDateTime end, Pageable page) {
         Optional<Driver> driver = driverRepository.findById(userId);
-        if (driver.isPresent()) return rideRepository.findAllInRangeForDriver(userId, start, end, page);
+        if(start==null) start=LocalDateTime.MIN;
+        if(end==null) end=LocalDateTime.MAX;
+        if (driver.isPresent())
+            return rideRepository.findAllInRangeForDriver(userId, start, end, page);
+
 
         Optional<Passenger> passenger = passengerRepository.findById(userId);
-        return passenger.map(value -> rideRepository.findAllInRangeForPassenger(value, start, end, page)).orElse(null);
+        LocalDateTime finalStart = start;
+        LocalDateTime finalEnd = end;
+        return passenger.map(value -> rideRepository.findAllInRangeForPassenger(value, finalStart, finalEnd, page)).orElse(null);
 
     }
 
@@ -69,7 +77,14 @@ public class RideService implements IRideService {
 
     @Override
     public Ride findById(Integer id){
-        return rideRepository.findById(id).orElseGet(null);
+        Ride ride = rideRepository.findById(id).orElse(null);
+        if (ride==null){
+            return null;
+        } else {
+            Set<Passenger> passengers = new HashSet<>(findPassengersForRide(ride.getId()));
+            ride.setPassengers(passengers);
+            return ride;
+        }
     }
 
     @Override
@@ -78,7 +93,10 @@ public class RideService implements IRideService {
         if (rides.isEmpty()){
             return null;
         } else {
-            return rides.get(0);
+            Ride ride = rides.get(0);
+            Set<Passenger> passengers = new HashSet<>(findPassengersForRide(ride.getId()));
+            ride.setPassengers(passengers);
+            return ride;
         }
     }
 
@@ -88,7 +106,21 @@ public class RideService implements IRideService {
         if (rides.isEmpty()){
             return null;
         } else {
-            return rides.get(0);
+            Ride ride = rides.get(0);
+            Set<Passenger> passengers = new HashSet<>(findPassengersForRide(ride.getId()));
+            ride.setPassengers(passengers);
+            return ride;
         }
     }
+
+    @Override
+    public List<Passenger> findPassengersForRide(Integer id) {
+        return rideRepository.findPassengersForRide(id);
+    }
+
+    @Override
+    public List<Path> findPathsForRide(Integer id) {
+        return rideRepository.findPathsForRide(id);
+    }
+
 }

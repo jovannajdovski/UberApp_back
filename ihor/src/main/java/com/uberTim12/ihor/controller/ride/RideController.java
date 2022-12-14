@@ -1,16 +1,20 @@
 package com.uberTim12.ihor.controller.ride;
 
 import com.uberTim12.ihor.dto.communication.PanicDTO;
+import com.uberTim12.ihor.dto.communication.ReasonDTO;
 import com.uberTim12.ihor.dto.ride.CreateRideDTO;
 import com.uberTim12.ihor.dto.ride.RideFullDTO;
 import com.uberTim12.ihor.dto.route.PathDTO;
 import com.uberTim12.ihor.dto.users.UserRideDTO;
 import com.uberTim12.ihor.model.communication.Panic;
 import com.uberTim12.ihor.model.ride.Ride;
+import com.uberTim12.ihor.model.ride.RideRejection;
 import com.uberTim12.ihor.model.ride.RideStatus;
+import com.uberTim12.ihor.model.route.Location;
 import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.users.Passenger;
+import com.uberTim12.ihor.model.vehicle.VehicleType;
 import com.uberTim12.ihor.service.communication.impl.PanicService;
 import com.uberTim12.ihor.service.ride.impl.RideService;
 import com.uberTim12.ihor.service.route.impl.PathService;
@@ -48,6 +52,7 @@ public class RideController {
     public ResponseEntity<?> createRide(@RequestBody CreateRideDTO rideDTO) {
 
         Ride ride = new Ride();
+        ride.setVehicleType(new VehicleType());
         ride.getVehicleType().setVehicleCategory(rideDTO.getVehicleType());
         ride.setBabiesAllowed(rideDTO.isBabyTransport());
         ride.setPetsAllowed(rideDTO.isPetTransport());
@@ -56,8 +61,12 @@ public class RideController {
 
         for (PathDTO pdto: rideDTO.getLocations()){
             Path path = new Path();
-            path.setStartPoint(pdto.getDeparture());
-            path.setEndPoint(pdto.getDestination());
+
+            Location departure = pdto.getDeparture().generateLocation();
+            Location destination = pdto.getDestination().generateLocation();
+
+            path.setStartPoint(departure);
+            path.setEndPoint(destination);
 
             path = pathService.save(path);
             paths.add(path);
@@ -71,15 +80,19 @@ public class RideController {
         }
         ride.setPassengers(passengers);
 
-        Driver mokapDriver = new Driver();        // mockup data
-        mokapDriver.setId(9999);
-        mokapDriver.setEmail("mokap@gmail.com");
+//        Driver mokapDriver = new Driver();        // mockup data
+//        mokapDriver.setId(9999);
+//        mokapDriver.setEmail("mokap@gmail.com");
+
+        Driver mokapDriver = driverService.findById(2);
+
         ride.setDriver(mokapDriver);
         ride.setStartTime(LocalDateTime.now());
         ride.setEndTime(LocalDateTime.now().plusMinutes(20));
         ride.setTotalPrice(666.0);
         ride.setEstimatedTime(20.0);
         ride.setRideStatus(RideStatus.PENDING);
+
 //        RideRejection mokapRideRejection = new RideRejection();
 //        mokapRideRejection.setReason("exit");
 //        mokapRideRejection.setTime(LocalDateTime.now());
@@ -92,6 +105,9 @@ public class RideController {
 
     @GetMapping(value = "/driver/{driverId}/active")
     public ResponseEntity<?> getActiveRideForDriver(@PathVariable Integer driverId) {
+
+        if (driverId == 1)
+            driverId++;
 
         Driver driver = driverService.findById(driverId);
 
@@ -153,7 +169,7 @@ public class RideController {
     }
 
     @PutMapping(value = "/{id}/panic")
-    public ResponseEntity<?> panicRide(@PathVariable Integer id, @RequestBody String reason) {
+    public ResponseEntity<?> panicRide(@PathVariable Integer id, @RequestBody ReasonDTO reason) {
 
         Ride ride = rideService.findById(id);
 
@@ -164,18 +180,20 @@ public class RideController {
         Panic panic = new Panic();
         panic.setCurrentRide(ride);
         panic.setTime(LocalDateTime.now());
-        panic.setReason(reason);
+        panic.setReason(reason.getReason());
 
-        Driver mokapDriver = new Driver();        // mockup data
-        mokapDriver.setId(9999);
-        mokapDriver.setEmail("mokap@gmail.com");
-        mokapDriver.setName("Mika");
-        mokapDriver.setSurname("Mikic");
-        mokapDriver.setTelephoneNumber("381666666");
-        mokapDriver.setAddress("Bulevar Oslobodjenja 1");
-        mokapDriver.setProfilePicture("43dkl343lkwecc");
+//        Driver mokapDriver = new Driver();        // mockup data
+//        mokapDriver.setId(9999);
+//        mokapDriver.setEmail("mokap@gmail.com");
+//        mokapDriver.setName("Mika");
+//        mokapDriver.setSurname("Mikic");
+//        mokapDriver.setTelephoneNumber("381666666");
+//        mokapDriver.setAddress("Bulevar Oslobodjenja 1");
+//        mokapDriver.setProfilePicture("43dkl343lkwecc");
 
-        panic.setUser(mokapDriver);
+        Driver driver = ride.getDriver();
+
+        panic.setUser(driver);
 
         panic = panicService.save(panic);
         return new ResponseEntity<>(new PanicDTO(panic), HttpStatus.OK);
@@ -214,7 +232,7 @@ public class RideController {
     }
 
     @PutMapping(value = "/{id}/cancel")
-    public ResponseEntity<?> rejectRide(@PathVariable Integer id, @RequestBody String reason) {
+    public ResponseEntity<?> rejectRide(@PathVariable Integer id, @RequestBody ReasonDTO reason) {
 
         Ride ride = rideService.findById(id);
 
@@ -222,7 +240,11 @@ public class RideController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
         }
 
-        ride.getRideRejection().setReason(reason);
+        if(ride.getRideRejection()==null){
+            ride.setRideRejection(new RideRejection());
+        }
+
+        ride.getRideRejection().setReason(reason.getReason());
         ride.getRideRejection().setTime(LocalDateTime.now());
         ride.setRideStatus(RideStatus.REJECTED);
 

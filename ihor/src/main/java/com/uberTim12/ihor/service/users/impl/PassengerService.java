@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -18,6 +19,7 @@ public class PassengerService implements com.uberTim12.ihor.service.users.interf
     @Autowired
     private IPassengerRepository passengerRepository;
 
+    @Autowired
     private IRideRepository rideRepository;
 
     @Override
@@ -28,6 +30,10 @@ public class PassengerService implements com.uberTim12.ihor.service.users.interf
     public Page<Ride> findAllById(Integer passengerId, LocalDateTime start, LocalDateTime end, Pageable page){
         Optional<Passenger> passenger=passengerRepository.findById(passengerId);
         return passenger.map(value -> rideRepository.findAllInRangeForPassenger(value, start, end, page)).orElse(null);
+    }
+
+    public Page<Ride> findAllById(Passenger passenger, Pageable page){
+        return rideRepository.findAllForPassenger(passenger, page);
     }
 
     @Override

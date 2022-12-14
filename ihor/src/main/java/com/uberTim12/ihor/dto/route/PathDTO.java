@@ -11,11 +11,11 @@ import lombok.NoArgsConstructor;
 @Data
 public class PathDTO {
 
-    private Location departure;
+    private LocationDTO departure;
 
-    private Location destination;
+    private LocationDTO destination;
 
     public PathDTO(Path path){
-        this(path.getStartPoint(),path.getEndPoint());
+        this(new LocationDTO(path.getStartPoint()), new LocationDTO(path.getEndPoint()));
     }
 }

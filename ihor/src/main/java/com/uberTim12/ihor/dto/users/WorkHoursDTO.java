@@ -1,6 +1,5 @@
 package com.uberTim12.ihor.dto.users;
 
-import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.users.WorkHours;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,18 +13,16 @@ import java.time.LocalDateTime;
 public class WorkHoursDTO {
 
     private Integer id;
-    private LocalDateTime startTime;
 
-    private LocalDateTime endTime;
+    private LocalDateTime start;
 
-    private Driver driver;
+    private LocalDateTime end;
 
     public WorkHoursDTO(WorkHours workHours)
     {
         this(workHours.getId(),
                 workHours.getStartTime(),
-                workHours.getEndTime(),
-                workHours.getDriver()
+                workHours.getEndTime()
         );
     }
 }

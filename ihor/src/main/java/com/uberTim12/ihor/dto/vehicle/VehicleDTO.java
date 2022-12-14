@@ -1,45 +1,36 @@
 package com.uberTim12.ihor.dto.vehicle;
 
-import com.uberTim12.ihor.model.communication.Review;
+import com.uberTim12.ihor.dto.route.LocationDTO;
 import com.uberTim12.ihor.model.route.Location;
-import com.uberTim12.ihor.model.users.Driver;
-import com.uberTim12.ihor.model.users.DriverDocument;
 import com.uberTim12.ihor.model.vehicle.Vehicle;
-import com.uberTim12.ihor.model.vehicle.VehicleType;
+import com.uberTim12.ihor.model.vehicle.VehicleCategory;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Set;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
 public class VehicleDTO {
-
     private Integer id;
-    private Driver driver;
-    private String vehicleModel;
-    private VehicleType vehicleType;
-    private String registrationPlate;
-    private Integer seats;
-    private Location currentLocation;
-    private boolean babiesAllowed;
-    private boolean petsAllowed;
-    private Set<Review> reviews;
+    private VehicleCategory vehicleType;
+    private String model;
+    private String licenseNumber;
+    private LocationDTO currentLocation;
+    private Integer passengerSeats;
+    private boolean babyTransport;
+    private boolean petTransport;
 
     public VehicleDTO(Vehicle vehicle)
     {
         this(vehicle.getId(),
-                vehicle.getDriver(),
+                vehicle.getVehicleType().getVehicleCategory(),
                 vehicle.getVehicleModel(),
-                vehicle.getVehicleType(),
                 vehicle.getRegistrationPlate(),
+                new LocationDTO(vehicle.getCurrentLocation()),
                 vehicle.getSeats(),
-                vehicle.getCurrentLocation(),
                 vehicle.isBabiesAllowed(),
-                vehicle.isPetsAllowed(),
-                vehicle.getReviews()
+                vehicle.isPetsAllowed()
         );
     }
 

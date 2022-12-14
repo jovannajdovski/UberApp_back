@@ -25,7 +25,7 @@ public class UserActivationService {
     }
 
     public UserActivation findById(Integer id){
-        return userActivationRepository.findById(id).orElseGet(null);
+        return userActivationRepository.findById(id).orElse(null);
     }
 
     public void remove(Integer id){

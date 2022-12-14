@@ -1,6 +1,5 @@
 package com.uberTim12.ihor.model.users;
 
-import com.uberTim12.ihor.model.users.Driver;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,8 +21,13 @@ public class WorkHours {
 
     @Column(name = "end_time", nullable = false)
     private LocalDateTime endTime;
+
     @OneToOne
     private Driver driver;
 
-
+    public WorkHours(LocalDateTime startTime, LocalDateTime endTime, Driver driver) {
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.driver = driver;
+    }
 }

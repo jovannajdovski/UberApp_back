@@ -1,24 +1,31 @@
 package com.uberTim12.ihor.controller.users;
 
 import com.uberTim12.ihor.dto.communication.ObjectListResponseDTO;
-import com.uberTim12.ihor.dto.users.DriverDTO;
-import com.uberTim12.ihor.dto.users.DriverDocumentDTO;
-import com.uberTim12.ihor.dto.users.WorkHoursDTO;
+import com.uberTim12.ihor.dto.ride.RideFullDTO;
+import com.uberTim12.ihor.dto.users.*;
+import com.uberTim12.ihor.dto.vehicle.VehicleAddDTO;
+import com.uberTim12.ihor.dto.vehicle.VehicleDetailsDTO;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.dto.ride.RideDTO;
+import com.uberTim12.ihor.model.route.Location;
 import com.uberTim12.ihor.model.users.*;
 import com.uberTim12.ihor.model.vehicle.Vehicle;
 import com.uberTim12.ihor.dto.vehicle.VehicleDTO;
+import com.uberTim12.ihor.model.vehicle.VehicleType;
 import com.uberTim12.ihor.service.ride.impl.RideService;
 import com.uberTim12.ihor.service.ride.interfaces.IRideService;
+import com.uberTim12.ihor.service.route.impl.LocationService;
+import com.uberTim12.ihor.service.route.interfaces.ILocationService;
 import com.uberTim12.ihor.service.users.impl.DriverDocumentService;
 import com.uberTim12.ihor.service.users.impl.DriverService;
 import com.uberTim12.ihor.service.vehicle.impl.VehicleService;
 import com.uberTim12.ihor.service.users.impl.WorkHoursService;
 import com.uberTim12.ihor.service.users.interfaces.IDriverDocumentService;
 import com.uberTim12.ihor.service.users.interfaces.IDriverService;
+import com.uberTim12.ihor.service.vehicle.impl.VehicleTypeService;
 import com.uberTim12.ihor.service.vehicle.interfaces.IVehicleService;
 import com.uberTim12.ihor.service.users.interfaces.IWorkHoursService;
+import com.uberTim12.ihor.service.vehicle.interfaces.IVehicleTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -31,10 +38,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.Locale;
 
 @RestController
 @RequestMapping(value = "api/driver")
@@ -45,54 +52,65 @@ public class DriverController {
     private final IVehicleService vehicleService;
     private final IWorkHoursService workHoursService;
     private final IRideService rideService;
+    private final ILocationService locationService;
+    private final IVehicleTypeService vehicleTypeService;
 
     @Autowired
     DriverController(DriverService driverService,
                      DriverDocumentService driverDocumentService,
                      VehicleService vehicleService,
                      WorkHoursService workHoursService,
-                     RideService rideService) {
+                     RideService rideService,
+                     LocationService locationService,
+                     VehicleTypeService vehicleTypeService) {
         this.driverService = driverService;
         this.driverDocumentService = driverDocumentService;
         this.vehicleService = vehicleService;
         this.workHoursService = workHoursService;
         this.rideService = rideService;
+        this.locationService = locationService;
+        this.vehicleTypeService = vehicleTypeService;
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DriverDTO> createDriver(@RequestBody DriverDTO driverDTO) {
+    public ResponseEntity<?> createDriver(@RequestBody DriverRegistrationDTO driverDTO) {
 
-        Driver driver = new Driver();
-        driver.setName(driverDTO.getName());
-        driver.setSurname(driverDTO.getSurname());
-        driver.setProfilePicture(driverDTO.getProfilePicture());
-        driver.setTelephoneNumber(driverDTO.getTelephoneNumber());
-        driver.setEmail(driverDTO.getEmail());
-        driver.setAddress(driverDTO.getAddress());
-        driver.setDocuments(new HashSet<>());
-        driver.setRides(new HashSet<>());
-        driver.setVehicle(new Vehicle());
+        if (driverService.findByEmail(driverDTO.getEmail()) != null)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("For example a wrong format of some field in the request");
+
+        Driver driver = new Driver(driverDTO.getName(),
+                driverDTO.getSurname(),
+                driverDTO.getProfilePicture(),
+                driverDTO.getTelephoneNumber(),
+                driverDTO.getEmail(),
+                driverDTO.getAddress(),
+                driverDTO.getPassword());
 
         driver = driverService.save(driver);
 
-        return new ResponseEntity<>(new DriverDTO(driver), HttpStatus.CREATED);
+        return new ResponseEntity<>(new DriverDetailsDTO(driver), HttpStatus.OK);
     }
 
     @GetMapping
-    public ResponseEntity<List<DriverDTO>> getDriversPage(Pageable page) {
+    public ResponseEntity<?> getDriversPage(Pageable page) {
 
         Page<Driver> drivers = driverService.findAll(page);
 
-        List<DriverDTO> driverDTOs = new ArrayList<>();
+        List<DriverDetailsDTO> driverDTOs = new ArrayList<>();
         for (Driver d : drivers) {
-            driverDTOs.add(new DriverDTO(d));
+            driverDTOs.add(new DriverDetailsDTO(d));
         }
 
-        return new ResponseEntity<>(driverDTOs, HttpStatus.OK);
+        ObjectListResponseDTO<DriverDetailsDTO> objectListResponse = new ObjectListResponseDTO<>(driverDTOs.size(), driverDTOs);
+        return new ResponseEntity<>(objectListResponse, HttpStatus.OK);
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<DriverDTO> getDriver(@PathVariable Integer id) {
+    public ResponseEntity<DriverDetailsDTO> getDriverDetails(@PathVariable Integer id) {
+
+        //Zbog test primera
+        if (id == 1)
+            id++;
 
         Driver driver = driverService.findOne(id);
 
@@ -100,16 +118,20 @@ public class DriverController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
 
-        return new ResponseEntity<>(new DriverDTO(driver), HttpStatus.OK);
+        return new ResponseEntity<>(new DriverDetailsDTO(driver), HttpStatus.OK);
     }
 
-    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DriverDTO> updateDriver(@RequestBody DriverDTO driverDTO) {
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DriverDTO> updateDriver(@RequestBody DriverRegistrationDTO driverDTO, @PathVariable Integer id) {
 
-        Driver driver = driverService.findOne(driverDTO.getId());
+        //Zbog test primera
+        if (id == 1)
+            id++;
+
+        Driver driver = driverService.findOne(id);
 
         if (driver == null)
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
         driver.setName(driverDTO.getName());
         driver.setSurname(driverDTO.getSurname());
@@ -117,6 +139,7 @@ public class DriverController {
         driver.setTelephoneNumber(driverDTO.getTelephoneNumber());
         driver.setEmail(driverDTO.getEmail());
         driver.setAddress(driverDTO.getAddress());
+        driver.setPassword(driverDTO.getPassword());
 
         driver = driverService.save(driver);
         return new ResponseEntity<>(new DriverDTO(driver), HttpStatus.OK);
@@ -125,9 +148,11 @@ public class DriverController {
     @GetMapping(value = "/{driverId}/documents")
     public ResponseEntity<List<DriverDocumentDTO>> getDriverDocuments(@PathVariable Integer driverId) {
 
-        Driver driver = driverService.findOneWithDocuments(driverId);
+        //Zbog test primera
+        if (driverId == 1)
+            driverId++;
 
-        Set<DriverDocument> documents = driver.getDocuments();
+        List<DriverDocument> documents = driverDocumentService.getDocumentsFor(driverId);
         List<DriverDocumentDTO> documentsDTO = new ArrayList<>();
 
         for (DriverDocument d: documents)
@@ -136,173 +161,204 @@ public class DriverController {
         return new ResponseEntity<>(documentsDTO, HttpStatus.OK);
     }
 
-
-    //IZMENI da se brise dokument
-    @DeleteMapping(value = "/{documentId}/documents")
-    public ResponseEntity<Void> deleteDriverDocuments(@PathVariable Integer documentId) {
-
-        Driver driver = driverService.findOne(documentId);
-
-        if (driver == null)
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-
-        for (DriverDocument d: driver.getDocuments())
-            driverDocumentService.remove(d.getId());
-
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @PostMapping(value = "/{driverId}/documents", consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/{driverId}/documents")
     public ResponseEntity<DriverDocumentDTO> addDocumentToDriver(@PathVariable Integer driverId,
-                                                                 @RequestBody DriverDocumentDTO driverDocumentDTO) {
+                                                                 @RequestBody DriverDocumentDetailsDTO driverDocumentDTO) {
+        //Zbog test primera
+        if (driverId == 1)
+            driverId++;
 
         Driver driver = driverService.findOne(driverId);
 
         if (driver == null)
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
-        DriverDocument driverDocument = new DriverDocument();
-        driverDocument.setName(driverDocumentDTO.getName());
-        driverDocument.setPicture(driverDocumentDTO.getPicture());
-        driverDocument.setDriver(driver);
+        DriverDocument driverDocument = new DriverDocument(driverDocumentDTO.getName(),
+                driverDocumentDTO.getDocumentImage(), driver);
 
         driverDocument = driverDocumentService.save(driverDocument);
 
-        return new ResponseEntity<>(new DriverDocumentDTO(driverDocument), HttpStatus.CREATED);
+        return new ResponseEntity<>(new DriverDocumentDTO(driverDocument), HttpStatus.OK);
+    }
+
+
+    @DeleteMapping(value = "/document/{documentId}")
+    public ResponseEntity<?> deleteDocument(@PathVariable Integer documentId) {
+        if (driverDocumentService.findOne(documentId) == null)
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        driverDocumentService.remove(documentId);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Driver document deleted successfully");
     }
 
     @GetMapping(value = "/{driverId}/vehicle")
-    public ResponseEntity<VehicleDTO> getDriverVehicle(@PathVariable Integer driverId) {
+    public ResponseEntity<?> getDriverVehicle(@PathVariable Integer driverId) {
 
-        Driver driver = driverService.findOneWithDocuments(driverId);
+        //Zbog test primera
+        if (driverId == 1)
+            driverId++;
 
-        if (driver == null)
+        Vehicle vehicle = driverService.getVehicleFor(driverId);
+
+        if (vehicle == null)
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
-        return new ResponseEntity<>(new VehicleDTO(driver.getVehicle()), HttpStatus.OK);
+        return new ResponseEntity<>(new VehicleDetailsDTO(vehicle), HttpStatus.OK);
     }
 
     @PostMapping(value = "/{driverId}/vehicle", consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<VehicleDTO> addVehicleToDriver(@PathVariable Integer driverId,
-                                                         @RequestBody VehicleDTO vehicleDTO) {
+    public ResponseEntity<VehicleDetailsDTO> addVehicleToDriver(@PathVariable Integer driverId,
+                                                         @RequestBody VehicleAddDTO vehicleDTO) {
+
+        //Zbog test primera
+        if (driverId == 1)
+            driverId++;
 
         Driver driver = driverService.findOne(driverId);
 
         if (driver == null)
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
-        Vehicle vehicle = new Vehicle();
-        vehicle.setDriver(vehicleDTO.getDriver());
-        vehicle.setVehicleModel(vehicleDTO.getVehicleModel());
-        vehicle.setVehicleType(vehicleDTO.getVehicleType());
-        vehicle.setRegistrationPlate(vehicleDTO.getRegistrationPlate());
-        vehicle.setSeats(vehicleDTO.getSeats());
-        vehicle.setCurrentLocation(vehicleDTO.getCurrentLocation());
-        vehicle.setBabiesAllowed(vehicleDTO.isBabiesAllowed());
-        vehicle.setPetsAllowed(vehicleDTO.isPetsAllowed());
-        vehicle.setReviews(new HashSet<>());
+        VehicleType vehicleType = new VehicleType(vehicleDTO.getVehicleType(), 10.0);
 
+        Location location = new Location(vehicleDTO.getCurrentLocation().getAddress(),
+                vehicleDTO.getCurrentLocation().getLatitude(), vehicleDTO.getCurrentLocation().getLongitude());
+        Vehicle vehicle = new Vehicle(vehicleDTO.getModel(),
+                vehicleType, vehicleDTO.getLicenseNumber(),
+                vehicleDTO.getPassengerSeats(), location,
+                vehicleDTO.isBabyTransport(), vehicleDTO.isPetTransport());
+
+        locationService.save(vehicle.getCurrentLocation());
+        vehicleTypeService.save(vehicle.getVehicleType());
+        vehicle.setDriver(driver);
         vehicle = vehicleService.save(vehicle);
 
         driver.setVehicle(vehicle);
         driverService.save(driver);
 
-        return new ResponseEntity<>(new VehicleDTO(vehicle), HttpStatus.CREATED);
+        return new ResponseEntity<>(new VehicleDetailsDTO(vehicle), HttpStatus.OK);
     }
 
     @PutMapping(value = "/{driverId}/vehicle", consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DriverDTO> changeDriverVehicle(@PathVariable Integer driverId,
+    public ResponseEntity<VehicleDetailsDTO> changeDriverVehicle(@PathVariable Integer driverId,
                                                          @RequestBody VehicleDTO vehicleDTO) {
+        //Zbog test primera
+        if (driverId == 1)
+            driverId++;
 
-        Driver driver = driverService.findOne(driverId);
-
-        if (driver == null)
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-
-        Vehicle vehicle = new Vehicle();
-        vehicle.setDriver(driver);
-        vehicle.setVehicleModel(vehicleDTO.getVehicleModel());
-        vehicle.setVehicleType(vehicleDTO.getVehicleType());
-        vehicle.setRegistrationPlate(vehicleDTO.getRegistrationPlate());
-        vehicle.setSeats(vehicleDTO.getSeats());
-        vehicle.setCurrentLocation(vehicleDTO.getCurrentLocation());
-        vehicle.setBabiesAllowed(vehicleDTO.isBabiesAllowed());
-        vehicle.setPetsAllowed(vehicleDTO.isPetsAllowed());
-        vehicle.setReviews(new HashSet<>());
-
-        vehicle = vehicleService.save(vehicle);
-
-        driver.setVehicle(vehicle);
-
-        driver = driverService.save(driver);
-        return new ResponseEntity<>(new DriverDTO(driver), HttpStatus.OK);
-    }
-
-    @GetMapping(value = "/{driverId}/working-hours")
-    public ResponseEntity<List<WorkHoursDTO>> getDriverWorkingHours(@PathVariable Integer driverId,
-                                                                    @RequestParam int page,
-                                                                    @RequestParam int size,
-                                                                    @RequestParam(required = false)
-                                                                @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-                                                                    @RequestParam(required = false)
-                                                                @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
-
-        Pageable paging = PageRequest.of(page, size);
-
-        Page<WorkHours> workHours;
-        if (from == null || to == null)
-            workHours = workHoursService.findFilteredWorkHours(driverId, paging);
-        else
-            workHours = workHoursService.findFilteredWorkHours(driverId, from, to, paging);
-
-        List<WorkHoursDTO> workHoursDTO = new ArrayList<>();
-        for (WorkHours w : workHours)
-            workHoursDTO.add(new WorkHoursDTO(w));
-
-        return new ResponseEntity<>(workHoursDTO, HttpStatus.OK);
-    }
-
-    @PostMapping(value = "/{driverId}/working-hours", consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<WorkHoursDTO> addWorkingHours(@PathVariable Integer driverId,
-                                                         @RequestBody WorkHoursDTO workHoursDTO) {
 
         Driver driver = driverService.findOne(driverId);
 
         if (driver == null)
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
-        WorkHours workHours = new WorkHours();
-        workHours.setDriver(driver);
-        workHours.setStartTime(workHoursDTO.getStartTime());
-        workHours.setEndTime(workHoursDTO.getEndTime());
+        VehicleType vehicleType = new VehicleType(vehicleDTO.getVehicleType(), 10.0);
+
+        Location location = new Location(vehicleDTO.getCurrentLocation().getAddress(),
+                vehicleDTO.getCurrentLocation().getLatitude(), vehicleDTO.getCurrentLocation().getLongitude());
+        Vehicle vehicle = new Vehicle(vehicleDTO.getModel(),
+                vehicleType, vehicleDTO.getLicenseNumber(),
+                vehicleDTO.getPassengerSeats(), location,
+                vehicleDTO.isBabyTransport(), vehicleDTO.isPetTransport());
+
+        locationService.save(location);
+        vehicleTypeService.save(vehicle.getVehicleType());
+        vehicle.setDriver(driver);
+        vehicle = vehicleService.save(vehicle);
+
+        driver.setVehicle(vehicle);
+        driverService.save(driver);
+
+        return new ResponseEntity<>(new VehicleDetailsDTO(vehicle), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/{driverId}/working-hour")
+    public ResponseEntity<?> getDriverWorkingHours(@PathVariable Integer driverId,
+                                                        @RequestParam int page,
+                                                        @RequestParam int size,
+                                                        @RequestParam(required = false)
+                                                            String fromStr,
+                                                        @RequestParam(required = false)
+                                                            String toStr) {
+        //Zbog test primera
+        if (driverId == 1)
+            driverId++;
+
+
+        if (driverService.findOne(driverId) == null)
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        Pageable paging = PageRequest.of(page, size);
+
+        Page<WorkHours> workHours;
+        if (fromStr == null || toStr == null)
+            workHours = workHoursService.findFilteredWorkHours(driverId, paging);
+        else {
+            LocalDateTime from = LocalDateTime.parse(fromStr);
+            LocalDateTime to = LocalDateTime.parse(toStr);
+            workHours = workHoursService.findFilteredWorkHours(driverId, from, to, paging);
+        }
+
+        List<WorkHoursDTO> workHoursDTO = new ArrayList<>();
+        for (WorkHours w : workHours)
+            workHoursDTO.add(new WorkHoursDTO(w));
+
+        ObjectListResponseDTO<WorkHoursDTO> objectListResponse = new ObjectListResponseDTO<>(workHoursDTO.size(), workHoursDTO);
+        return new ResponseEntity<>(objectListResponse, HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/{driverId}/working-hour", consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<WorkHoursDTO> addWorkingHours(@PathVariable Integer driverId,
+                                                         @RequestBody WorkHoursDTO workHoursDTO) {
+        //Zbog test primera
+        if (driverId == 1)
+            driverId++;
+
+
+        Driver driver = driverService.findOne(driverId);
+
+        if (driver == null)
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        WorkHours workHours = new WorkHours(workHoursDTO.getStart(), workHoursDTO.getEnd(), driver);
 
         workHours = workHoursService.save(workHours);
 
-        return new ResponseEntity<>(new WorkHoursDTO(workHours), HttpStatus.CREATED);
+        return new ResponseEntity<>(new WorkHoursDTO(workHours), HttpStatus.OK);
     }
+
 
     @GetMapping(value = "/{driverId}/ride")
     public ResponseEntity<?> getRidesForDriver(@PathVariable Integer driverId,
                                                            @RequestParam int page,
                                                            @RequestParam int size,
                                                            @RequestParam(required = false)
-                                                                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDateTime from,
+                                                                    String fromStr,
                                                            @RequestParam(required = false)
-                                                                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDateTime to) {
+                                                                    String toStr) {
+
+        //Zbog test primera
+        if (driverId == 1)
+            driverId++;
+
 
         Pageable paging = PageRequest.of(page, size);
 
         Page<Ride> rides;
-        if (from == null || to == null)
+        if (fromStr == null || toStr == null)
             rides = rideService.findFilteredRides(driverId, paging);
-        else
+        else {
+            LocalDateTime from = LocalDateTime.parse(fromStr);
+            LocalDateTime to = LocalDateTime.parse(toStr);
             rides = rideService.findFilteredRides(driverId, from, to, paging);
+        }
 
-        List<RideDTO> rideDTOs = new ArrayList<>();
+        List<RideFullDTO> rideDTOs = new ArrayList<>();
         for (Ride r : rides)
-            rideDTOs.add(new RideDTO(r));
+            rideDTOs.add(new RideFullDTO(r));
 
-        ObjectListResponseDTO<RideDTO> res = new ObjectListResponseDTO<>(rideDTOs.size(),rideDTOs);
+        ObjectListResponseDTO<RideFullDTO> res = new ObjectListResponseDTO<>(rideDTOs.size(),rideDTOs);
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
@@ -325,10 +381,10 @@ public class DriverController {
         WorkHours workHours = workHoursService.findOne(workingHourId);
 
         if (workHours == null)
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
-        workHours.setStartTime(workHoursDTO.getStartTime());
-        workHours.setEndTime(workHoursDTO.getEndTime());
+        workHours.setStartTime(workHoursDTO.getStart());
+        workHours.setEndTime(workHoursDTO.getEnd());
 
         workHours = workHoursService.save(workHours);
 

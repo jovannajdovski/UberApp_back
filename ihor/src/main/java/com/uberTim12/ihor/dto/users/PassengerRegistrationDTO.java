@@ -22,4 +22,16 @@ public class PassengerRegistrationDTO {
         this(passenger.getName(), passenger.getSurname(), passenger.getProfilePicture(),
                 passenger.getTelephoneNumber(), passenger.getEmail(), passenger.getAddress(), passenger.getPassword());
     }
+
+    public Passenger generatePassenger(){
+        Passenger passenger = new Passenger();
+        passenger.setName(this.name);
+        passenger.setSurname(this.surname);
+        passenger.setProfilePicture(this.profilePicture);
+        passenger.setTelephoneNumber(this.telephoneNumber);
+        passenger.setEmail(this.email);
+        passenger.setAddress(this.address);
+        passenger.setPassword(this.password);
+        return passenger;
+    }
 }

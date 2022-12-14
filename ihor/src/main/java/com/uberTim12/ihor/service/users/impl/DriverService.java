@@ -1,6 +1,7 @@
 package com.uberTim12.ihor.service.users.impl;
 
 import com.uberTim12.ihor.model.users.Driver;
+import com.uberTim12.ihor.model.vehicle.Vehicle;
 import com.uberTim12.ihor.repository.users.IDriverRepository;
 import com.uberTim12.ihor.service.users.interfaces.IDriverService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +26,20 @@ public class DriverService implements IDriverService {
         return driverRepository.findById(id).orElse(null);
     }
     @Override
+    public Driver findByEmail(String email) {
+        return driverRepository.findByEmail(email);
+    }
+    @Override
     public Driver findOneWithDocuments(Integer driverId) {
         return driverRepository.findOneWithDocuments(driverId);
+    }
+    @Override
+    public Vehicle getVehicleFor(Integer driverId) {
+        Driver driver = findOne(driverId);
+        if (driver != null)
+            return driver.getVehicle();
+
+        return null;
     }
     @Override
     public Page<Driver> findAll(Pageable page) {
@@ -35,7 +48,7 @@ public class DriverService implements IDriverService {
 
     @Override
     public Driver findById(Integer id){
-        return driverRepository.findById(id).orElseGet(null);
+        return driverRepository.findById(id).orElse(null);
     }
 
 }

@@ -11,5 +11,7 @@ import org.springframework.stereotype.Repository;
 public interface IUserRepository extends JpaRepository<User,Integer> {
     public User findByEmailAndPassword(String email, String password);
 
+    public User findByEmail(String email);
+
     public Page<User> findAll(Pageable pageable);
 }

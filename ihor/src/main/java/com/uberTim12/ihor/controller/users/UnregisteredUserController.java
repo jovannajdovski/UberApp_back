@@ -19,7 +19,7 @@ public class UnregisteredUserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping(value = "api/unregisteredUser",consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "api/unregisteredUser/",consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getEstimatedRoute(@RequestBody RideRequestDTO rideRequestDTO)
     {
         RideResponseDTO estimatedRoute=rideService.getEstimatedRoute(rideRequestDTO);
@@ -29,13 +29,4 @@ public class UnregisteredUserController {
             return new ResponseEntity<>(estimatedRoute, HttpStatus.OK);
     }
 
-    @PostMapping(value = "api/login",consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> loginUser(@RequestBody UserCredentialsDTO userCredentialDTO)
-    {
-        UserTokensDTO userTokensDto=userService.getUserTokens(userCredentialDTO);
-        if(userTokensDto==null)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
-        else
-            return new ResponseEntity<>(userTokensDto, HttpStatus.OK);
-    }
 }

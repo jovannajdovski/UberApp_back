@@ -2,13 +2,15 @@ package com.uberTim12.ihor.service.communication.interfaces;
 
 import com.uberTim12.ihor.dto.communication.*;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
+import java.awt.*;
 import java.util.List;
 
 public interface IReviewService {
     NoteDTO createNote(Integer id, RequestNoteDTO requestNoteDTO);
 
-    Page<NoteDTO> getNotes(Integer id);
+    Page<NoteDTO> getNotes(Integer id, Pageable pageable);
 
     ReviewDTO createVehicleReview(Integer rideId, Integer vehicleId, ReviewRequestDTO reviewRequestDTO);
 

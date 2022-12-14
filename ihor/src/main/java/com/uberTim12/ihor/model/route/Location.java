@@ -23,4 +23,10 @@ public class Location {
 
     @Column(name = "longitude", nullable = false)
     private Double longitude;
+
+    public Location(String address, Double latitude, Double longitude) {
+        this.address = address;
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
 }
