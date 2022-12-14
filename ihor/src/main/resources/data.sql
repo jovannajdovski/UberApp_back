@@ -1,13 +1,23 @@
-INSERT INTO ihor (name, surname, profile_picture, telephone_number, email, address, password, is_blocked,is_active)
-VALUES ('Miki', 'Mikic', 'ffdfdfedf', '+3816563122', 'miki@email.com', 'Gogoljeva 3', 'mikimilane' , false, false);
+INSERT INTO authority(name)
+VALUES ('ADMIN');
+
+INSERT INTO authority(name)
+VALUES ('DRIVER');
+
+INSERT INTO authority(name)
+VALUES ('PASSENGER');
+
+
+INSERT INTO ihor (name, surname, profile_picture, telephone_number, email, address, password, is_blocked, is_active, authority_id)
+VALUES ('Miki', 'Mikic', 'ffdfdfedf', '+3816563122', 'miki@email.com', 'Gogoljeva 3', 'mikimilane' , false, false, 3);
 INSERT INTO passenger (id) values ( 1 );
 
-INSERT INTO ihor (id,name, surname, profile_picture, telephone_number, email, address, password, is_blocked,is_active)
-VALUES (123,'User', 'Usser', 'ffdfdfedf', '+3816563122', 'user@example.com', 'Gogoljeva 3', 'user' , false, false);
+INSERT INTO ihor (id,name, surname, profile_picture, telephone_number, email, address, password, is_blocked,is_active, authority_id)
+VALUES (123,'User', 'Usser', 'ffdfdfedf', '+3816563122', 'user@example.com', 'Gogoljeva 3', 'user' , false, false, 3);
 INSERT INTO passenger (id) values ( 123 );
 
-INSERT INTO ihor (name, surname, profile_picture, telephone_number, email, address, password, is_blocked,is_active)
-VALUES ('Zoki', 'Zokic', 'ffdfdfedf', '+3816563122', 'zoki@email.com', 'Gogoljeva 3', 'zokizoki' , false, false);
+INSERT INTO ihor (name, surname, profile_picture, telephone_number, email, address, password, is_blocked,is_active, authority_id)
+VALUES ('Zoki', 'Zokic', 'ffdfdfedf', '+3816563122', 'zoki@email.com', 'Gogoljeva 3', 'zokizoki' , false, false, 2);
 INSERT INTO driver (id) VALUES ( 2 );
 
 INSERT INTO DRIVER_DOCUMENT (NAME, PICTURE, DRIVER_ID) VALUES ('Vozačka dozvola', 'U3dhZ2dlciByb2Nrcw=', 2);

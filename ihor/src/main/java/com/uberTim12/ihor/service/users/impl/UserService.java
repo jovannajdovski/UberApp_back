@@ -11,13 +11,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
-public class UserService implements IUserService {
+public class UserService implements IUserService, UserDetailsService {
     @Autowired
     private IUserRepository userRepository;
     @Autowired
@@ -40,8 +42,6 @@ public class UserService implements IUserService {
         return userRepository.findAll(page);
     }
 
-
-
     @Override
     public boolean blockUser(Integer id) {
         Optional<User> user=userRepository.findById(id);
@@ -56,12 +56,25 @@ public class UserService implements IUserService {
     @Override
     public boolean unblockUser(Integer id) {
         Optional<User> user=userRepository.findById(id);
-        if(user.isEmpty()) return false;
+        if(user.isEmpty())
+            return false;
         else{
             user.get().setBlocked(false);
             userRepository.saveAndFlush(user.get());
             return true;
         }
+    }
+
+    @Override
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        var user = userRepository.findByEmail(username);
+        return new org.springframework.security.core.userdetails.User(user.getEmail(),
+                user.getPassword(), Arrays.asList(user.getAuthority()));
     }
 
     static class SetToPageConverter<T>{
@@ -70,6 +83,7 @@ public class UserService implements IUserService {
         }
 
     }
+
     public static String encryptPassword(String password)
     {
         return password;
