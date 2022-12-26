@@ -1,28 +1,31 @@
 package com.uberTim12.ihor.controller.users;
 
+import com.uberTim12.ihor.security.JwtUtil;
 import com.uberTim12.ihor.dto.communication.*;
 import com.uberTim12.ihor.dto.ride.RideFullDTO;
+import com.uberTim12.ihor.dto.users.AuthTokenDTO;
 import com.uberTim12.ihor.dto.users.UserCredentialsDTO;
-import com.uberTim12.ihor.dto.users.UserTokensDTO;
-import com.uberTim12.ihor.model.communication.Message;
-import com.uberTim12.ihor.model.ride.Ride;
-import com.uberTim12.ihor.dto.ride.RideDTO;
-import com.uberTim12.ihor.model.users.User;
 import com.uberTim12.ihor.dto.users.UserDTO;
+import com.uberTim12.ihor.model.ride.Ride;
+import com.uberTim12.ihor.model.users.User;
 import com.uberTim12.ihor.service.communication.impl.MessageService;
 import com.uberTim12.ihor.service.communication.impl.ReviewService;
+import com.uberTim12.ihor.service.communication.interfaces.IMessageService;
+import com.uberTim12.ihor.service.communication.interfaces.IReviewService;
 import com.uberTim12.ihor.service.ride.impl.RideService;
+import com.uberTim12.ihor.service.ride.interfaces.IRideService;
 import com.uberTim12.ihor.service.users.impl.UserService;
+import com.uberTim12.ihor.service.users.interfaces.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
-import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.AuthenticationManager;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -34,15 +37,27 @@ import java.util.List;
 @RequestMapping(value = "api/user")
 public class UserController {
 
-    @Autowired
-    private RideService rideService;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private MessageService messageService;
+    private final IRideService rideService;
+    private final IUserService userService;
+    private final IMessageService messageService;
+    private final IReviewService reviewService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
 
     @Autowired
-    private ReviewService reviewService;
+    UserController(RideService rideService,
+                   UserService userService,
+                   MessageService messageService,
+                   ReviewService reviewService,
+                   AuthenticationManager authenticationManager,
+                   JwtUtil jwtUtil) {
+        this.rideService = rideService;
+        this.userService = userService;
+        this.messageService = messageService;
+        this.reviewService = reviewService;
+        this.authenticationManager = authenticationManager;
+        this.jwtUtil = jwtUtil;
+    }
 
     @GetMapping(value = "/{id}/ride",produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getUserRides(@PathVariable Integer id,
@@ -87,11 +102,24 @@ public class UserController {
     @PostMapping(value = "/login",consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> loginUser(@RequestBody UserCredentialsDTO userCredentialDTO)
     {
-        UserTokensDTO userTokensDto=userService.getUserTokens(userCredentialDTO);
-        if(userTokensDto==null)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
-        else
-            return new ResponseEntity<>(userTokensDto, HttpStatus.OK);
+        var authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(userCredentialDTO.getEmail(), userCredentialDTO.getPassword())
+        );
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        String token = jwtUtil.generateToken(authentication);
+        String username = jwtUtil.extractUsername(token);
+
+        var user = userService.findByEmail(userCredentialDTO.getEmail());
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+
+        AuthTokenDTO tokenDTO = new AuthTokenDTO(token, username, user.getId(), user.getName(), user.getSurname(),
+                user.getEmail(), true, user.getAuthority());
+
+        return new ResponseEntity<>(tokenDTO, HttpStatus.OK);
     }
 
     @GetMapping(value = "/{id}/message",produces = MediaType.APPLICATION_JSON_VALUE)

@@ -40,6 +40,10 @@ public abstract class User {
     @Column(name = "password", nullable = false)
     private String password;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "authority_id")
+    private Authority authority;
+
     @Column(name = "is_blocked", nullable = false)
     private boolean isBlocked;
 
