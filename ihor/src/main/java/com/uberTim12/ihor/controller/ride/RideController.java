@@ -234,7 +234,7 @@ public class RideController {
     @PutMapping(value = "/{id}/cancel")
     public ResponseEntity<?> rejectRide(@PathVariable Integer id, @RequestBody ReasonDTO reason) {
 
-        Ride ride = rideService.findById(id);
+    Ride ride = rideService.findById(id);
 
         if (ride == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
