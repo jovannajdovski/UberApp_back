@@ -49,4 +49,8 @@ public class Message {
         this.type = type;
         this.ride = ride;
     }
+    public Integer getRideId()
+    {
+        return this.ride.getId();
+    }
 }
