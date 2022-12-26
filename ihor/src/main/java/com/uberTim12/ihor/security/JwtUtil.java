@@ -1,8 +1,10 @@
 package com.uberTim12.ihor.security;
 
+import com.uberTim12.ihor.service.users.impl.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,9 +16,11 @@ import java.util.stream.Collectors;
 
 @Service
 public class JwtUtil {
-    private Integer tokenValidity = 18000000;
+    private Integer tokenValidity = 3600 * 24;
     private String SECRET_KEY = "secret";
     private String authoritiesKey = "role";
+    @Autowired
+    private UserService userService;
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -45,6 +49,7 @@ public class JwtUtil {
 
         return Jwts.builder()
                 .setSubject(authentication.getName())
+                .setId(userService.findByEmail(authentication.getName()).getId().toString())
                 .claim(authoritiesKey, authorities)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + tokenValidity*1000))
