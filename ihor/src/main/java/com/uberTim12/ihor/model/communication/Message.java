@@ -53,4 +53,17 @@ public class Message {
     {
         return this.ride.getId();
     }
+
+    @Override
+    public String toString() {
+        return "Message{" +
+                "id=" + id +
+                ", sender=" + sender.getId() +
+                ", receiver=" + receiver.getId() +
+                ", content='" + content + '\'' +
+                ", sendTime=" + sendTime +
+                ", type=" + type +
+                ", ride=" + ride.getId() +
+                '}';
+    }
 }

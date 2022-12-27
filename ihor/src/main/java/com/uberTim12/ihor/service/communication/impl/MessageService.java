@@ -29,6 +29,7 @@ public class MessageService implements IMessageService {
 
     @Override
     public List<MessageDTO> getMessages(Integer id) {
+        //List<Message> messages= messageRepository.findAllBySenderIdOrReceiverId(id,id);
 
         List<Message> messages= sortMessagesToChatFormat(messageRepository.findAllBySenderIdOrReceiverId(id,id),id);
         return messages.stream().map(MessageDTO::new).collect(Collectors.toList());
@@ -36,12 +37,13 @@ public class MessageService implements IMessageService {
 
     @Override
     public MessageDTO sendMessage(Integer senderId, SendingMessageDTO sendingMessageDTO) {
-        Message message=messageRepository.saveAndFlush(new Message(userRepository.findById(senderId).get(),
+        Message message=new Message(userRepository.findById(senderId).get(),
                 userRepository.findById(sendingMessageDTO.getReceiverId()).get(),
                 sendingMessageDTO.getMessage(),
                 LocalDateTime.now(),
                 sendingMessageDTO.getType(),
-                rideRepository.findById(sendingMessageDTO.getRideId()).get()));
+                rideRepository.findById(sendingMessageDTO.getRideId()).get());
+        message=messageRepository.saveAndFlush(message);
         return new MessageDTO(message);
     }
     private List<Message> sortMessagesToChatFormat(List<Message> messages, Integer userId)
@@ -68,7 +70,7 @@ public class MessageService implements IMessageService {
         {
             for(int j=i+1;j<endIndexes.size();j++)
             {
-                if(groupedMessages.get(endIndexes.get(i)).getSendTime().isAfter(groupedMessages.get(endIndexes.get(j)).getSendTime())) {
+                if(groupedMessages.get(endIndexes.get(i)).getSendTime().isBefore(groupedMessages.get(endIndexes.get(j)).getSendTime())) {
                     pom = endIndexes.get(i);
                     endIndexes.set(i,endIndexes.get(j));
                     endIndexes.set(j,pom);
