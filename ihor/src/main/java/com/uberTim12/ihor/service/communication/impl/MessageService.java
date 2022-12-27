@@ -32,6 +32,7 @@ public class MessageService implements IMessageService {
         //List<Message> messages= messageRepository.findAllBySenderIdOrReceiverId(id,id);
 
         List<Message> messages= sortMessagesToChatFormat(messageRepository.findAllBySenderIdOrReceiverId(id,id),id);
+
         return messages.stream().map(MessageDTO::new).collect(Collectors.toList());
     }
 
@@ -62,6 +63,7 @@ public class MessageService implements IMessageService {
             if(groupedMessages.get(i).getRideId()!=currentRideId) {
                 endIndexes.add(i - 1);
                 startIndexes.add(i);
+                currentRideId=groupedMessages.get(i).getRideId();
             }
         }
         endIndexes.add(groupedMessages.size()-1);
@@ -98,7 +100,6 @@ public class MessageService implements IMessageService {
         {
             sortedMessages= Stream.concat(sortedMessages.stream(),groupedMessages.subList(startIndexes.get(i),endIndexes.get(i)+1).stream()).toList();
         }
-
         return sortedMessages;
     }
 }
