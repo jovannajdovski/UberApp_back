@@ -246,34 +246,41 @@ public class DriverController {
     @PutMapping(value = "/{driverId}/vehicle", consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<VehicleDetailsDTO> changeDriverVehicle(@PathVariable Integer driverId,
                                                          @RequestBody VehicleDTO vehicleDTO) {
-        //Zbog test primera
-        if (driverId == 1)
-            driverId++;
 
 
         Driver driver = driverService.findOne(driverId);
-
         if (driver == null)
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
-        VehicleType vehicleType = new VehicleType(vehicleDTO.getVehicleType(), 10.0);
+        Vehicle vehicleToUpdate = driver.getVehicle();
+
+
+        vehicleToUpdate.getVehicleType().setVehicleCategory(vehicleDTO.getVehicleType());
 
         Location location = new Location(vehicleDTO.getCurrentLocation().getAddress(),
                 vehicleDTO.getCurrentLocation().getLatitude(), vehicleDTO.getCurrentLocation().getLongitude());
-        Vehicle vehicle = new Vehicle(vehicleDTO.getModel(),
-                vehicleType, vehicleDTO.getLicenseNumber(),
-                vehicleDTO.getPassengerSeats(), location,
-                vehicleDTO.isBabyTransport(), vehicleDTO.isPetTransport());
 
-        locationService.save(location);
-        vehicleTypeService.save(vehicle.getVehicleType());
-        vehicle.setDriver(driver);
-        vehicle = vehicleService.save(vehicle);
+        vehicleToUpdate.setVehicleModel(vehicleDTO.getModel());
+        vehicleToUpdate.setRegistrationPlate(vehicleDTO.getLicenseNumber());
+        vehicleToUpdate.setSeats(vehicleDTO.getPassengerSeats());
+        vehicleToUpdate.setBabiesAllowed(vehicleDTO.isBabyTransport());
+        vehicleToUpdate.setPetsAllowed(vehicleDTO.isPetTransport());
 
-        driver.setVehicle(vehicle);
-        driverService.save(driver);
+//        Vehicle vehicle = new Vehicle(vehicleDTO.getModel(),
+//                vehicleType, vehicleDTO.getLicenseNumber(),
+//                vehicleDTO.getPassengerSeats(), location,
+//                vehicleDTO.isBabyTransport(), vehicleDTO.isPetTransport());
 
-        return new ResponseEntity<>(new VehicleDetailsDTO(vehicle), HttpStatus.OK);
+
+        location = locationService.save(location);
+        vehicleToUpdate.setCurrentLocation(location);
+        vehicleTypeService.save(vehicleToUpdate.getVehicleType());
+        vehicleToUpdate = vehicleService.save(vehicleToUpdate);
+
+//        driver.setVehicle(vehicle);
+//        driverService.save(driver);
+
+        return new ResponseEntity<>(new VehicleDetailsDTO(vehicleToUpdate), HttpStatus.OK);
     }
 
     @GetMapping(value = "/{driverId}/working-hour")

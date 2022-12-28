@@ -18,7 +18,7 @@ public class VehicleTypeService implements IVehicleTypeService {
 
     @Override
     public VehicleType save(VehicleType vehicleType) {
-        return vehicleTypeRepository.save(vehicleType);
+        return vehicleTypeRepository.saveAndFlush(vehicleType);
     }
 
     @Override

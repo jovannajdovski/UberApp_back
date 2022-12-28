@@ -19,9 +19,8 @@ public class LocationService implements ILocationService {
 
     @Override
     public Location save(Location location) {
-        return locationRepository.save(location);
+        return locationRepository.saveAndFlush(location);
     }
-
 
 
 }
