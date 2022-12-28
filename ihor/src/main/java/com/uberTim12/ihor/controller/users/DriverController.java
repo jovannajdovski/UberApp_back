@@ -101,7 +101,7 @@ public class DriverController {
             driverDTOs.add(new DriverDetailsDTO(d));
         }
 
-        ObjectListResponseDTO<DriverDetailsDTO> objectListResponse = new ObjectListResponseDTO<>(driverDTOs.size(), driverDTOs);
+        ObjectListResponseDTO<DriverDetailsDTO> objectListResponse = new ObjectListResponseDTO<>(driverService.findAll().size(), driverDTOs);
         return new ResponseEntity<>(objectListResponse, HttpStatus.OK);
     }
 
