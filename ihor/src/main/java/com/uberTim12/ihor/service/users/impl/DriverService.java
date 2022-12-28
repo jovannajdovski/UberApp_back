@@ -9,6 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class DriverService implements IDriverService {
 
@@ -25,6 +27,10 @@ public class DriverService implements IDriverService {
     public Driver findOne(Integer id) {
         return driverRepository.findById(id).orElse(null);
     }
+
+    @Override
+    public List<Driver> findAll() { return driverRepository.findAll(); }
+
     @Override
     public Driver findByEmail(String email) {
         return driverRepository.findByEmail(email);

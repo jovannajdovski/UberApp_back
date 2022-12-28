@@ -125,6 +125,7 @@ public class UserController {
     public ResponseEntity<?> getUserMessages(@PathVariable Integer id)
     {
         List<MessageDTO> messages = messageService.getMessages(id);
+
         if(messages==null) //TODO sve greske
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
         else {
