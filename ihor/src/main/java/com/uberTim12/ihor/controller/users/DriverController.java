@@ -139,7 +139,10 @@ public class DriverController {
         driver.setTelephoneNumber(driverDTO.getTelephoneNumber());
         driver.setEmail(driverDTO.getEmail());
         driver.setAddress(driverDTO.getAddress());
-        driver.setPassword(driverDTO.getPassword());
+
+        if (!driverDTO.getPassword().equals("")){
+            driver.setPassword(driverDTO.getPassword());
+        }
 
         driver = driverService.save(driver);
         return new ResponseEntity<>(new DriverDTO(driver), HttpStatus.OK);

@@ -112,7 +112,10 @@ public class PassengerController {
         passenger.setTelephoneNumber(passengerDTO.getTelephoneNumber());
         passenger.setEmail(passengerDTO.getEmail());
         passenger.setAddress(passengerDTO.getAddress());
-        passenger.setPassword(passengerDTO.getPassword());
+
+        if (!passengerDTO.getPassword().equals("")){
+            passenger.setPassword(passengerDTO.getPassword());
+        }
 
         passenger = passengerService.save(passenger);
 

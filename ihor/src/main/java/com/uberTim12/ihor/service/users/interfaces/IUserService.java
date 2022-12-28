@@ -17,4 +17,8 @@ public interface IUserService {
     boolean blockUser(Integer id);
 
     boolean unblockUser(Integer id);
+
+    User findById(Integer id);
+
+    User save(User user);
 }

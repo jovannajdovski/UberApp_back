@@ -1,11 +1,10 @@
 package com.uberTim12.ihor.controller.users;
 
+import com.uberTim12.ihor.dto.users.*;
+import com.uberTim12.ihor.model.users.Administrator;
 import com.uberTim12.ihor.security.JwtUtil;
 import com.uberTim12.ihor.dto.communication.*;
 import com.uberTim12.ihor.dto.ride.RideFullDTO;
-import com.uberTim12.ihor.dto.users.AuthTokenDTO;
-import com.uberTim12.ihor.dto.users.UserCredentialsDTO;
-import com.uberTim12.ihor.dto.users.UserDTO;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.users.User;
 import com.uberTim12.ihor.service.communication.impl.MessageService;
@@ -203,5 +202,27 @@ public class UserController {
                 ObjectListResponseDTO<NoteDTO> res = new ObjectListResponseDTO<>(noteDTOS.size(),noteDTOS);
                 return new ResponseEntity<>(res, HttpStatus.OK);}
         }
+    }
+
+    @PutMapping(value = "/{id}/passwordchange", consumes = "application/json")
+    public ResponseEntity<?> updatePassword(@PathVariable Integer id, @RequestBody NewPasswordDTO newPasswordDTO) {
+
+        User user = userService.findById(id);
+
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+
+        if (!user.getPassword().equals(newPasswordDTO.getCurrentPassword())){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
+        }
+
+        if (!newPasswordDTO.getNewPassword().equals("")){
+            user.setPassword(newPasswordDTO.getNewPassword());
+        }
+
+        user = userService.save(user);
+
+        return new ResponseEntity<>(new UserDTO(user), HttpStatus.OK);
     }
 }

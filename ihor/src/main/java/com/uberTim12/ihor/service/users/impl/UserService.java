@@ -92,4 +92,14 @@ public class UserService implements IUserService, UserDetailsService {
     {
         return hashCode;
     }
+
+    public User findById(Integer id) {
+        return userRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public User save(User user) {
+        return userRepository.save(user);
+    }
+
 }

@@ -46,7 +46,10 @@ public class AdminController {
         admin.setTelephoneNumber(adminDTO.getTelephoneNumber());
         admin.setEmail(adminDTO.getEmail());
         admin.setAddress(adminDTO.getAddress());
-        admin.setPassword(adminDTO.getPassword());
+
+        if (!adminDTO.getPassword().equals("")){
+            admin.setPassword(adminDTO.getPassword());
+        }
 
         admin = adminService.save(admin);
 
