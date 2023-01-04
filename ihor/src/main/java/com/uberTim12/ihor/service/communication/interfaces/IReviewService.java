@@ -12,9 +12,9 @@ public interface IReviewService {
 
     Page<NoteDTO> getNotes(Integer id, Pageable pageable);
 
-    ReviewDTO createVehicleReview(Integer rideId, Integer vehicleId, ReviewRequestDTO reviewRequestDTO);
+    ReviewDTO createVehicleReview(Integer rideId, ReviewRequestDTO reviewRequestDTO);
 
-    ReviewDTO createDriverReview(Integer rideId, Integer driverId, ReviewRequestDTO reviewRequestDTO);
+    ReviewDTO createDriverReview(Integer rideId, ReviewRequestDTO reviewRequestDTO);
 
     List<ReviewDTO> getReviewsForVehicle(Integer vehicleId);
 

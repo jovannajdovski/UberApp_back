@@ -205,25 +205,59 @@ public class UserController {
         }
     }
 
-    @PutMapping(value = "/{id}/passwordchange", consumes = "application/json")
-    public ResponseEntity<?> updatePassword(@PathVariable Integer id, @RequestBody NewPasswordDTO newPasswordDTO) {
-
+    @PutMapping(value="/{id}/changePassword", consumes = "application/json")
+    public ResponseEntity<?> changePassword(@PathVariable Integer id, @RequestBody NewPasswordDTO newPasswordDTO)
+    {
         User user = userService.findById(id);
 
         if (user == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist!");
         }
 
-        if (!user.getPassword().equals(newPasswordDTO.getCurrentPassword())){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
+        if (!user.getPassword().equals(newPasswordDTO.getNew_password())){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Current password is not matching!");
         }
 
-        if (!newPasswordDTO.getNewPassword().equals("")){
-            user.setPassword(newPasswordDTO.getNewPassword());
+        if (!newPasswordDTO.getNew_password().equals("")){
+            user.setPassword(newPasswordDTO.getNew_password());
         }
 
-        user = userService.save(user);
+        userService.save(user);
 
-        return new ResponseEntity<>(new UserDTO(user), HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Password successfully changed!");
+    }
+    @GetMapping(value="/{id}/resetPassword")
+    public ResponseEntity<?> sendResetCodeToEmail(@PathVariable Integer id)
+    {
+        User user = userService.findById(id);
+
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist!");
+        }
+        //TODO
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Email with reset code has been sent!");
+    }
+    @PutMapping(value="/{id}/resetPassword", consumes = "application/json")
+    public ResponseEntity<?> changePasswordWithResetCode(@PathVariable Integer id, @RequestBody ResetPasswordDTO resetPasswordDTO)
+    {
+        User user = userService.findById(id);
+
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist!");
+        }
+
+        if (!user.getPassword().equals(resetPasswordDTO.getCode())) // || is expired TODO
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Code is expired or not correct!");
+        }
+
+        if (!resetPasswordDTO.getNew_password().equals("")){
+            user.setPassword(resetPasswordDTO.getNew_password());
+        }
+
+        userService.save(user);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Password successfully changed!");
     }
 }

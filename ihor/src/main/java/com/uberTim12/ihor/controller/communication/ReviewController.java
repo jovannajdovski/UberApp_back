@@ -20,12 +20,12 @@ public class ReviewController {
     private ReviewService reviewService;
 
     @PostMapping(value = "/{rideId}/vehicle/{id}",consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> leaveReviewForVehicle(@PathVariable Integer rideId, @PathVariable("id") Integer vehicleId, @RequestBody ReviewRequestDTO reviewRequestDTO)
+    public ResponseEntity<?> leaveReviewForVehicle(@PathVariable Integer rideId, @RequestBody ReviewRequestDTO reviewRequestDTO)
     {
-        if(rideId==null || vehicleId==null) //TODO sve greske
+        if(rideId==null) //TODO sve greske
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
         else {
-            ReviewDTO review = reviewService.createVehicleReview(rideId, vehicleId, reviewRequestDTO);
+            ReviewDTO review = reviewService.createVehicleReview(rideId, reviewRequestDTO);
             if(review==null)
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             else
@@ -42,12 +42,12 @@ public class ReviewController {
     }
 
     @PostMapping(value = "/{rideId}/driver/{id}",consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> leaveReviewForDriver(@PathVariable Integer rideId, @PathVariable("id") Integer driverId, @RequestBody ReviewRequestDTO reviewRequestDTO)
+    public ResponseEntity<?> leaveReviewForDriver(@PathVariable Integer rideId, @RequestBody ReviewRequestDTO reviewRequestDTO)
     {
-        if(rideId==null || driverId==null) //TODO sve greske
+        if(rideId==null) //TODO sve greske
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
         else {
-            ReviewDTO review = reviewService.createDriverReview(rideId, driverId, reviewRequestDTO);
+            ReviewDTO review = reviewService.createDriverReview(rideId, reviewRequestDTO);
             if(review==null)
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             else

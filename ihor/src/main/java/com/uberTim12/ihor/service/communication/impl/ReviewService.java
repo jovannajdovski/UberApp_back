@@ -49,7 +49,7 @@ public class ReviewService implements IReviewService {
     }
 
     @Override
-    public ReviewDTO createVehicleReview(Integer rideId, Integer vehicleId, ReviewRequestDTO reviewRequestDTO) {
+    public ReviewDTO createVehicleReview(Integer rideId, ReviewRequestDTO reviewRequestDTO) {
         Optional<Ride> ride=rideRepository.findById(rideId);
         if(ride.isEmpty()) return null;
         else {
@@ -76,7 +76,7 @@ public class ReviewService implements IReviewService {
     }
 
     @Override
-    public ReviewDTO createDriverReview(Integer rideId, Integer driverId, ReviewRequestDTO reviewRequestDTO) {
+    public ReviewDTO createDriverReview(Integer rideId, ReviewRequestDTO reviewRequestDTO) {
         Optional<Ride> ride=rideRepository.findById(rideId);
         if(ride.isEmpty()) return null;
         else {
