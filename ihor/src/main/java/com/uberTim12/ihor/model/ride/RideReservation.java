@@ -1,11 +1,11 @@
 package com.uberTim12.ihor.model.ride;
 
 import com.uberTim12.ihor.dto.ride.CreateRideDTO;
-import com.uberTim12.ihor.dto.ride.RideDTO;
 import com.uberTim12.ihor.model.communication.Review;
 import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.users.Passenger;
+import com.uberTim12.ihor.model.vehicle.VehicleCategory;
 import com.uberTim12.ihor.model.vehicle.VehicleType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -20,8 +20,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Data
 @Entity
-public class Ride {
-
+public class RideReservation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -29,46 +28,27 @@ public class Ride {
     @Column(name = "start_time", nullable = false)
     private LocalDateTime startTime;
 
-    @Column(name = "end_time", nullable = false)
-    private LocalDateTime endTime;
-
-    @Column(name = "total_price", nullable = false)
-    private Double totalPrice;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "driver_id")
-    private Driver driver;
-
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH}, fetch = FetchType.LAZY)
     @JoinTable(
-            name="passenger_ride",
-            joinColumns = @JoinColumn(name = "ride_id", referencedColumnName = "id"),
+            name="passenger_ride_reservation",
+            joinColumns = @JoinColumn(name = "ride_reservation_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "passenger_id", referencedColumnName = "id")
     )
     private Set<Passenger> passengers = new HashSet<>();
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH}, fetch = FetchType.LAZY)
     @JoinTable(
-            name="ride_path",
-            joinColumns = @JoinColumn(name = "ride_id", referencedColumnName = "id"),
+            name="ride_path_reservation",
+            joinColumns = @JoinColumn(name = "ride_reservation_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "path_id", referencedColumnName = "id")
     )
     private Set<Path> paths = new HashSet<>();
 
+    @Column(name = "total_price", nullable = false)
+    private Double totalPrice;
+
     @Column(name = "estimated_time", nullable = false)
     private Double estimatedTime;
-
-    @OneToMany(mappedBy = "ride", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Set<Review> reviews = new HashSet<>();
-    @Enumerated
-    @Column(name = "ride_status", nullable = false)
-    private RideStatus rideStatus;
-
-    @OneToOne(cascade = CascadeType.ALL)
-    private RideRejection rideRejection;
-
-    @Column(name = "is_panic_activated", nullable = false)
-    private boolean isPanicActivated;
 
     @Column(name = "babies_allowed", nullable = false)
     private boolean babiesAllowed;
@@ -76,13 +56,13 @@ public class Ride {
     @Column(name = "pets_allowed", nullable = false)
     private boolean petsAllowed;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH})
-    @JoinColumn(name = "vehicle_type")
-    private VehicleType vehicleType;
+    @Column(name = "vehicle_category")
+    private VehicleCategory vehicleCategory;
 
-    public Ride(CreateRideDTO rideDTO) {
+    public RideReservation(CreateRideDTO rideDTO) {
+        this.startTime = rideDTO.getStartTime();
         this.babiesAllowed = rideDTO.isBabyTransport();
         this.petsAllowed = rideDTO.isPetTransport();
-        this.startTime=rideDTO.getStartTime();
+        this.vehicleCategory = rideDTO.getVehicleCategory();
     }
 }

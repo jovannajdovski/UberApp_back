@@ -4,11 +4,13 @@ package com.uberTim12.ihor.service.ride.impl;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.dto.ride.RideRequestDTO;
 import com.uberTim12.ihor.dto.ride.RideResponseDTO;
+import com.uberTim12.ihor.model.ride.RideReservation;
 import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.users.Passenger;
 import com.uberTim12.ihor.model.vehicle.Vehicle;
 import com.uberTim12.ihor.repository.ride.IRideRepository;
+import com.uberTim12.ihor.repository.ride.IRideReservationRepository;
 import com.uberTim12.ihor.repository.users.IDriverRepository;
 import com.uberTim12.ihor.repository.users.IPassengerRepository;
 import com.uberTim12.ihor.service.ride.interfaces.IRideService;
@@ -29,6 +31,8 @@ public class RideService implements IRideService {
 
     @Autowired
     private IRideRepository rideRepository;
+    @Autowired
+    private IRideReservationRepository rideReservationRepository;
     @Autowired
     private IDriverRepository driverRepository;
     @Autowired
@@ -73,6 +77,11 @@ public class RideService implements IRideService {
     @Override
     public Ride save(Ride ride){
         return rideRepository.save(ride);
+    }
+
+    @Override
+    public RideReservation save(RideReservation rideReservation){
+        return rideReservationRepository.save(rideReservation);
     }
 
     @Override

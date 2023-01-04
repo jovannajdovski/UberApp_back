@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -22,14 +23,16 @@ public class CreateRideDTO {
 
     private Set<UserRideDTO> passengers = new HashSet<>();
 
-    private VehicleCategory vehicleType;
+    private VehicleCategory vehicleCategory;
     private boolean babyTransport;
 
     private boolean petTransport;
 
+    private LocalDateTime startTime;
+
 
     public CreateRideDTO(Ride ride){
-        this(ride.getVehicleType().getVehicleCategory(), ride.isBabiesAllowed(), ride.isPetsAllowed());
+        this(ride.getStartTime(),ride.getVehicleType().getVehicleCategory(), ride.isBabiesAllowed(), ride.isPetsAllowed());
 
         Set<UserRideDTO> passengers = new HashSet<>();
         for (User u : ride.getPassengers()){
@@ -44,9 +47,10 @@ public class CreateRideDTO {
         this.locations = locations;
     }
 
-    public CreateRideDTO(VehicleCategory vehicleCategory, boolean babiesAllowed, boolean petsAllowed) {
-        this.vehicleType = vehicleCategory;
+    public CreateRideDTO(LocalDateTime startTime, VehicleCategory vehicleCategory, boolean babiesAllowed, boolean petsAllowed) {
+        this.vehicleCategory = vehicleCategory;
         this.babyTransport = babiesAllowed;
         this.petTransport = petsAllowed;
+        this.startTime=startTime;
     }
 }
