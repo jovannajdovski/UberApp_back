@@ -2,12 +2,14 @@ package com.uberTim12.ihor.service.vehicle.impl;
 
 import com.uberTim12.ihor.model.vehicle.VehicleType;
 import com.uberTim12.ihor.repository.vehicle.IVehicleTypeRepository;
+import com.uberTim12.ihor.service.base.impl.JPAService;
 import com.uberTim12.ihor.service.vehicle.interfaces.IVehicleTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 @Service
-public class VehicleTypeService implements IVehicleTypeService {
+public class VehicleTypeService extends JPAService<VehicleType> implements IVehicleTypeService {
 
     private final IVehicleTypeRepository vehicleTypeRepository;
 
@@ -17,12 +19,7 @@ public class VehicleTypeService implements IVehicleTypeService {
     }
 
     @Override
-    public VehicleType save(VehicleType vehicleType) {
-        return vehicleTypeRepository.saveAndFlush(vehicleType);
-    }
-
-    @Override
-    public void remove(Integer id) {
-        vehicleTypeRepository.deleteById(id);
+    protected JpaRepository<VehicleType, Integer> getEntityRepository() {
+        return vehicleTypeRepository;
     }
 }

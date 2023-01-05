@@ -1,8 +1,7 @@
 package com.uberTim12.ihor.service.vehicle.interfaces;
 
 import com.uberTim12.ihor.model.vehicle.VehicleType;
+import com.uberTim12.ihor.service.base.interfaces.IJPAService;
 
-public interface IVehicleTypeService {
-    VehicleType save(VehicleType vehicleType);
-    void remove(Integer id);
+public interface IVehicleTypeService extends IJPAService<VehicleType> {
 }

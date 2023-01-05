@@ -11,9 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 @Repository
 public interface IRideRepository extends JpaRepository<Ride, Integer> {
@@ -21,24 +19,24 @@ public interface IRideRepository extends JpaRepository<Ride, Integer> {
     Page<Ride> findByDriverId(Integer driverId, Pageable pageable);
 
     @Query("select r from Ride r where r.driver.id =?1 and r.startTime between ?2 and ?3")
-    public Page<Ride> findAllInRangeForDriver(Integer id, LocalDateTime start, LocalDateTime end, Pageable pageable);
+    Page<Ride> findAllInRangeForDriver(Integer id, LocalDateTime start, LocalDateTime end, Pageable pageable);
 
     @Query("select r from Ride r where ?1 member of r.passengers and r.startTime between ?2 and ?3")
-    public Page<Ride> findAllInRangeForPassenger(Passenger passenger, LocalDateTime start, LocalDateTime end, Pageable pageable);
+    Page<Ride> findAllInRangeForPassenger(Passenger passenger, LocalDateTime start, LocalDateTime end, Pageable pageable);
 
     @Query("select r from Ride r join r.passengers p where ?1 member of r.passengers")
-    public Page<Ride> findAllForPassenger(Passenger passenger, Pageable pageable);
+    Page<Ride> findAllForPassenger(Passenger passenger, Pageable pageable);
 
     @Query("select r from Ride r join fetch r.passengers p join fetch r.paths l where r.driver =?1 and ?2 between r.startTime and r.endTime")
-    public List<Ride> findActiveByDriver(Driver driver, LocalDateTime now);
+    List<Ride> findActiveByDriver(Driver driver, LocalDateTime now);
 
     @Query("select r from Ride r join fetch r.passengers p join fetch r.paths l where ?1 member of r.passengers and ?2 between r.startTime and r.endTime")
-    public List<Ride> findActiveByPassenger(Passenger passenger, LocalDateTime now);
+    List<Ride> findActiveByPassenger(Passenger passenger, LocalDateTime now);
 
     @Query("select r.passengers from Ride as r join r.passengers as p where r.id =?1")
-    public List<Passenger> findPassengersForRide(Integer id);
+    List<Passenger> findPassengersForRide(Integer id);
 
     @Query("select r.paths from Ride as r join r.paths as p where r.id =?1")
-    public List<Path> findPathsForRide(Integer id);
+    List<Path> findPathsForRide(Integer id);
 
 }

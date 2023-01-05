@@ -2,17 +2,18 @@ package com.uberTim12.ihor.service.users.impl;
 
 import com.uberTim12.ihor.model.users.WorkHours;
 import com.uberTim12.ihor.repository.users.IWorkHoursRepository;
+import com.uberTim12.ihor.service.base.impl.JPAService;
 import com.uberTim12.ihor.service.users.interfaces.IWorkHoursService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Service
-public class WorkHoursService implements IWorkHoursService {
+public class WorkHoursService extends JPAService<WorkHours> implements IWorkHoursService {
 
     private final IWorkHoursRepository workHoursRepository;
 
@@ -22,12 +23,8 @@ public class WorkHoursService implements IWorkHoursService {
     }
 
     @Override
-    public WorkHours save(WorkHours workHours) {
-        return workHoursRepository.save(workHours);
-    }
-
-    public WorkHours findOne(Integer id) {
-        return workHoursRepository.findById(id).orElse(null);
+    protected JpaRepository<WorkHours, Integer> getEntityRepository() {
+        return workHoursRepository;
     }
 
     @Override
