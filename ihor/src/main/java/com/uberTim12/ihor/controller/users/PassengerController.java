@@ -1,7 +1,6 @@
 package com.uberTim12.ihor.controller.users;
 
 import com.uberTim12.ihor.dto.communication.ObjectListResponseDTO;
-import com.uberTim12.ihor.dto.ride.RideDTO;
 import com.uberTim12.ihor.dto.ride.RideNoStatusDTO;
 import com.uberTim12.ihor.dto.users.PassengerDTO;
 import com.uberTim12.ihor.dto.users.PassengerRegistrationDTO;
@@ -9,11 +8,10 @@ import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.users.Passenger;
 import com.uberTim12.ihor.model.users.UserActivation;
 import com.uberTim12.ihor.service.users.impl.PassengerService;
-import com.uberTim12.ihor.service.users.impl.UserActivationService;
+import com.uberTim12.ihor.service.users.interfaces.IUserActivationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,10 +26,14 @@ import java.util.List;
 @RequestMapping(value = "api/passenger")
 public class PassengerController {
 
+    private final PassengerService passengerService;
+    private final IUserActivationService userActivationService;
+
     @Autowired
-    private PassengerService passengerService;
-    @Autowired
-    private UserActivationService userActivationService;
+    public PassengerController(PassengerService passengerService, IUserActivationService userActivationService) {
+        this.passengerService = passengerService;
+        this.userActivationService = userActivationService;
+    }
 
     @PostMapping(consumes = "application/json")
     public ResponseEntity<?> createPassenger(@RequestBody PassengerRegistrationDTO passengerDTO) {
@@ -54,7 +56,7 @@ public class PassengerController {
     @GetMapping
     public ResponseEntity<?> getPassengersPage(Pageable page) {
 
-        Page<Passenger> passengers = passengerService.findAll(page);
+        Page<Passenger> passengers = passengerService.getAll(page);
 
         List<PassengerDTO> passengersDTO = new ArrayList<>();
         for (Passenger p : passengers) {
@@ -68,7 +70,7 @@ public class PassengerController {
     @GetMapping(value = "/activate/{activationId}")
     public ResponseEntity<?> activatePassenger(@PathVariable Integer activationId) {
 
-        UserActivation ua = userActivationService.findById(activationId);
+        UserActivation ua = userActivationService.get(activationId);
 
         if (ua == null || ua.getExpiryDate().isBefore(LocalDateTime.now())){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
@@ -78,7 +80,7 @@ public class PassengerController {
             passenger.setActive(true);
             passengerService.save(passenger);
 
-            userActivationService.remove(activationId);
+            userActivationService.delete(activationId);
 
             return new ResponseEntity<>(HttpStatus.OK);
         }
@@ -88,7 +90,7 @@ public class PassengerController {
     @GetMapping(value = "/{id}")
     public ResponseEntity<?> getPassenger(@PathVariable Integer id) {
 
-        Passenger passenger = passengerService.findById(id);
+        Passenger passenger = passengerService.get(id);
 
         if (passenger == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
@@ -100,7 +102,7 @@ public class PassengerController {
     @PutMapping(value = "/{id}", consumes = "application/json")
     public ResponseEntity<?> updatePassenger(@PathVariable Integer id, @RequestBody PassengerRegistrationDTO passengerDTO) {
 
-        Passenger passenger = passengerService.findById(id);
+        Passenger passenger = passengerService.findByIdWithRides(id);
 
         if (passenger == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");

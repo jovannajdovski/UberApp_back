@@ -4,9 +4,12 @@ import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.users.Passenger;
 import com.uberTim12.ihor.repository.ride.IRideRepository;
 import com.uberTim12.ihor.repository.users.IPassengerRepository;
+import com.uberTim12.ihor.service.base.impl.JPAService;
+import com.uberTim12.ihor.service.users.interfaces.IPassengerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -14,17 +17,21 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class PassengerService implements com.uberTim12.ihor.service.users.interfaces.IPassengerService {
+public class PassengerService extends JPAService<Passenger> implements IPassengerService {
+
+    private final IPassengerRepository passengerRepository;
+
+    private final IRideRepository rideRepository;
 
     @Autowired
-    private IPassengerRepository passengerRepository;
-
-    @Autowired
-    private IRideRepository rideRepository;
+    public PassengerService(IPassengerRepository passengerRepository, IRideRepository rideRepository) {
+        this.passengerRepository = passengerRepository;
+        this.rideRepository = rideRepository;
+    }
 
     @Override
-    public Page<Passenger> findAll(Pageable page){
-        return passengerRepository.findAll(page);
+    protected JpaRepository<Passenger, Integer> getEntityRepository() {
+        return passengerRepository;
     }
 
     public Page<Ride> findAllById(Integer passengerId, LocalDateTime start, LocalDateTime end, Pageable page){
@@ -37,20 +44,9 @@ public class PassengerService implements com.uberTim12.ihor.service.users.interf
     }
 
     @Override
-    public Passenger findById(Integer id) {
-        return passengerRepository.findById(id).orElse(null);
-    }
-
-    @Override
     public boolean exists(String email){
         return passengerRepository.existsByEmail(email);
     }
-
-    @Override
-    public Passenger save(Passenger passenger) {
-        return passengerRepository.save(passenger);
-    }
-
 
     @Override
     public Passenger findByIdWithRides(Integer id) {
