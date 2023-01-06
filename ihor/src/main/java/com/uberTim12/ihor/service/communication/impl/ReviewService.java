@@ -23,13 +23,18 @@ import java.util.stream.Collectors;
 
 @Service
 public class ReviewService implements IReviewService {
-    @Autowired
-    private IReviewRepository reviewRepository;
-    @Autowired
-    private IRideRepository rideRepository;
+    private final IReviewRepository reviewRepository;
+
+    private final IRideRepository rideRepository;
+
+    private final IPassengerRepository passengerRepository;
 
     @Autowired
-    private IPassengerRepository passengerRepository;
+    public ReviewService(IReviewRepository reviewRepository, IRideRepository rideRepository, IPassengerRepository passengerRepository) {
+        this.reviewRepository = reviewRepository;
+        this.rideRepository = rideRepository;
+        this.passengerRepository = passengerRepository;
+    }
 
     @Override
     public NoteDTO createNote(Integer id, RequestNoteDTO requestNoteDTO) {

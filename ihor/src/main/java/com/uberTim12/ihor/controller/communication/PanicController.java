@@ -18,8 +18,12 @@ import java.util.List;
 @RequestMapping(value = "api/panic")
 public class PanicController {
 
+    private final PanicService panicService;
+
     @Autowired
-    private PanicService panicService;
+    public PanicController(PanicService panicService) {
+        this.panicService = panicService;
+    }
 
     @GetMapping
     public ResponseEntity<?> getPanicNotifications() {

@@ -12,6 +12,7 @@ import java.util.List;
 public interface IReviewRepository extends JpaRepository<Review, Integer> {
 
     Review findByRide(Ride ride);
+
     @Query("select r from Review r where r.ride.driver.vehicle.id=?1 and r.vehicleRate is not null ")
     List<Review> getReviewsForVehicle(Integer vehicleId);
 

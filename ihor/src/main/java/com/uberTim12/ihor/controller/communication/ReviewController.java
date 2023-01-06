@@ -16,8 +16,12 @@ import java.util.List;
 @RestController
 @RequestMapping(value = "api/review")
 public class ReviewController {
+    private final ReviewService reviewService;
+
     @Autowired
-    private ReviewService reviewService;
+    public ReviewController(ReviewService reviewService) {
+        this.reviewService = reviewService;
+    }
 
     @PostMapping(value = "/{rideId}/vehicle/{id}",consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> leaveReviewForVehicle(@PathVariable Integer rideId, @RequestBody ReviewRequestDTO reviewRequestDTO)
