@@ -1,21 +1,19 @@
 package com.uberTim12.ihor.service.users.impl;
 
+import com.uberTim12.ihor.exception.EmailAlreadyExistsException;
 import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.vehicle.Vehicle;
 import com.uberTim12.ihor.repository.users.IDriverRepository;
 import com.uberTim12.ihor.service.base.impl.JPAService;
 import com.uberTim12.ihor.service.users.interfaces.IDriverService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class DriverService extends JPAService<Driver> implements IDriverService {
-    private IDriverRepository driverRepository;
+    private final IDriverRepository driverRepository;
 
     @Autowired
     DriverService(IDriverRepository driverRepository) {
@@ -33,11 +31,25 @@ public class DriverService extends JPAService<Driver> implements IDriverService 
     }
 
     @Override
-    public Vehicle getVehicleFor(Integer driverId) {
-        Driver driver = get(driverId);
-        if (driver != null)
-            return driver.getVehicle();
+    public void register(Driver driver) throws EmailAlreadyExistsException {
+        if (findByEmail(driver.getEmail()) != null)
+            throw new EmailAlreadyExistsException("Email is already taken!");
 
-        return null;
+        save(driver);
+    }
+
+    @Override
+    public Driver update(Integer driverId, String name, String surname, String profilePicture,
+                         String telephoneNumber, String email, String address, String password) throws EntityNotFoundException {
+        Driver driver = get(driverId);
+        driver.setName(name);
+        driver.setSurname(surname);
+        driver.setProfilePicture(profilePicture);
+        driver.setTelephoneNumber(telephoneNumber);
+        driver.setEmail(email);
+        driver.setAddress(address);
+        if (password != null)
+            driver.setPassword(password);
+        return save(driver);
     }
 }

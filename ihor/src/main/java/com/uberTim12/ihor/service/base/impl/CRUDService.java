@@ -32,7 +32,8 @@ public abstract class CRUDService<T> implements ICRUDService<T> {
     }
 
     @Override
-    public void delete(Integer id) {
+    public void delete(Integer id) throws EntityNotFoundException {
+        findEntityChecked(id);
         getEntityRepository().deleteById(id);
 //        var entity = findEntityChecked(id);
 //        entity.setActive(false);

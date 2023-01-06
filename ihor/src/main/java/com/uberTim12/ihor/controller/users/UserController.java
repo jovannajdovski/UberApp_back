@@ -1,12 +1,11 @@
 package com.uberTim12.ihor.controller.users;
 
-import com.uberTim12.ihor.dto.users.*;
-import com.uberTim12.ihor.model.users.Administrator;
-import com.uberTim12.ihor.security.JwtUtil;
 import com.uberTim12.ihor.dto.communication.*;
 import com.uberTim12.ihor.dto.ride.RideFullDTO;
+import com.uberTim12.ihor.dto.users.*;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.users.User;
+import com.uberTim12.ihor.security.JwtUtil;
 import com.uberTim12.ihor.service.communication.impl.MessageService;
 import com.uberTim12.ihor.service.communication.impl.ReviewService;
 import com.uberTim12.ihor.service.communication.interfaces.IMessageService;
@@ -21,10 +20,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.security.authentication.AuthenticationManager;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

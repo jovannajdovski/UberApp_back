@@ -4,12 +4,14 @@ import com.uberTim12.ihor.exception.EntityPropertyIsNullException;
 import com.uberTim12.ihor.model.route.Location;
 import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.vehicle.Vehicle;
+import com.uberTim12.ihor.model.vehicle.VehicleCategory;
 import com.uberTim12.ihor.repository.vehicle.IVehicleRepository;
 import com.uberTim12.ihor.service.base.impl.JPAService;
 import com.uberTim12.ihor.service.route.interfaces.ILocationService;
 import com.uberTim12.ihor.service.users.interfaces.IDriverService;
 import com.uberTim12.ihor.service.vehicle.interfaces.IVehicleService;
 import com.uberTim12.ihor.service.vehicle.interfaces.IVehicleTypeService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -35,7 +37,7 @@ public class VehicleService extends JPAService<Vehicle> implements IVehicleServi
     }
 
     @Override
-    public void addVehicleToDriver(Integer driverId, Vehicle vehicle) {
+    public void addVehicleToDriver(Integer driverId, Vehicle vehicle) throws EntityNotFoundException {
         Driver driver = driverService.get(driverId);
 
         locationService.save(vehicle.getCurrentLocation());
@@ -48,6 +50,24 @@ public class VehicleService extends JPAService<Vehicle> implements IVehicleServi
     }
 
     @Override
+    public Vehicle updateVehicleForDriver(Integer driverId, VehicleCategory vehicleCategory, String vehicleModel,
+                                          String registrationPlate, Location currentLocation, Integer seats,
+                                          boolean babiesAllowed, boolean petsAllowed)
+            throws EntityNotFoundException, EntityPropertyIsNullException {
+        Vehicle vehicle = getVehicleOf(driverId);
+        vehicle.getVehicleType().setVehicleCategory(vehicleCategory);
+        vehicle.setVehicleModel(vehicleModel);
+        vehicle.setRegistrationPlate(registrationPlate);
+        vehicle.setSeats(seats);
+        vehicle.setBabiesAllowed(babiesAllowed);
+        vehicle.setPetsAllowed(petsAllowed);
+
+        vehicle.setCurrentLocation(locationService.save(currentLocation));
+        vehicleTypeService.save(vehicle.getVehicleType());
+        return save(vehicle);
+    }
+
+    @Override
     public void changeVehicleLocation(Integer vehicleId, Location location) throws EntityPropertyIsNullException {
         Vehicle vehicle = get(vehicleId);
         if (vehicle.getDriver() == null)
@@ -55,5 +75,14 @@ public class VehicleService extends JPAService<Vehicle> implements IVehicleServi
 
         vehicle.setCurrentLocation(location);
         save(vehicle);
+    }
+
+    @Override
+    public Vehicle getVehicleOf(Integer driverId) throws EntityNotFoundException, EntityPropertyIsNullException {
+        Driver driver = driverService.get(driverId);
+        if (driver.getVehicle() == null)
+            throw new EntityPropertyIsNullException("Driver does not have assigned vehicle!");
+
+        return driver.getVehicle();
     }
 }
