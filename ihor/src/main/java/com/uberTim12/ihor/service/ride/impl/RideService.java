@@ -11,10 +11,13 @@ import com.uberTim12.ihor.model.vehicle.Vehicle;
 import com.uberTim12.ihor.repository.ride.IRideRepository;
 import com.uberTim12.ihor.repository.users.IDriverRepository;
 import com.uberTim12.ihor.repository.users.IPassengerRepository;
+import com.uberTim12.ihor.service.base.impl.JPAService;
 import com.uberTim12.ihor.service.ride.interfaces.IRideService;
+import com.uberTim12.ihor.service.vehicle.interfaces.IVehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -25,14 +28,18 @@ import java.util.List;
 import java.util.Set;
 
 @Service
-public class RideService implements IRideService {
+public class RideService extends JPAService<Ride> implements IRideService {
+
+    private final IRideRepository rideRepository;
+    private final IDriverRepository driverRepository;
+    private final IPassengerRepository passengerRepository;
 
     @Autowired
-    private IRideRepository rideRepository;
-    @Autowired
-    private IDriverRepository driverRepository;
-    @Autowired
-    private IPassengerRepository passengerRepository;
+    public RideService(IRideRepository rideRepository, IDriverRepository driverRepository, IPassengerRepository passengerRepository) {
+        this.rideRepository = rideRepository;
+        this.driverRepository = driverRepository;
+        this.passengerRepository = passengerRepository;
+    }
 
 
     @Override
@@ -71,12 +78,17 @@ public class RideService implements IRideService {
     }
 
     @Override
+    protected JpaRepository<Ride, Integer> getEntityRepository() {
+        return rideRepository;
+    }
+
+    @Override
     public Ride save(Ride ride){
         return rideRepository.save(ride);
     }
 
     @Override
-    public Ride findById(Integer id){
+    public Ride get(Integer id){
         Ride ride = rideRepository.findById(id).orElse(null);
         if (ride==null){
             return null;

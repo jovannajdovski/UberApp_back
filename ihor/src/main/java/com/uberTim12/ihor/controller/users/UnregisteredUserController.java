@@ -14,10 +14,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class UnregisteredUserController {
+    private final RideService rideService;
+    private final UserService userService;
+
     @Autowired
-    private RideService rideService;
-    @Autowired
-    private UserService userService;
+    public UnregisteredUserController(RideService rideService, UserService userService) {
+        this.rideService = rideService;
+        this.userService = userService;
+    }
 
     @PostMapping(value = "api/unregisteredUser/",consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getEstimatedRoute(@RequestBody RideRequestDTO rideRequestDTO)

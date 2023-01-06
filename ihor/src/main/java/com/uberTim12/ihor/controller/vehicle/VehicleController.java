@@ -8,6 +8,7 @@ import com.uberTim12.ihor.service.route.interfaces.ILocationService;
 import com.uberTim12.ihor.service.vehicle.impl.VehicleService;
 import com.uberTim12.ihor.service.vehicle.interfaces.IVehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +31,7 @@ public class VehicleController {
     public ResponseEntity<?> changeVehicleLocation(@PathVariable Integer vehicleId,
                                                    @RequestBody LocationDTO locationDTO) {
 
-        Vehicle vehicle = vehicleService.findOne(vehicleId);
+        Vehicle vehicle = vehicleService.get(vehicleId);
 
         if (vehicle == null)
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

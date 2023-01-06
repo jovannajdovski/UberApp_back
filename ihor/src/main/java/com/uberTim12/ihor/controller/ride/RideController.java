@@ -33,20 +33,24 @@ import java.util.Set;
 @RequestMapping(value = "api/ride")
 public class RideController {
 
-    @Autowired
-    private RideService rideService;
+    private final RideService rideService;
+
+    private final PathService pathService;
+
+    private final PassengerService passengerService;
+
+    private final DriverService driverService;
+
+    private final PanicService panicService;
 
     @Autowired
-    private PathService pathService;
-
-    @Autowired
-    private PassengerService passengerService;
-
-    @Autowired
-    private DriverService driverService;
-
-    @Autowired
-    private PanicService panicService;
+    public RideController(RideService rideService, PathService pathService, PassengerService passengerService, DriverService driverService, PanicService panicService) {
+        this.rideService = rideService;
+        this.pathService = pathService;
+        this.passengerService = passengerService;
+        this.driverService = driverService;
+        this.panicService = panicService;
+    }
 
     @PostMapping(consumes = "application/json")
     public ResponseEntity<?> createRide(@RequestBody CreateRideDTO rideDTO) {
@@ -75,7 +79,7 @@ public class RideController {
 
         Set<Passenger> passengers = new HashSet<>();
         for (UserRideDTO udto: rideDTO.getPassengers()){
-            Passenger passenger = passengerService.findById(udto.getId());
+            Passenger passenger = passengerService.get(udto.getId());
             passengers.add(passenger);
         }
         ride.setPassengers(passengers);
@@ -84,7 +88,7 @@ public class RideController {
 //        mokapDriver.setId(9999);
 //        mokapDriver.setEmail("mokap@gmail.com");
 
-        Driver mokapDriver = driverService.findById(2);
+        Driver mokapDriver = driverService.get(2);
 
         ride.setDriver(mokapDriver);
         ride.setStartTime(LocalDateTime.now());
@@ -93,10 +97,12 @@ public class RideController {
         ride.setEstimatedTime(20.0);
         ride.setRideStatus(RideStatus.PENDING);
 
-//        RideRejection mokapRideRejection = new RideRejection();
-//        mokapRideRejection.setReason("exit");
-//        mokapRideRejection.setTime(LocalDateTime.now());
-//        ride.setRideRejection(mokapRideRejection);
+/*
+        RideRejection mokapRideRejection = new RideRejection();
+        mokapRideRejection.setReason("exit");
+        mokapRideRejection.setTime(LocalDateTime.now());
+        ride.setRideRejection(mokapRideRejection);
+*/
 
         ride = rideService.save(ride);
         return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
@@ -109,7 +115,7 @@ public class RideController {
         if (driverId == 1)
             driverId++;
 
-        Driver driver = driverService.findById(driverId);
+        Driver driver = driverService.get(driverId);
 
         if (driver == null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
@@ -126,7 +132,7 @@ public class RideController {
     @GetMapping(value = "/passenger/{passengerId}/active")
     public ResponseEntity<?> getActiveRideForPassenger(@PathVariable Integer passengerId) {
 
-        Passenger passenger = passengerService.findById(passengerId);
+        Passenger passenger = passengerService.get(passengerId);
 
         if (passenger == null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
@@ -143,7 +149,7 @@ public class RideController {
     @GetMapping(value = "/{id}")
     public ResponseEntity<?> getRideById(@PathVariable Integer id) {
 
-        Ride ride = rideService.findById(id);
+        Ride ride = rideService.get(id);
 
         if (ride == null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
@@ -155,7 +161,7 @@ public class RideController {
     @PutMapping(value = "/{id}/withdraw")
     public ResponseEntity<?> cancelRide(@PathVariable Integer id) {
 
-        Ride ride = rideService.findById(id);
+        Ride ride = rideService.get(id);
 
         if (ride == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
@@ -171,7 +177,7 @@ public class RideController {
     @PutMapping(value = "/{id}/panic")
     public ResponseEntity<?> panicRide(@PathVariable Integer id, @RequestBody ReasonDTO reason) {
 
-        Ride ride = rideService.findById(id);
+        Ride ride = rideService.get(id);
 
         if (ride == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
@@ -202,7 +208,7 @@ public class RideController {
     @PutMapping(value = "/{id}/accept")
     public ResponseEntity<?> acceptRide(@PathVariable Integer id) {
 
-        Ride ride = rideService.findById(id);
+        Ride ride = rideService.get(id);
 
         if (ride == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
@@ -218,7 +224,7 @@ public class RideController {
     @PutMapping(value = "/{id}/end")
     public ResponseEntity<?> endRide(@PathVariable Integer id) {
 
-        Ride ride = rideService.findById(id);
+        Ride ride = rideService.get(id);
 
         if (ride == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
@@ -234,7 +240,7 @@ public class RideController {
     @PutMapping(value = "/{id}/cancel")
     public ResponseEntity<?> rejectRide(@PathVariable Integer id, @RequestBody ReasonDTO reason) {
 
-    Ride ride = rideService.findById(id);
+    Ride ride = rideService.get(id);
 
         if (ride == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");

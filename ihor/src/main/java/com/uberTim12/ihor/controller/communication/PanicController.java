@@ -31,7 +31,7 @@ public class PanicController {
             panicsDTO.add(new PanicDTO(p));
         }
 
-        ObjectListResponseDTO<PanicDTO> res = new ObjectListResponseDTO<PanicDTO>(panicsDTO.size(),panicsDTO);
+        ObjectListResponseDTO<PanicDTO> res = new ObjectListResponseDTO<>(panicsDTO.size(), panicsDTO);
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 }

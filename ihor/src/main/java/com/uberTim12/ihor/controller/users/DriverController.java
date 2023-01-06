@@ -27,6 +27,7 @@ import com.uberTim12.ihor.service.vehicle.impl.VehicleService;
 import com.uberTim12.ihor.service.vehicle.impl.VehicleTypeService;
 import com.uberTim12.ihor.service.vehicle.interfaces.IVehicleService;
 import com.uberTim12.ihor.service.vehicle.interfaces.IVehicleTypeService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -104,14 +105,12 @@ public class DriverController {
 
     @GetMapping(value = "/{id}")
     public ResponseEntity<DriverDetailsDTO> getDriverDetails(@PathVariable Integer id) {
-
-        Driver driver = driverService.get(id);
-
-        if (driver == null)
+        try {
+            Driver driver = driverService.get(id);
+            return new ResponseEntity<>(new DriverDetailsDTO(driver), HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-
-
-        return new ResponseEntity<>(new DriverDetailsDTO(driver), HttpStatus.OK);
+        }
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)

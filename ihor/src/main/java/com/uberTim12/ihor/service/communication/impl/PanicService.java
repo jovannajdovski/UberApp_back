@@ -6,9 +6,11 @@ import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.users.Passenger;
 import com.uberTim12.ihor.repository.communication.IPanicRepository;
 import com.uberTim12.ihor.repository.ride.IRideRepository;
+import com.uberTim12.ihor.service.base.impl.JPAService;
 import com.uberTim12.ihor.service.communication.interfaces.IPanicService;
 import com.uberTim12.ihor.service.ride.interfaces.IRideService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -16,17 +18,21 @@ import java.util.List;
 import java.util.Set;
 
 @Service
-public class PanicService implements IPanicService {
+public class PanicService extends JPAService<Panic> implements IPanicService {
+
+    private final IPanicRepository panicRepository;
+
+    private final IRideService rideService;
 
     @Autowired
-    private IPanicRepository panicRepository;
-
-    @Autowired
-    private IRideService rideService;
+    public PanicService(IPanicRepository panicRepository, IRideService rideService) {
+        this.panicRepository = panicRepository;
+        this.rideService = rideService;
+    }
 
     @Override
-    public Panic save(Panic panic){
-        return panicRepository.save(panic);
+    protected JpaRepository<Panic, Integer> getEntityRepository() {
+        return panicRepository;
     }
 
     @Override
