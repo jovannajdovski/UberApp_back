@@ -1,5 +1,7 @@
 package com.uberTim12.ihor.service.vehicle.impl;
 
+import com.uberTim12.ihor.exception.EntityPropertyIsNullException;
+import com.uberTim12.ihor.model.route.Location;
 import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.vehicle.Vehicle;
 import com.uberTim12.ihor.repository.vehicle.IVehicleRepository;
@@ -43,5 +45,15 @@ public class VehicleService extends JPAService<Vehicle> implements IVehicleServi
 
         driver.setVehicle(vehicle);
         driverService.save(driver);
+    }
+
+    @Override
+    public void changeVehicleLocation(Integer vehicleId, Location location) throws EntityPropertyIsNullException {
+        Vehicle vehicle = get(vehicleId);
+        if (vehicle.getDriver() == null)
+            throw new EntityPropertyIsNullException("Vehicle is not assigned to driver!");
+
+        vehicle.setCurrentLocation(location);
+        save(vehicle);
     }
 }

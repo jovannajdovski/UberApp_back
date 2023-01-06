@@ -1,5 +1,6 @@
 package com.uberTim12.ihor.controller.vehicle;
 
+import com.uberTim12.ihor.exception.EntityPropertyIsNullException;
 import com.uberTim12.ihor.model.route.Location;
 import com.uberTim12.ihor.dto.route.LocationDTO;
 import com.uberTim12.ihor.model.vehicle.Vehicle;
@@ -7,6 +8,7 @@ import com.uberTim12.ihor.service.route.impl.LocationService;
 import com.uberTim12.ihor.service.route.interfaces.ILocationService;
 import com.uberTim12.ihor.service.vehicle.impl.VehicleService;
 import com.uberTim12.ihor.service.vehicle.interfaces.IVehicleService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration;
 import org.springframework.http.HttpStatus;
@@ -19,29 +21,25 @@ import org.springframework.web.bind.annotation.*;
 public class VehicleController {
 
     private final IVehicleService vehicleService;
-    private final ILocationService locationService;
 
     @Autowired
-    VehicleController(VehicleService vehicleService, LocationService locationService) {
+    VehicleController(VehicleService vehicleService) {
         this.vehicleService = vehicleService;
-        this.locationService = locationService;
     }
 
     @PutMapping(value = "/{vehicleId}/location", consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> changeVehicleLocation(@PathVariable Integer vehicleId,
                                                    @RequestBody LocationDTO locationDTO) {
 
-        Vehicle vehicle = vehicleService.get(vehicleId);
-
-        if (vehicle == null)
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
         Location location = new Location(locationDTO.getAddress(), locationDTO.getLatitude(), locationDTO.getLongitude());
-
-        location = locationService.save(location);
-
-        vehicle.setCurrentLocation(location);
-        vehicleService.save(vehicle);
+        try {
+            vehicleService.changeVehicleLocation(vehicleId, location);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Vehicle does not exist!");
+        } catch (EntityPropertyIsNullException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Coordinates successfully updated");
     }
