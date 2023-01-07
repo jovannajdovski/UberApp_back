@@ -13,4 +13,5 @@ public interface IWorkHoursService {
     WorkHours findOne(Integer id);
     Page<WorkHours> findFilteredWorkHours(Integer driverId, Pageable pageable);
     Page<WorkHours> findFilteredWorkHours(Integer driverId, LocalDateTime from, LocalDateTime to, Pageable pageable);
+    long getWorkingMinutesByDriverAtChoosedDay(Integer driverId, LocalDate date);
 }

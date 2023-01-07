@@ -29,7 +29,7 @@ public class Ride {
     @Column(name = "start_time", nullable = false)
     private LocalDateTime startTime;
 
-    @Column(name = "end_time", nullable = false)
+    @Column(name = "end_time")
     private LocalDateTime endTime;
 
     @Column(name = "total_price", nullable = false)
@@ -84,5 +84,7 @@ public class Ride {
         this.babiesAllowed = rideDTO.isBabyTransport();
         this.petsAllowed = rideDTO.isPetTransport();
         this.startTime=rideDTO.getStartTime();
+        this.vehicleType=new VehicleType();
+        this.vehicleType.setVehicleCategory(rideDTO.getVehicleCategory());
     }
 }

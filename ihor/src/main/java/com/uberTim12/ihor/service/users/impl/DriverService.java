@@ -1,24 +1,30 @@
 package com.uberTim12.ihor.service.users.impl;
 
+import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.vehicle.Vehicle;
 import com.uberTim12.ihor.repository.users.IDriverRepository;
+import com.uberTim12.ihor.service.ride.interfaces.IRideService;
 import com.uberTim12.ihor.service.users.interfaces.IDriverService;
+import com.uberTim12.ihor.service.users.interfaces.IWorkHoursService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 public class DriverService implements IDriverService {
 
+    @Autowired
     private IDriverRepository driverRepository;
     @Autowired
-    DriverService(IDriverRepository driverRepository) {
-        this.driverRepository = driverRepository;
-    }
+    private IWorkHoursService workHoursService;
+    @Autowired
+    private IRideService rideService;
     @Override
     public Driver save(Driver driver) {
         return driverRepository.save(driver);
@@ -55,6 +61,19 @@ public class DriverService implements IDriverService {
     @Override
     public Driver findById(Integer id){
         return driverRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public boolean isDriverAvailable(Driver driver, Ride ride) {
+        return workHoursService.getWorkingMinutesByDriverAtChoosedDay(driver.getId(), LocalDate.now())
+                + rideService.getTimeOfNextRidesByDriverAtChoosedDay(driver.getId(),LocalDate.now())
+                + ride.getEstimatedTime() <= 8 * 60;
+    }
+
+    @Override
+    public boolean isDriverFreeForRide(Driver driver, Ride ride) {
+        //nema voznji u tom trenutku i nema nakon te
+        return false;
     }
 
 }

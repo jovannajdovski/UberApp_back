@@ -10,16 +10,14 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @Service
 public class WorkHoursService implements IWorkHoursService {
 
-    private final IWorkHoursRepository workHoursRepository;
-
     @Autowired
-    WorkHoursService(IWorkHoursRepository workHoursRepository) {
-        this.workHoursRepository = workHoursRepository;
-    }
+    private IWorkHoursRepository workHoursRepository;
 
     @Override
     public WorkHours save(WorkHours workHours) {
@@ -38,5 +36,19 @@ public class WorkHoursService implements IWorkHoursService {
     @Override
     public Page<WorkHours> findFilteredWorkHours(Integer driverId, LocalDateTime from, LocalDateTime to, Pageable pageable) {
         return workHoursRepository.findByDriverIdAndDateRange(driverId, from, to, pageable);
+    }
+    @Override
+    public long getWorkingMinutesByDriverAtChoosedDay(Integer driverId, LocalDate date)
+    {
+        List<WorkHours> workHoursList=workHoursRepository.findByDriverIdAndStartTimeDate(driverId,date);
+        long sum=0;
+        for(WorkHours workHours:workHoursList)
+        {
+            if(workHours.getEndTime()!=null)
+                sum+=ChronoUnit.MINUTES.between(workHours.getStartTime(), workHours.getEndTime());
+            else
+                sum+=ChronoUnit.MINUTES.between(workHours.getStartTime(), LocalDateTime.now());
+    }
+        return sum;
     }
 }

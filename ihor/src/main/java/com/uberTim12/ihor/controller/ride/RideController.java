@@ -4,19 +4,16 @@ import com.uberTim12.ihor.dto.communication.PanicDTO;
 import com.uberTim12.ihor.dto.communication.ReasonDTO;
 import com.uberTim12.ihor.dto.ride.CreateRideDTO;
 import com.uberTim12.ihor.dto.ride.RideFullDTO;
-import com.uberTim12.ihor.dto.ride.RideReservationFullDTO;
 import com.uberTim12.ihor.dto.route.PathDTO;
 import com.uberTim12.ihor.dto.users.UserRideDTO;
 import com.uberTim12.ihor.model.communication.Panic;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.ride.RideRejection;
-import com.uberTim12.ihor.model.ride.RideReservation;
 import com.uberTim12.ihor.model.ride.RideStatus;
 import com.uberTim12.ihor.model.route.Location;
 import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.users.Passenger;
-import com.uberTim12.ihor.model.vehicle.VehicleType;
 import com.uberTim12.ihor.service.communication.impl.PanicService;
 import com.uberTim12.ihor.service.ride.impl.RideSchedulingService;
 import com.uberTim12.ihor.service.ride.impl.RideService;
@@ -57,21 +54,50 @@ public class RideController {
     @PostMapping(consumes = "application/json")
     public ResponseEntity<?> createRide(@RequestBody CreateRideDTO rideDTO) {
 
-        if(ChronoUnit.MINUTES.between(LocalDateTime.now(), rideDTO.getStartTime())>30)
-        {
-            RideReservation rideReservation=rideSchedulingService.bookRide(rideDTO);
-            if(rideReservation==null)
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to book a ride");
-            return new ResponseEntity<>(new RideReservationFullDTO(rideReservation), HttpStatus.OK);
-        }
-        else{
+        Ride ride = new Ride(rideDTO);
 
+        Set<Path> paths = new HashSet<>();
 
-            Ride ride = rideSchedulingService.findFreeVehicle(rideDTO);
-            if(ride==null)
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("driving is not possible");
-            return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
+        for (PathDTO pdto: rideDTO.getLocations()){
+            Path path = new Path();
+
+            Location departure = pdto.getDeparture().generateLocation();
+            Location destination = pdto.getDestination().generateLocation();
+
+            path.setStartPoint(departure);
+            path.setEndPoint(destination);
+
+            path = pathService.save(path);
+            paths.add(path);
         }
+        ride.setPaths(paths);
+
+        Set<Passenger> passengers = new HashSet<>();
+        for (UserRideDTO udto: rideDTO.getPassengers()){
+            Passenger passenger = passengerService.findById(udto.getId());
+            passengers.add(passenger);
+        }
+        ride.setPassengers(passengers);
+        ride=rideSchedulingService.findFreeVehicle(ride);
+        if(ride==null)
+              return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("driving is not possible");
+        return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
+
+//        if(ChronoUnit.MINUTES.between(LocalDateTime.now(), rideDTO.getStartTime())>30)
+//        {
+//            Ride ride=rideSchedulingService.bookRide(rideDTO);
+//            if(rideReservation==null)
+//                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to book a ride");
+//            return new ResponseEntity<>(new RideReservationFullDTO(rideReservation), HttpStatus.OK);
+//        }
+//        else{
+//
+//
+//            Ride ride = rideSchedulingService.findFreeVehicle(rideDTO);
+//            if(ride==null)
+//                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("driving is not possible");
+//            return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
+//        }
 
     }
 
