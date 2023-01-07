@@ -34,7 +34,7 @@ public class AdminController {
     }
 
     @PutMapping(value = "/{id}", consumes = "application/json")
-    public ResponseEntity<?> updateAdmin(@PathVariable Integer id, @RequestBody AdminRegistrationDTO adminDTO) {
+    public ResponseEntity<UserDTO> updateAdmin(@PathVariable Integer id, @RequestBody AdminRegistrationDTO adminDTO) {
         try {
             Administrator admin = adminService.update(id, adminDTO.getName(), adminDTO.getSurname(), adminDTO.getProfilePicture(),
                     adminDTO.getTelephoneNumber(), adminDTO.getEmail(), adminDTO.getAddress(), adminDTO.getPassword());

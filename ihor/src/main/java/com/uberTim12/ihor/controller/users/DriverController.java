@@ -82,7 +82,7 @@ public class DriverController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getDriversPage(Pageable page) {
+    public ResponseEntity<ObjectListResponseDTO<DriverDetailsDTO>> getDriversPage(Pageable page) {
         Page<Driver> drivers = driverService.getAll(page);
 
         List<DriverDetailsDTO> driverDTOs = new ArrayList<>();

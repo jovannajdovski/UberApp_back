@@ -30,7 +30,6 @@ public class UserActivationService extends JPAService<UserActivation> implements
 
     @Override
     public UserActivation save(Passenger passenger) {
-
         UserActivation userActivation = new UserActivation();
         userActivation.setUser(passenger);
         userActivation.setCreationDate(LocalDateTime.now());

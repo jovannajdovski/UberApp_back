@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -39,7 +40,7 @@ public class PassengerController {
     }
 
     @PostMapping(consumes = "application/json")
-    public ResponseEntity<?> createPassenger(@RequestBody PassengerRegistrationDTO passengerDTO) {
+    public ResponseEntity<PassengerDTO> createPassenger(@RequestBody PassengerRegistrationDTO passengerDTO) {
         try {
             userService.emailTaken(passengerDTO.getEmail());
             Passenger passenger = passengerDTO.generatePassenger();
@@ -50,12 +51,12 @@ public class PassengerController {
             UserActivation ua = userActivationService.save(passenger);
             return new ResponseEntity<>(new PassengerDTO(passenger), HttpStatus.OK);
         } catch (EmailAlreadyExistsException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User with that email already exist!");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User with that email already exist!");
         }
     }
 
     @GetMapping
-    public ResponseEntity<?> getPassengersPage(Pageable page) {
+    public ResponseEntity<ObjectListResponseDTO<PassengerDTO>> getPassengersPage(Pageable page) {
         Page<Passenger> passengers = passengerService.getAll(page);
 
         List<PassengerDTO> passengersDTO = new ArrayList<>();
