@@ -11,6 +11,8 @@ import com.uberTim12.ihor.model.users.UserActivation;
 import com.uberTim12.ihor.service.users.impl.PassengerService;
 import com.uberTim12.ihor.service.users.interfaces.IUserActivationService;
 import com.uberTim12.ihor.service.users.interfaces.IUserService;
+import com.uberTim12.ihor.service.users.impl.UserActivationService;
+import com.uberTim12.ihor.util.ImageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -110,7 +112,7 @@ public class PassengerController {
 
         passenger.setName(passengerDTO.getName());
         passenger.setSurname(passengerDTO.getSurname());
-        passenger.setProfilePicture(passengerDTO.getProfilePicture());
+        passenger.setProfilePicture(ImageConverter.decodeToImage(passengerDTO.getProfilePicture()));
         passenger.setTelephoneNumber(passengerDTO.getTelephoneNumber());
         passenger.setEmail(passengerDTO.getEmail());
         passenger.setAddress(passengerDTO.getAddress());

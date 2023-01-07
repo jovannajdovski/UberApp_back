@@ -6,6 +6,8 @@ import com.uberTim12.ihor.model.users.Administrator;
 import com.uberTim12.ihor.service.users.impl.AdministratorService;
 import com.uberTim12.ihor.service.users.interfaces.IAdministratorService;
 import jakarta.persistence.EntityNotFoundException;
+import com.uberTim12.ihor.service.users.impl.PassengerService;
+import com.uberTim12.ihor.util.ImageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

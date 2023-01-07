@@ -25,8 +25,9 @@ public abstract class User {
     @Column(name = "surname", nullable = false)
     private String surname;
 
+    @Lob
     @Column(name = "profile_picture")
-    private String profilePicture;
+    private byte[] profilePicture;
 
     @Column(name = "telephone_number")
     private String telephoneNumber;
@@ -51,7 +52,7 @@ public abstract class User {
     private boolean isActive;
 
 
-    protected User(String name, String surname, String profilePicture, String telephoneNumber, String email, String address, String password) {
+    protected User(String name, String surname, byte[] profilePicture, String telephoneNumber, String email, String address, String password) {
         super();
         this.setName(name);
         this.setSurname(surname);

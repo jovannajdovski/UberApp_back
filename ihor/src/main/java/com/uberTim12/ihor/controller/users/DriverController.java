@@ -27,6 +27,8 @@ import com.uberTim12.ihor.service.users.interfaces.IWorkHoursService;
 import com.uberTim12.ihor.service.vehicle.impl.VehicleService;
 import com.uberTim12.ihor.service.vehicle.interfaces.IVehicleService;
 import jakarta.persistence.EntityNotFoundException;
+import com.uberTim12.ihor.service.vehicle.interfaces.IVehicleTypeService;
+import com.uberTim12.ihor.util.ImageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -67,7 +69,7 @@ public class DriverController {
     public ResponseEntity<DriverDetailsDTO> createDriver(@RequestBody DriverRegistrationDTO driverDTO) {
         Driver driver = new Driver(driverDTO.getName(),
                 driverDTO.getSurname(),
-                driverDTO.getProfilePicture(),
+                ImageConverter.decodeToImage(driverDTO.getProfilePicture()),
                 driverDTO.getTelephoneNumber(),
                 driverDTO.getEmail(),
                 driverDTO.getAddress(),
