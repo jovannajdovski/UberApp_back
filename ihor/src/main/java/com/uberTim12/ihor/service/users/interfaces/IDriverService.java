@@ -1,5 +1,7 @@
 package com.uberTim12.ihor.service.users.interfaces;
 
+import com.uberTim12.ihor.model.ride.ActiveDriver;
+import com.uberTim12.ihor.model.ride.ActiveDriverCriticalRide;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.vehicle.Vehicle;
@@ -22,4 +24,6 @@ public interface IDriverService {
     boolean isDriverAvailable(Driver driver, Ride ride);
 
     boolean isDriverFreeForRide(Driver driver, Ride ride);
+
+    List<ActiveDriverCriticalRide> sortPerEndOfCriticalRide(List<ActiveDriver> activeDrivers, Ride newRide);
 }

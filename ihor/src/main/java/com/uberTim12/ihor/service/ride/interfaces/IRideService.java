@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 public interface IRideService {
     Page<Ride> findFilteredRides(Integer driverId, Pageable pageable);
@@ -34,4 +35,8 @@ public interface IRideService {
     List<Path> findPathsForRide(Integer id);
 
     double getTimeOfNextRidesByDriverAtChoosedDay(Integer driverId, LocalDate now);
+
+    boolean hasIntersectionBetweenRides(LocalDateTime rideStart, LocalDateTime rideEnd, LocalDateTime newRideStart, LocalDateTime newRideEnd);
+
+    Ride findCriticalRide(Set<Ride> rides, Ride newRide);
 }

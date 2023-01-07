@@ -4,13 +4,16 @@ import com.uberTim12.ihor.dto.ride.CreateRideDTO;
 import com.uberTim12.ihor.dto.route.PathDTO;
 import com.uberTim12.ihor.dto.users.UserRideDTO;
 import com.uberTim12.ihor.model.ride.ActiveDriver;
+import com.uberTim12.ihor.model.ride.ActiveDriverCriticalRide;
 import com.uberTim12.ihor.model.ride.Ride;
+import com.uberTim12.ihor.model.ride.RideStatus;
 import com.uberTim12.ihor.model.route.Location;
 import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.users.Passenger;
 import com.uberTim12.ihor.repository.ride.IActiveDriverRepository;
 import com.uberTim12.ihor.service.ride.interfaces.IRideSchedulingService;
 import com.uberTim12.ihor.service.ride.interfaces.IRideService;
+import com.uberTim12.ihor.service.route.interfaces.ILocationService;
 import com.uberTim12.ihor.service.route.interfaces.IPathService;
 import com.uberTim12.ihor.service.users.interfaces.IDriverService;
 import com.uberTim12.ihor.service.users.interfaces.IPassengerService;
@@ -38,6 +41,8 @@ public class RideSchedulingService implements IRideSchedulingService {
     @Autowired
     IActiveDriverRepository activeDriverRepository;
 
+    @Autowired
+    ILocationService locationService;
     @Override
     public Ride findFreeVehicle(Ride ride) {
 
@@ -51,20 +56,42 @@ public class RideSchedulingService implements IRideSchedulingService {
             }
         }
         boolean freeDriver=false;
+        Double minDistance=Double.MAX_VALUE, distance;
         for(ActiveDriver attainableDriver: attainableDrivers)
         {
             if(driverService.isDriverFreeForRide(attainableDriver.getDriver(),ride))
             {
                 freeDriver=true;
-                //pamti najmanju udaljenost iz attainabledriver.getLocation
+
+                distance=locationService.calculateDistance(ride.getPaths().iterator().next().getStartPoint(), attainableDriver.getLocation());
+                if(distance<minDistance) {
+                    minDistance = distance;
+                    ride.setDriver(attainableDriver.getDriver());
+                    ride.setRideStatus(RideStatus.PENDING);
+                    ride.setVehicleType(ride.getDriver().getVehicle().getVehicleType());
+                }
             }
         }
+        // nema slobodnog vozaca u tacno to vreme, trazi se u narednih pola sata
+        List<ActiveDriverCriticalRide> attainableDriversSorted;
         if(!freeDriver)
         {
-            
+            attainableDriversSorted=driverService.sortPerEndOfCriticalRide(attainableDrivers, ride);
+            for(ActiveDriverCriticalRide attainableDriver: attainableDriversSorted) {
+                if (driverService.isDriverFreeForRide(attainableDriver.getDriver(), ride)) {
+                    freeDriver=true;
+                    ride.setDriver(attainableDriver.getDriver());
+                    Ride criticalRide=attainableDriver.getCriticalRide();
+                    ride.setStartTime(criticalRide.getStartTime().plusMinutes(criticalRide.getEstimatedTime().longValue()));
+                    ride.setRideStatus(RideStatus.PENDING);
+                    ride.setVehicleType(ride.getDriver().getVehicle().getVehicleType());
+                }
+            }
         }
-        return null;
+
+        if(!freeDriver)
+            return null;
+        rideService.save(ride);
+        return ride;
     }
-
-
 }

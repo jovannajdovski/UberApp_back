@@ -22,5 +22,10 @@ public class LocationService implements ILocationService {
         return locationRepository.saveAndFlush(location);
     }
 
+    @Override
+    public Double calculateDistance(Location location1, Location location2)
+    {
+        return 0.0; //TODO iz mape izvuci
+    }
 
 }

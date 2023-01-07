@@ -48,7 +48,7 @@ public class WorkHoursService implements IWorkHoursService {
                 sum+=ChronoUnit.MINUTES.between(workHours.getStartTime(), workHours.getEndTime());
             else
                 sum+=ChronoUnit.MINUTES.between(workHours.getStartTime(), LocalDateTime.now());
-    }
+        }
         return sum;
     }
 }

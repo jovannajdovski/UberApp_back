@@ -7,4 +7,5 @@ public interface ILocationService {
 
     Location save(Location location);
 
+    Double calculateDistance(Location location1, Location location2);
 }

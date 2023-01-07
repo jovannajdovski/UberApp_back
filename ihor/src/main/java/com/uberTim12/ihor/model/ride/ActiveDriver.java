@@ -23,4 +23,5 @@ public class ActiveDriver {
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name = "location_id")
     private Location location;
+
 }
