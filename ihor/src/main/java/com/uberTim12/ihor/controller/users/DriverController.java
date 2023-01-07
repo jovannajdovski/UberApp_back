@@ -26,6 +26,7 @@ import com.uberTim12.ihor.service.vehicle.impl.VehicleTypeService;
 import com.uberTim12.ihor.service.vehicle.interfaces.IVehicleService;
 import com.uberTim12.ihor.service.users.interfaces.IWorkHoursService;
 import com.uberTim12.ihor.service.vehicle.interfaces.IVehicleTypeService;
+import com.uberTim12.ihor.util.ImageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -80,7 +81,7 @@ public class DriverController {
 
         Driver driver = new Driver(driverDTO.getName(),
                 driverDTO.getSurname(),
-                driverDTO.getProfilePicture(),
+                ImageConverter.decodeToImage(driverDTO.getProfilePicture()),
                 driverDTO.getTelephoneNumber(),
                 driverDTO.getEmail(),
                 driverDTO.getAddress(),
@@ -135,7 +136,7 @@ public class DriverController {
 
         driver.setName(driverDTO.getName());
         driver.setSurname(driverDTO.getSurname());
-        driver.setProfilePicture(driverDTO.getProfilePicture());
+        driver.setProfilePicture(ImageConverter.decodeToImage(driverDTO.getProfilePicture()));
         driver.setTelephoneNumber(driverDTO.getTelephoneNumber());
         driver.setEmail(driverDTO.getEmail());
         driver.setAddress(driverDTO.getAddress());

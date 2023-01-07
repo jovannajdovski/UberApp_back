@@ -32,7 +32,7 @@ public class Driver extends User{
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Review> reviews = new HashSet<>();
 
-    public Driver(String name, String surname, String profilePicture, String telephoneNumber, String email, String address, String password) {
+    public Driver(String name, String surname, byte[] profilePicture, String telephoneNumber, String email, String address, String password) {
         super(name, surname, profilePicture, telephoneNumber, email, address, password);
     }
 

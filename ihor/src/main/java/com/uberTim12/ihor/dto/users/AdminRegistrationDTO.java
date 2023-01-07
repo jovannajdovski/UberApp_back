@@ -2,6 +2,7 @@ package com.uberTim12.ihor.dto.users;
 
 import com.uberTim12.ihor.model.users.Administrator;
 import com.uberTim12.ihor.model.users.Passenger;
+import com.uberTim12.ihor.util.ImageConverter;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,7 +21,7 @@ public class AdminRegistrationDTO {
     private String password;
 
     public AdminRegistrationDTO(Administrator admin){
-        this(admin.getName(), admin.getSurname(), admin.getProfilePicture(),
+        this(admin.getName(), admin.getSurname(), ImageConverter.encodeToString(admin.getProfilePicture()),
                 admin.getTelephoneNumber(), admin.getEmail(), admin.getAddress(), admin.getPassword());
     }
 
@@ -28,7 +29,7 @@ public class AdminRegistrationDTO {
         Administrator admin = new Administrator();
         admin.setName(this.name);
         admin.setSurname(this.surname);
-        admin.setProfilePicture(this.profilePicture);
+        admin.setProfilePicture(ImageConverter.decodeToImage(this.profilePicture));
         admin.setTelephoneNumber(this.telephoneNumber);
         admin.setEmail(this.email);
         admin.setAddress(this.address);

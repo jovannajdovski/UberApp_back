@@ -2,6 +2,7 @@ package com.uberTim12.ihor.dto.users;
 
 import com.uberTim12.ihor.model.users.Passenger;
 import com.uberTim12.ihor.model.users.User;
+import com.uberTim12.ihor.util.ImageConverter;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,7 +20,7 @@ public class UserPanicDTO {
     private String address;
 
     public UserPanicDTO(User user){
-        this(user.getName(), user.getSurname(), user.getProfilePicture(),
+        this(user.getName(), user.getSurname(), ImageConverter.encodeToString(user.getProfilePicture()),
                 user.getTelephoneNumber(), user.getEmail(), user.getAddress());
     }
 }

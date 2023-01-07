@@ -1,6 +1,7 @@
 package com.uberTim12.ihor.dto.users;
 
 import com.uberTim12.ihor.model.users.Passenger;
+import com.uberTim12.ihor.util.ImageConverter;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,7 +20,7 @@ public class PassengerRegistrationDTO {
     private String password;
 
     public PassengerRegistrationDTO(Passenger passenger){
-        this(passenger.getName(), passenger.getSurname(), passenger.getProfilePicture(),
+        this(passenger.getName(), passenger.getSurname(), ImageConverter.encodeToString(passenger.getProfilePicture()),
                 passenger.getTelephoneNumber(), passenger.getEmail(), passenger.getAddress(), passenger.getPassword());
     }
 
@@ -27,7 +28,7 @@ public class PassengerRegistrationDTO {
         Passenger passenger = new Passenger();
         passenger.setName(this.name);
         passenger.setSurname(this.surname);
-        passenger.setProfilePicture(this.profilePicture);
+        passenger.setProfilePicture(ImageConverter.decodeToImage(this.profilePicture));
         passenger.setTelephoneNumber(this.telephoneNumber);
         passenger.setEmail(this.email);
         passenger.setAddress(this.address);

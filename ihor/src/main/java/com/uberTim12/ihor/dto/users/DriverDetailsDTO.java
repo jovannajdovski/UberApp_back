@@ -1,6 +1,7 @@
 package com.uberTim12.ihor.dto.users;
 
 import com.uberTim12.ihor.model.users.Driver;
+import com.uberTim12.ihor.util.ImageConverter;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,7 +23,7 @@ public class DriverDetailsDTO {
         this(driver.getId(),
                 driver.getName(),
                 driver.getSurname(),
-                driver.getProfilePicture(),
+                ImageConverter.encodeToString(driver.getProfilePicture()),
                 driver.getTelephoneNumber(),
                 driver.getEmail(),
                 driver.getAddress()

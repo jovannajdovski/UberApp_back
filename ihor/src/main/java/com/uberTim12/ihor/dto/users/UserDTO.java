@@ -1,6 +1,7 @@
 package com.uberTim12.ihor.dto.users;
 
 import com.uberTim12.ihor.model.users.User;
+import com.uberTim12.ihor.util.ImageConverter;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,7 +22,7 @@ public class UserDTO {
         this(user.getId(),
                 user.getName(),
                 user.getSurname(),
-                user.getProfilePicture(),
+                ImageConverter.encodeToString(user.getProfilePicture()),
                 user.getTelephoneNumber(),
                 user.getEmail(),
                 user.getAddress());

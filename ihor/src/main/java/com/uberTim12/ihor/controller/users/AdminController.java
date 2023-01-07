@@ -8,6 +8,7 @@ import com.uberTim12.ihor.model.users.Administrator;
 import com.uberTim12.ihor.model.users.Passenger;
 import com.uberTim12.ihor.service.users.impl.AdministratorService;
 import com.uberTim12.ihor.service.users.impl.PassengerService;
+import com.uberTim12.ihor.util.ImageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,7 +43,7 @@ public class AdminController {
 
         admin.setName(adminDTO.getName());
         admin.setSurname(adminDTO.getSurname());
-        admin.setProfilePicture(adminDTO.getProfilePicture());
+        admin.setProfilePicture(ImageConverter.decodeToImage(adminDTO.getProfilePicture()));
         admin.setTelephoneNumber(adminDTO.getTelephoneNumber());
         admin.setEmail(adminDTO.getEmail());
         admin.setAddress(adminDTO.getAddress());
