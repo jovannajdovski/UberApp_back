@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping(value = "api/vehicle")
@@ -28,19 +29,17 @@ public class VehicleController {
     }
 
     @PutMapping(value = "/{vehicleId}/location", consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> changeVehicleLocation(@PathVariable Integer vehicleId,
+    public ResponseEntity<String> changeVehicleLocation(@PathVariable Integer vehicleId,
                                                    @RequestBody LocationDTO locationDTO) {
-
-
         Location location = new Location(locationDTO.getAddress(), locationDTO.getLatitude(), locationDTO.getLongitude());
         try {
             vehicleService.changeVehicleLocation(vehicleId, location);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Coordinates successfully updated");
         } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Vehicle does not exist!");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Vehicle does not exist!");
         } catch (EntityPropertyIsNullException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
 
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Coordinates successfully updated");
     }
 }

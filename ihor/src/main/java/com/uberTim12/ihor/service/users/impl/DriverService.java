@@ -2,7 +2,6 @@ package com.uberTim12.ihor.service.users.impl;
 
 import com.uberTim12.ihor.exception.EmailAlreadyExistsException;
 import com.uberTim12.ihor.model.users.Driver;
-import com.uberTim12.ihor.model.vehicle.Vehicle;
 import com.uberTim12.ihor.repository.users.IDriverRepository;
 import com.uberTim12.ihor.service.base.impl.JPAService;
 import com.uberTim12.ihor.service.users.interfaces.IDriverService;
@@ -33,7 +32,7 @@ public class DriverService extends JPAService<Driver> implements IDriverService 
     @Override
     public void register(Driver driver) throws EmailAlreadyExistsException {
         if (findByEmail(driver.getEmail()) != null)
-            throw new EmailAlreadyExistsException("Email is already taken!");
+            throw new EmailAlreadyExistsException("User with that email already exists!");
 
         save(driver);
     }

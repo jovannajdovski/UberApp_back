@@ -8,7 +8,5 @@ import org.springframework.data.domain.Pageable;
 
 public interface IPassengerService extends IJPAService<Passenger> {
 
-    boolean exists(String email);
-
     Passenger findByIdWithRides(Integer id);
 }

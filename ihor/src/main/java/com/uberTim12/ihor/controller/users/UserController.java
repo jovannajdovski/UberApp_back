@@ -34,7 +34,6 @@ import java.util.List;
 @RestController
 @RequestMapping(value = "api/user")
 public class UserController {
-
     private final IRideService rideService;
     private final IUserService userService;
     private final IMessageService messageService;

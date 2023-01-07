@@ -4,11 +4,13 @@ import com.uberTim12.ihor.dto.communication.ObjectListResponseDTO;
 import com.uberTim12.ihor.dto.ride.RideNoStatusDTO;
 import com.uberTim12.ihor.dto.users.PassengerDTO;
 import com.uberTim12.ihor.dto.users.PassengerRegistrationDTO;
+import com.uberTim12.ihor.exception.EmailAlreadyExistsException;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.users.Passenger;
 import com.uberTim12.ihor.model.users.UserActivation;
 import com.uberTim12.ihor.service.users.impl.PassengerService;
 import com.uberTim12.ihor.service.users.interfaces.IUserActivationService;
+import com.uberTim12.ihor.service.users.interfaces.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,37 +27,35 @@ import java.util.List;
 @RestController
 @RequestMapping(value = "api/passenger")
 public class PassengerController {
-
     private final PassengerService passengerService;
     private final IUserActivationService userActivationService;
+    private final IUserService userService;
 
     @Autowired
-    public PassengerController(PassengerService passengerService, IUserActivationService userActivationService) {
+    public PassengerController(PassengerService passengerService, IUserActivationService userActivationService, IUserService userService) {
         this.passengerService = passengerService;
         this.userActivationService = userActivationService;
+        this.userService = userService;
     }
 
     @PostMapping(consumes = "application/json")
     public ResponseEntity<?> createPassenger(@RequestBody PassengerRegistrationDTO passengerDTO) {
-
-        boolean exists = passengerService.exists(passengerDTO.getEmail());
-
-        if(exists){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
-        } else {
-
+        try {
+            userService.emailTaken(passengerDTO.getEmail());
             Passenger passenger = passengerDTO.generatePassenger();
             passenger.setActive(false);
+            //DODATI METODU U SERVISU ZA REGISTRACIJU
 
             passenger = passengerService.save(passenger);
             UserActivation ua = userActivationService.save(passenger);
             return new ResponseEntity<>(new PassengerDTO(passenger), HttpStatus.OK);
+        } catch (EmailAlreadyExistsException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User with that email already exist!");
         }
     }
 
     @GetMapping
     public ResponseEntity<?> getPassengersPage(Pageable page) {
-
         Page<Passenger> passengers = passengerService.getAll(page);
 
         List<PassengerDTO> passengersDTO = new ArrayList<>();
@@ -69,7 +69,6 @@ public class PassengerController {
 
     @GetMapping(value = "/activate/{activationId}")
     public ResponseEntity<?> activatePassenger(@PathVariable Integer activationId) {
-
         UserActivation ua = userActivationService.get(activationId);
 
         if (ua == null || ua.getExpiryDate().isBefore(LocalDateTime.now())){
@@ -154,11 +153,4 @@ public class PassengerController {
         ObjectListResponseDTO<RideNoStatusDTO> res = new ObjectListResponseDTO<>(rideDTOs.size(),rideDTOs);
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
-
-
-
-
-
-
-
 }

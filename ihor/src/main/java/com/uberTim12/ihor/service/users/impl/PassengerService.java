@@ -18,9 +18,7 @@ import java.util.Optional;
 
 @Service
 public class PassengerService extends JPAService<Passenger> implements IPassengerService {
-
     private final IPassengerRepository passengerRepository;
-
     private final IRideRepository rideRepository;
 
     @Autowired
@@ -41,11 +39,6 @@ public class PassengerService extends JPAService<Passenger> implements IPassenge
 
     public Page<Ride> findAllById(Passenger passenger, Pageable page){
         return rideRepository.findAllForPassenger(passenger, page);
-    }
-
-    @Override
-    public boolean exists(String email){
-        return passengerRepository.existsByEmail(email);
     }
 
     @Override

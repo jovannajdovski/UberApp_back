@@ -27,7 +27,6 @@ public class PanicController {
 
     @GetMapping
     public ResponseEntity<?> getPanicNotifications() {
-
         List<Panic> panics = panicService.findAll();
 
         List<PanicDTO> panicsDTO = new ArrayList<>();

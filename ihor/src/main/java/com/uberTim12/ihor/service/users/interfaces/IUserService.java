@@ -1,5 +1,6 @@
 package com.uberTim12.ihor.service.users.interfaces;
 
+import com.uberTim12.ihor.exception.EmailAlreadyExistsException;
 import com.uberTim12.ihor.model.users.User;
 import com.uberTim12.ihor.dto.users.UserCredentialsDTO;
 import com.uberTim12.ihor.dto.users.UserTokensDTO;
@@ -17,6 +18,8 @@ public interface IUserService {
     boolean blockUser(Integer id);
 
     boolean unblockUser(Integer id);
+
+    void emailTaken(String email) throws EmailAlreadyExistsException;
 
     User findById(Integer id);
 

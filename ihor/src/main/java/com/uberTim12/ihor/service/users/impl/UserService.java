@@ -2,6 +2,7 @@ package com.uberTim12.ihor.service.users.impl;
 
 import com.uberTim12.ihor.dto.users.UserCredentialsDTO;
 import com.uberTim12.ihor.dto.users.UserTokensDTO;
+import com.uberTim12.ihor.exception.EmailAlreadyExistsException;
 import com.uberTim12.ihor.model.users.*;
 import com.uberTim12.ihor.repository.users.IDriverRepository;
 import com.uberTim12.ihor.repository.users.IPassengerRepository;
@@ -20,12 +21,16 @@ import java.util.*;
 
 @Service
 public class UserService implements IUserService, UserDetailsService {
+    private final IUserRepository userRepository;
+    private final IDriverRepository driverRepository;
+    private final IPassengerRepository passengerRepository;
+
     @Autowired
-    private IUserRepository userRepository;
-    @Autowired
-    private IDriverRepository driverRepository;
-    @Autowired
-    private IPassengerRepository passengerRepository;
+    public UserService(IUserRepository userRepository, IDriverRepository driverRepository, IPassengerRepository passengerRepository) {
+        this.userRepository = userRepository;
+        this.driverRepository = driverRepository;
+        this.passengerRepository = passengerRepository;
+    }
 
     @Override
     public UserTokensDTO getUserTokens(UserCredentialsDTO userCredentialDTO) {
@@ -68,6 +73,12 @@ public class UserService implements IUserService, UserDetailsService {
     @Override
     public User findByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+
+    @Override
+    public void emailTaken(String email) throws EmailAlreadyExistsException {
+        if (userRepository.findByEmail(email) != null)
+            throw new EmailAlreadyExistsException("Email is already taken");
     }
 
     @Override

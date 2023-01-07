@@ -11,9 +11,7 @@ import org.springframework.data.domain.Pageable;
 import java.time.LocalDateTime;
 
 public interface IWorkHoursService extends IJPAService<WorkHours> {
-
     WorkHours endShift(Integer workHoursId, LocalDateTime endTime) throws EntityNotFoundException;
-
     WorkHours startShift(Integer driverId, WorkHours workHours) throws EntityNotFoundException, EntityPropertyIsNullException, ShiftAlreadyStartedException;
     void shiftAlreadyStarted(Integer driverId, LocalDateTime date) throws ShiftAlreadyStartedException;
     Page<WorkHours> findFilteredWorkHours(Integer driverId, Pageable pageable);
