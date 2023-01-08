@@ -1,5 +1,5 @@
 package com.uberTim12.ihor.model.ride;
 
 public enum RideStatus {
-    PENDING, ACCEPTED, REJECTED, ACTIVE, FINISHED, CANCELED;
+    PENDING, STARTED, ACCEPTED, REJECTED, ACTIVE, FINISHED, CANCELED;
 }

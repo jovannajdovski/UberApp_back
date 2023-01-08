@@ -5,6 +5,7 @@ import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.repository.users.IDriverRepository;
 import com.uberTim12.ihor.service.base.impl.JPAService;
 import com.uberTim12.ihor.service.users.interfaces.IDriverService;
+import com.uberTim12.ihor.util.ImageConverter;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -43,7 +44,7 @@ public class DriverService extends JPAService<Driver> implements IDriverService 
         Driver driver = get(driverId);
         driver.setName(name);
         driver.setSurname(surname);
-        driver.setProfilePicture(profilePicture);
+        driver.setProfilePicture(ImageConverter.decodeToImage(profilePicture));
         driver.setTelephoneNumber(telephoneNumber);
         driver.setEmail(email);
         driver.setAddress(address);

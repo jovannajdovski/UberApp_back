@@ -79,7 +79,7 @@ public class DriverController {
             driverService.register(driver);
             return new ResponseEntity<>(new DriverDetailsDTO(driver), HttpStatus.OK);
         } catch (EmailAlreadyExistsException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
 
