@@ -24,4 +24,10 @@ public class UserActivation {
 
     @Column(name = "expiry_date", nullable = false)
     private LocalDateTime expiryDate;
+
+    public UserActivation(User user, LocalDateTime creationDate, LocalDateTime expiryDate) {
+        this.user = user;
+        this.creationDate = creationDate;
+        this.expiryDate = expiryDate;
+    }
 }

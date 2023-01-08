@@ -5,14 +5,14 @@ import com.uberTim12.ihor.dto.ride.RideNoStatusDTO;
 import com.uberTim12.ihor.dto.users.PassengerDTO;
 import com.uberTim12.ihor.dto.users.PassengerRegistrationDTO;
 import com.uberTim12.ihor.exception.EmailAlreadyExistsException;
+import com.uberTim12.ihor.exception.UserActivationExpiredException;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.users.Passenger;
-import com.uberTim12.ihor.model.users.UserActivation;
 import com.uberTim12.ihor.service.users.impl.PassengerService;
+import com.uberTim12.ihor.service.users.interfaces.IPassengerService;
 import com.uberTim12.ihor.service.users.interfaces.IUserActivationService;
-import com.uberTim12.ihor.service.users.interfaces.IUserService;
-import com.uberTim12.ihor.service.users.impl.UserActivationService;
 import com.uberTim12.ihor.util.ImageConverter;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,27 +30,20 @@ import java.util.List;
 @RestController
 @RequestMapping(value = "api/passenger")
 public class PassengerController {
-    private final PassengerService passengerService;
+    private final IPassengerService passengerService;
     private final IUserActivationService userActivationService;
-    private final IUserService userService;
 
     @Autowired
-    public PassengerController(PassengerService passengerService, IUserActivationService userActivationService, IUserService userService) {
+    public PassengerController(PassengerService passengerService, IUserActivationService userActivationService) {
         this.passengerService = passengerService;
         this.userActivationService = userActivationService;
-        this.userService = userService;
     }
 
     @PostMapping(consumes = "application/json")
     public ResponseEntity<PassengerDTO> createPassenger(@RequestBody PassengerRegistrationDTO passengerDTO) {
+        Passenger passenger = passengerDTO.generatePassenger();
         try {
-            userService.emailTaken(passengerDTO.getEmail());
-            Passenger passenger = passengerDTO.generatePassenger();
-            passenger.setActive(false);
-            //DODATI METODU U SERVISU ZA REGISTRACIJU
-
-            passenger = passengerService.save(passenger);
-            UserActivation ua = userActivationService.save(passenger);
+            passenger = passengerService.register(passenger);
             return new ResponseEntity<>(new PassengerDTO(passenger), HttpStatus.OK);
         } catch (EmailAlreadyExistsException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User with that email already exist!");
@@ -71,59 +64,37 @@ public class PassengerController {
     }
 
     @GetMapping(value = "/activate/{activationId}")
-    public ResponseEntity<?> activatePassenger(@PathVariable Integer activationId) {
-        UserActivation ua = userActivationService.get(activationId);
-
-        if (ua == null || ua.getExpiryDate().isBefore(LocalDateTime.now())){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
-        } else {
-            Passenger passenger = (Passenger) ua.getUser();
-
-            passenger.setActive(true);
-            passengerService.save(passenger);
-
-            userActivationService.delete(activationId);
-
-            return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<String> activatePassenger(@PathVariable Integer activationId) {
+        try {
+            userActivationService.activate(activationId);
+            return ResponseEntity.status(HttpStatus.OK).body("Successful account activation!");
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Activation with entered id does not exist!");
+        } catch (UserActivationExpiredException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Activation expired. Register again!");
         }
     }
 
-
     @GetMapping(value = "/{id}")
-    public ResponseEntity<?> getPassenger(@PathVariable Integer id) {
-
-        Passenger passenger = passengerService.get(id);
-
-        if (passenger == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
-        } else {
+    public ResponseEntity<PassengerDTO> getPassenger(@PathVariable Integer id) {
+        try {
+            Passenger passenger = passengerService.get(id);
             return new ResponseEntity<>(new PassengerDTO(passenger), HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Passenger does not exist!");
         }
     }
 
     @PutMapping(value = "/{id}", consumes = "application/json")
     public ResponseEntity<?> updatePassenger(@PathVariable Integer id, @RequestBody PassengerRegistrationDTO passengerDTO) {
-
-        Passenger passenger = passengerService.findByIdWithRides(id);
-
-        if (passenger == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
+        try {
+            Passenger passenger = passengerService.update(id, passengerDTO.getName(), passengerDTO.getSurname(),
+                    passengerDTO.getProfilePicture(), passengerDTO.getTelephoneNumber(), passengerDTO.getEmail(),
+                    passengerDTO.getAddress(), passengerDTO.getPassword());
+            return new ResponseEntity<>(new PassengerDTO(passenger), HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Passenger does not exist!");
         }
-
-        passenger.setName(passengerDTO.getName());
-        passenger.setSurname(passengerDTO.getSurname());
-        passenger.setProfilePicture(ImageConverter.decodeToImage(passengerDTO.getProfilePicture()));
-        passenger.setTelephoneNumber(passengerDTO.getTelephoneNumber());
-        passenger.setEmail(passengerDTO.getEmail());
-        passenger.setAddress(passengerDTO.getAddress());
-
-        if (!passengerDTO.getPassword().equals("")){
-            passenger.setPassword(passengerDTO.getPassword());
-        }
-
-        passenger = passengerService.save(passenger);
-
-        return new ResponseEntity<>(new PassengerDTO(passenger), HttpStatus.OK);
     }
 
     @GetMapping(value = "/{id}/ride")
@@ -134,9 +105,8 @@ public class PassengerController {
         Passenger passenger = passengerService.findByIdWithRides(id);
 
         if (passenger == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Passenger does not exist!");
         }
-
 
         Page<Ride> rides;
 

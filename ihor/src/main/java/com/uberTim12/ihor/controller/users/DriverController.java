@@ -9,6 +9,7 @@ import com.uberTim12.ihor.dto.vehicle.VehicleDetailsDTO;
 import com.uberTim12.ihor.exception.EmailAlreadyExistsException;
 import com.uberTim12.ihor.exception.EntityPropertyIsNullException;
 import com.uberTim12.ihor.exception.ShiftAlreadyStartedException;
+import com.uberTim12.ihor.exception.WorkTimeExceededException;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.route.Location;
 import com.uberTim12.ihor.model.users.Driver;
@@ -76,7 +77,7 @@ public class DriverController {
                 driverDTO.getPassword());
 
         try {
-            driverService.register(driver);
+            driver = driverService.register(driver);
             return new ResponseEntity<>(new DriverDetailsDTO(driver), HttpStatus.OK);
         } catch (EmailAlreadyExistsException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
@@ -243,15 +244,15 @@ public class DriverController {
 
     @PostMapping(value = "/{driverId}/working-hour", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<WorkHoursDTO> addWorkingHours(@PathVariable Integer driverId,
-                                                        @RequestBody WorkHoursDTO workHoursDTO) {
-        WorkHours workHours = new WorkHours(workHoursDTO.getStart(), workHoursDTO.getEnd(), null);
+                                                        @RequestBody WorkHoursStartDTO workHoursDTO) {
+        WorkHours workHours = new WorkHours(workHoursDTO.getStart());
 
         try {
             workHoursService.startShift(driverId, workHours);
             return new ResponseEntity<>(new WorkHoursDTO(workHours), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Driver does not exist!");
-        } catch (EntityPropertyIsNullException | ShiftAlreadyStartedException e) {
+        } catch (EntityPropertyIsNullException | ShiftAlreadyStartedException | WorkTimeExceededException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
@@ -302,7 +303,7 @@ public class DriverController {
 
     @PutMapping(value = "/working-hour/{workingHourId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<WorkHoursDTO> changeDriverWorkingHours(@PathVariable Integer workingHourId,
-                                                      @RequestBody WorkHoursDTO workHoursDTO) {
+                                                                 @RequestBody WorkHoursEndDTO workHoursDTO) {
         try {
             WorkHours workHours = workHoursService.endShift(workingHourId, workHoursDTO.getEnd());
             return new ResponseEntity<>(new WorkHoursDTO(workHours), HttpStatus.OK);

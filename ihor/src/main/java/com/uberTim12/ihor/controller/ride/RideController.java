@@ -32,15 +32,10 @@ import java.util.Set;
 @RestController
 @RequestMapping(value = "api/ride")
 public class RideController {
-
     private final RideService rideService;
-
     private final PathService pathService;
-
     private final PassengerService passengerService;
-
     private final DriverService driverService;
-
     private final PanicService panicService;
 
     @Autowired

@@ -19,15 +19,14 @@ public class WorkHours {
     @Column(name = "start_time", nullable = false)
     private LocalDateTime startTime;
 
-    @Column(name = "end_time", nullable = false)
+    @Column(name = "end_time")
     private LocalDateTime endTime;
 
     @OneToOne
     private Driver driver;
 
-    public WorkHours(LocalDateTime startTime, LocalDateTime endTime, Driver driver) {
+    public WorkHours(LocalDateTime startTime) {
         this.startTime = startTime;
-        this.endTime = endTime;
-        this.driver = driver;
     }
+
 }

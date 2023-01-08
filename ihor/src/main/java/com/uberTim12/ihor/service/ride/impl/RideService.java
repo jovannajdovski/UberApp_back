@@ -29,7 +29,6 @@ import java.util.Set;
 
 @Service
 public class RideService extends JPAService<Ride> implements IRideService {
-
     private final IRideRepository rideRepository;
     private final IDriverRepository driverRepository;
     private final IPassengerRepository passengerRepository;

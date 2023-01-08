@@ -18,5 +18,5 @@ public interface IWorkHoursRepository extends JpaRepository<WorkHours, Integer> 
     @Query("select W from WorkHours W where W.driver.id =?1 and W.startTime between ?2 and ?3")
     Page<WorkHours> findByDriverIdAndDateRange(Integer driverId, LocalDateTime from, LocalDateTime to, Pageable pageable);
     @Query("select W from WorkHours W where W.driver.id =?1 and W.startTime between ?2 and ?3")
-    Set<WorkHours> findByDriverIdAndDateRange(Integer driverId, LocalDateTime from, LocalDateTime to);
+    Set<WorkHours>  findByDriverIdAndDateRange(Integer driverId, LocalDateTime from, LocalDateTime to);
 }

@@ -5,6 +5,7 @@ import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.repository.users.IDriverRepository;
 import com.uberTim12.ihor.service.base.impl.JPAService;
 import com.uberTim12.ihor.service.users.interfaces.IDriverService;
+import com.uberTim12.ihor.util.ImageConverter;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -30,20 +31,21 @@ public class DriverService extends JPAService<Driver> implements IDriverService 
     }
 
     @Override
-    public void register(Driver driver) throws EmailAlreadyExistsException {
+    public Driver register(Driver driver) throws EmailAlreadyExistsException {
         if (findByEmail(driver.getEmail()) != null)
             throw new EmailAlreadyExistsException("User with that email already exists!");
 
-        save(driver);
+        return save(driver);
     }
 
     @Override
     public Driver update(Integer driverId, String name, String surname, String profilePicture,
-                         String telephoneNumber, String email, String address, String password) throws EntityNotFoundException {
+                         String telephoneNumber, String email, String address, String password)
+            throws EntityNotFoundException {
         Driver driver = get(driverId);
         driver.setName(name);
         driver.setSurname(surname);
-        driver.setProfilePicture(profilePicture);
+        driver.setProfilePicture(ImageConverter.decodeToImage(profilePicture));
         driver.setTelephoneNumber(telephoneNumber);
         driver.setEmail(email);
         driver.setAddress(address);
