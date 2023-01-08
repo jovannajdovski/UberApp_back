@@ -18,9 +18,11 @@ import com.uberTim12.ihor.service.route.interfaces.IPathService;
 import com.uberTim12.ihor.service.users.interfaces.IDriverService;
 import com.uberTim12.ihor.service.users.interfaces.IPassengerService;
 import com.uberTim12.ihor.service.vehicle.interfaces.IVehicleService;
+import net.minidev.json.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -62,8 +64,13 @@ public class RideSchedulingService implements IRideSchedulingService {
             if(driverService.isDriverFreeForRide(attainableDriver.getDriver(),ride))
             {
                 freeDriver=true;
-
-                distance=locationService.calculateDistance(ride.getPaths().iterator().next().getStartPoint(), attainableDriver.getLocation());
+                try{
+                    distance=locationService.calculateDistance(ride.getPaths().iterator().next().getStartPoint(), attainableDriver.getLocation());
+                }
+                catch(ParseException | IOException e)
+                {
+                    distance=Double.MAX_VALUE;
+                }
                 if(distance<minDistance) {
                     minDistance = distance;
                     ride.setDriver(attainableDriver.getDriver());
@@ -78,11 +85,13 @@ public class RideSchedulingService implements IRideSchedulingService {
         {
             attainableDriversSorted=driverService.sortPerEndOfCriticalRide(attainableDrivers, ride);
             for(ActiveDriverCriticalRide attainableDriver: attainableDriversSorted) {
+
+                Ride criticalRide=attainableDriver.getCriticalRide();
+                ride.setStartTime(criticalRide.getStartTime().plusMinutes(criticalRide.getEstimatedTime().longValue()));
+
                 if (driverService.isDriverFreeForRide(attainableDriver.getDriver(), ride)) {
                     freeDriver=true;
                     ride.setDriver(attainableDriver.getDriver());
-                    Ride criticalRide=attainableDriver.getCriticalRide();
-                    ride.setStartTime(criticalRide.getStartTime().plusMinutes(criticalRide.getEstimatedTime().longValue()));
                     ride.setRideStatus(RideStatus.PENDING);
                     ride.setVehicleType(ride.getDriver().getVehicle().getVehicleType());
                 }
