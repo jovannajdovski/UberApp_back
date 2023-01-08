@@ -36,7 +36,7 @@ public class LocationService implements ILocationService {
         con.setRequestMethod("GET");
         String response=con.getResponseMessage();
 // routes[0]/duration
-        JSONParser parser = new JSONParser();
+        JSONParser parser = new JSONParser(JSONParser.MODE_JSON_SIMPLE); //probati prazan konstruktor
         JSONObject json = (JSONObject) parser.parse(response);
         JSONObject routes=(JSONObject) json.get("routes");
         JSONObject route=(JSONObject) routes.get(1);
