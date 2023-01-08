@@ -1,7 +1,5 @@
 package com.uberTim12.ihor.model.users;
 
-import org.springframework.context.annotation.Bean;
-
 import java.util.Comparator;
 
 public class WorkHoursComp implements Comparator<WorkHours> {

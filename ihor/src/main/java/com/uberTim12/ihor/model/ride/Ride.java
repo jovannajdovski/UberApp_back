@@ -6,9 +6,7 @@ import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.users.Passenger;
 import com.uberTim12.ihor.model.vehicle.VehicleType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -16,7 +14,8 @@ import java.util.Set;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
 @Entity
 public class Ride {
 
@@ -43,7 +42,7 @@ public class Ride {
             joinColumns = @JoinColumn(name = "ride_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "passenger_id", referencedColumnName = "id")
     )
-    private Set<Passenger> passengers = new HashSet<>();
+    public Set<Passenger> passengers = new HashSet<>();
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH}, fetch = FetchType.LAZY)
     @JoinTable(
@@ -58,6 +57,7 @@ public class Ride {
 
     @OneToMany(mappedBy = "ride", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Review> reviews = new HashSet<>();
+
     @Enumerated
     @Column(name = "ride_status", nullable = false)
     private RideStatus rideStatus;
@@ -77,5 +77,4 @@ public class Ride {
     @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH})
     @JoinColumn(name = "vehicle_type")
     private VehicleType vehicleType;
-
 }

@@ -4,19 +4,16 @@ import com.uberTim12.ihor.model.communication.Review;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.vehicle.Vehicle;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@EqualsAndHashCode(callSuper = true, exclude = "vehicle")
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
 @Entity
 public class Driver extends User{
 
@@ -36,4 +33,14 @@ public class Driver extends User{
         super(name, surname, profilePicture, telephoneNumber, email, address, password);
     }
 
+
+    @Override
+    public String toString() {
+        return "Driver{" +
+                "documents=" + documents.size() +
+                ", rides=" + rides.size() +
+                ", vehicle=" + vehicle.getId() +
+                ", reviews=" + reviews.size() +
+                '}';
+    }
 }

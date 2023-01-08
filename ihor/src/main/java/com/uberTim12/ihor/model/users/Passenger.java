@@ -3,17 +3,15 @@ package com.uberTim12.ihor.model.users;
 import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.ride.Ride;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
 @Entity
 public class Passenger extends User {
 
