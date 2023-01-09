@@ -1,5 +1,6 @@
 package com.uberTim12.ihor.model.ride;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.uberTim12.ihor.model.communication.Review;
 import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.users.Driver;
@@ -23,9 +24,11 @@ public class Ride {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "start_time", nullable = false)
     private LocalDateTime startTime;
 
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "end_time", nullable = false)
     private LocalDateTime endTime;
 

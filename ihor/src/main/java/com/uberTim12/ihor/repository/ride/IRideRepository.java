@@ -19,9 +19,6 @@ public interface IRideRepository extends JpaRepository<Ride, Integer> {
     @Query("select r from Ride r where r.driver.id =?1")
     Page<Ride> findByDriverId(Integer driverId, Pageable pageable);
 
-    @Query("select r from Ride r join r.passengers p join r.paths l where r.id =?1")
-    Optional<Ride> findById(Integer id);
-
     @Query("select r from Ride r where r.driver.id =?1 and r.startTime between ?2 and ?3")
     Page<Ride> findAllInRangeForDriver(Integer id, LocalDateTime start, LocalDateTime end, Pageable pageable);
 

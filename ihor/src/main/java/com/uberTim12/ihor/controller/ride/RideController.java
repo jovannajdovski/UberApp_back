@@ -44,6 +44,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -249,12 +250,22 @@ public class RideController {
     }
 
     @GetMapping(value = "/favorites")
+    public ResponseEntity<Set<FavoriteFullDTO>> getFavorites() {
+        List<Favorite> favorites = favoriteService.getAll();
+        Set<FavoriteFullDTO> favoritesDTO = new HashSet<>();
+        for (Favorite favorite : favorites) {
+            favoritesDTO.add(new FavoriteFullDTO(favorite));
+        }
+        return new ResponseEntity<>(favoritesDTO, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/favorites/passenger")
     public ResponseEntity<Set<FavoriteFullDTO>> getFavoritesForPassenger() {
         try {
             Set<Favorite> favorites = favoriteService.getForPassenger();
             // if all then favoriteService.getAll();
             Set<FavoriteFullDTO> favoritesDTO = new HashSet<>();
-            for (Favorite favorite: favorites){
+            for (Favorite favorite : favorites) {
                 favoritesDTO.add(new FavoriteFullDTO(favorite));
             }
             return new ResponseEntity<>(favoritesDTO, HttpStatus.OK);

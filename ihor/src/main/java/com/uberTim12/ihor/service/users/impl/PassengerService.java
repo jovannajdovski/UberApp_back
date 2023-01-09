@@ -46,8 +46,8 @@ public class PassengerService extends JPAService<Passenger> implements IPassenge
     }
 
     @Override
-    public Passenger findByIdWithFavorites(Integer id) {
-        return passengerRepository.findByIdWithFavorites(id);
+    public Optional<Passenger> findByIdWithFavorites(Integer id) {
+        return passengerRepository.findById(id);
     }
 
     @Override

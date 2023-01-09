@@ -59,7 +59,7 @@ public class FavoriteService extends JPAService<Favorite> implements IFavoriteSe
     @Override
     public Favorite create(CreateFavoriteDTO favoriteDTO) throws FavoriteRideExceedException, EntityNotFoundException {
         for (UserRideDTO user: favoriteDTO.getPassengers()){
-            Passenger passenger = passengerService.findByIdWithFavorites(user.getId());
+            Passenger passenger = passengerService.get(user.getId());
             if (passenger.getFavoriteRoutes().size()>9){
                 throw new FavoriteRideExceedException("Number of favorite rides cannot exceed 10!");
             }
@@ -94,11 +94,6 @@ public class FavoriteService extends JPAService<Favorite> implements IFavoriteSe
         favorite.setPassengers(passengers);
 
         favorite = save(favorite);
-
-        for (Passenger passenger : favorite.getPassengers()) {
-            passenger.getFavoriteRoutes().add(favorite);
-            passengerService.save(passenger);
-        }
 
         return favorite;
     }

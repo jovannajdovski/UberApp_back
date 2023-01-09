@@ -15,7 +15,7 @@ public interface IPassengerRepository extends JpaRepository<Passenger, Integer> 
     @Query("select p from Passenger p join fetch p.rides e where p.id =?1")
     public Passenger findByIdWithRides(Integer id);
 
-    @Query("select p from Passenger p join p.favoriteRoutes f where p.id =?1")
+    @Query("select p from Passenger p join fetch p.favoriteRoutes f where p.id =?1")
     public Passenger findByIdWithFavorites(Integer id);
 
     @Query("select p from Passenger p join p.favoriteRoutes f where p.email =?1")
