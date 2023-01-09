@@ -1,14 +1,13 @@
 package com.uberTim12.ihor.dto.communication;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
 public class NoteDTO {
     Integer id;
     LocalDateTime date;

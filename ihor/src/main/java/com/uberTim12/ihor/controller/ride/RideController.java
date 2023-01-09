@@ -2,15 +2,17 @@ package com.uberTim12.ihor.controller.ride;
 
 import com.uberTim12.ihor.dto.communication.PanicDTO;
 import com.uberTim12.ihor.dto.communication.ReasonDTO;
+import com.uberTim12.ihor.dto.ride.CreateFavoriteDTO;
 import com.uberTim12.ihor.dto.ride.CreateRideDTO;
+import com.uberTim12.ihor.dto.ride.FavoriteFullDTO;
 import com.uberTim12.ihor.dto.ride.RideFullDTO;
 import com.uberTim12.ihor.dto.route.PathDTO;
 import com.uberTim12.ihor.dto.users.DriverDetailsDTO;
+import com.uberTim12.ihor.dto.users.DriverRegistrationDTO;
 import com.uberTim12.ihor.dto.users.UserRideDTO;
-import com.uberTim12.ihor.exception.NoActiveRideException;
-import com.uberTim12.ihor.exception.RideStatusException;
-import com.uberTim12.ihor.exception.UnauthorizedException;
+import com.uberTim12.ihor.exception.*;
 import com.uberTim12.ihor.model.communication.Panic;
+import com.uberTim12.ihor.model.ride.Favorite;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.ride.RideRejection;
 import com.uberTim12.ihor.model.ride.RideStatus;
@@ -21,7 +23,9 @@ import com.uberTim12.ihor.model.users.Passenger;
 import com.uberTim12.ihor.model.vehicle.VehicleType;
 import com.uberTim12.ihor.service.communication.impl.PanicService;
 import com.uberTim12.ihor.service.communication.interfaces.IPanicService;
+import com.uberTim12.ihor.service.ride.impl.FavoriteService;
 import com.uberTim12.ihor.service.ride.impl.RideService;
+import com.uberTim12.ihor.service.ride.interfaces.IFavoriteService;
 import com.uberTim12.ihor.service.ride.interfaces.IRideService;
 import com.uberTim12.ihor.service.route.impl.PathService;
 import com.uberTim12.ihor.service.route.interfaces.IPathService;
@@ -29,6 +33,7 @@ import com.uberTim12.ihor.service.users.impl.DriverService;
 import com.uberTim12.ihor.service.users.impl.PassengerService;
 import com.uberTim12.ihor.service.users.interfaces.IDriverService;
 import com.uberTim12.ihor.service.users.interfaces.IPassengerService;
+import com.uberTim12.ihor.util.ImageConverter;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -55,13 +60,16 @@ public class RideController {
 
     private final IPanicService panicService;
 
+    private final IFavoriteService favoriteService;
+
     @Autowired
-    public RideController(RideService rideService, PathService pathService, PassengerService passengerService, DriverService driverService, PanicService panicService) {
+    public RideController(RideService rideService, PathService pathService, PassengerService passengerService, DriverService driverService, PanicService panicService, FavoriteService favoriteService) {
         this.rideService = rideService;
         this.pathService = pathService;
         this.passengerService = passengerService;
         this.driverService = driverService;
         this.panicService = panicService;
+        this.favoriteService = favoriteService;
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -228,5 +236,42 @@ public class RideController {
         }
     }
 
+    @PostMapping(value = "/favorites", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<FavoriteFullDTO> createFavorite(@RequestBody CreateFavoriteDTO favoriteDTO) {
+        try {
+            Favorite favorite = favoriteService.create(favoriteDTO);
+            return new ResponseEntity<>(new FavoriteFullDTO(favorite), HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Passenger does not exist!");
+        } catch (FavoriteRideExceedException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
 
+    @GetMapping(value = "/favorites")
+    public ResponseEntity<Set<FavoriteFullDTO>> getFavoritesForPassenger() {
+        try {
+            Set<Favorite> favorites = favoriteService.getForPassenger();
+            // if all then favoriteService.getAll();
+            Set<FavoriteFullDTO> favoritesDTO = new HashSet<>();
+            for (Favorite favorite: favorites){
+                favoritesDTO.add(new FavoriteFullDTO(favorite));
+            }
+            return new ResponseEntity<>(favoritesDTO, HttpStatus.OK);
+        } catch (UnauthorizedException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized!");
+        } catch (AccessDeniedException e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied!");
+        }
+    }
+
+    @DeleteMapping(value = "/favorites/{id}")
+    public ResponseEntity<String> deleteFavorite(@PathVariable Integer id) {
+        try {
+            favoriteService.delete(id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Successful deletion of favorite location!");
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Favorite location does not exist!");
+        }
+    }
 }

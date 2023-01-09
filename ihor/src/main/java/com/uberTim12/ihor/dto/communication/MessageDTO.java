@@ -5,14 +5,13 @@ import com.uberTim12.ihor.model.communication.MessageType;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.users.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
 public class MessageDTO {
 
     private Integer id;

@@ -7,16 +7,15 @@ import com.uberTim12.ihor.model.ride.RideStatus;
 import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.users.User;
 import com.uberTim12.ihor.model.vehicle.VehicleCategory;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
 public class RideFullDTO {
 
     private Integer id;

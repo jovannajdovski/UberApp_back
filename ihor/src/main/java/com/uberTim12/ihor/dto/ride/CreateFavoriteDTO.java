@@ -2,11 +2,15 @@ package com.uberTim12.ihor.dto.ride;
 
 import com.uberTim12.ihor.dto.route.PathDTO;
 import com.uberTim12.ihor.dto.users.UserRideDTO;
+import com.uberTim12.ihor.model.ride.Favorite;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.users.User;
 import com.uberTim12.ihor.model.vehicle.VehicleCategory;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -15,7 +19,9 @@ import java.util.Set;
 @AllArgsConstructor
 @Getter
 @Setter
-public class CreateRideDTO {
+public class CreateFavoriteDTO {
+
+    private String favoriteName;
 
     private Set<PathDTO> locations = new HashSet<>();
 
@@ -27,23 +33,24 @@ public class CreateRideDTO {
     private boolean petTransport;
 
 
-    public CreateRideDTO(Ride ride){
-        this(ride.getVehicleType().getVehicleCategory(), ride.isBabiesAllowed(), ride.isPetsAllowed());
+    public CreateFavoriteDTO(Favorite favorite){
+        this(favorite.getFavoriteName(), favorite.getVehicleCategory(), favorite.isBabiesAllowed(), favorite.isPetsAllowed());
 
         Set<UserRideDTO> passengers = new HashSet<>();
-        for (User u : ride.getPassengers()){
+        for (User u : favorite.getPassengers()){
             passengers.add(new UserRideDTO(u));
         }
         this.passengers = passengers;
 
         Set<PathDTO> locations = new HashSet<>();
-        for (Path p : ride.getPaths()){
+        for (Path p : favorite.getPaths()){
             locations.add(new PathDTO(p));
         }
         this.locations = locations;
     }
 
-    public CreateRideDTO(VehicleCategory vehicleCategory, boolean babiesAllowed, boolean petsAllowed) {
+    public CreateFavoriteDTO(String favoriteName, VehicleCategory vehicleCategory, boolean babiesAllowed, boolean petsAllowed) {
+        this.favoriteName = favoriteName;
         this.vehicleType = vehicleCategory;
         this.babyTransport = babiesAllowed;
         this.petTransport = petsAllowed;

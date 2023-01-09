@@ -4,9 +4,7 @@ import com.uberTim12.ihor.dto.route.PathDTO;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.vehicle.VehicleCategory;
 import com.uberTim12.ihor.model.vehicle.VehicleType;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 import java.util.Set;
@@ -14,7 +12,8 @@ import java.util.stream.Collectors;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
 public class RideRequestDTO {
     private Set<PathDTO> locations;
     private VehicleCategory vehicleType;

@@ -1,12 +1,11 @@
 package com.uberTim12.ihor.dto.users;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
 public class ResetPasswordDTO {
 
     private String code;

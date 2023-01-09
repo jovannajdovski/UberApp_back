@@ -1,19 +1,18 @@
 package com.uberTim12.ihor.model.users;
 
+import com.uberTim12.ihor.model.ride.Favorite;
 import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.ride.Ride;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
 @Entity
 public class Passenger extends User {
 
@@ -27,9 +26,9 @@ public class Passenger extends User {
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH}, fetch = FetchType.LAZY)
     @JoinTable(
-            name="passenger_route",
+            name="passenger_favorite",
             joinColumns = @JoinColumn(name = "passenger_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "path_id", referencedColumnName = "id")
+            inverseJoinColumns = @JoinColumn(name = "favorite_id", referencedColumnName = "id")
     )
-    Set<Path> favoriteRoutes = new HashSet<>();
+    Set<Favorite> favoriteRoutes = new HashSet<>();
 }

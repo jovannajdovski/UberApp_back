@@ -3,13 +3,12 @@ package com.uberTim12.ihor.dto.users;
 import com.uberTim12.ihor.model.users.Administrator;
 import com.uberTim12.ihor.model.users.Passenger;
 import com.uberTim12.ihor.util.ImageConverter;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
 public class AdminRegistrationDTO {
 
     private String name;

@@ -1,13 +1,12 @@
 package com.uberTim12.ihor.dto.users;
 
 import com.uberTim12.ihor.model.users.User;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
 public class UserRideDTO {
     private Integer id;
     private String email;

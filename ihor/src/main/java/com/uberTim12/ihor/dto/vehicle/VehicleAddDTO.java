@@ -3,13 +3,12 @@ package com.uberTim12.ihor.dto.vehicle;
 import com.uberTim12.ihor.dto.route.LocationDTO;
 import com.uberTim12.ihor.model.vehicle.Vehicle;
 import com.uberTim12.ihor.model.vehicle.VehicleCategory;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
 public class VehicleAddDTO {
     private VehicleCategory vehicleType;
     private String model;

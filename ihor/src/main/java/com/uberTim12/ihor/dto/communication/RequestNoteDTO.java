@@ -1,12 +1,11 @@
 package com.uberTim12.ihor.dto.communication;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
 public class RequestNoteDTO {
     String message;
 }

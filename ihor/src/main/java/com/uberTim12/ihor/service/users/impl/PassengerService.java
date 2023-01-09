@@ -13,7 +13,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -44,5 +43,15 @@ public class PassengerService extends JPAService<Passenger> implements IPassenge
     @Override
     public Passenger findByIdWithRides(Integer id) {
         return passengerRepository.findByIdWithRides(id);
+    }
+
+    @Override
+    public Passenger findByIdWithFavorites(Integer id) {
+        return passengerRepository.findByIdWithFavorites(id);
+    }
+
+    @Override
+    public Passenger findByEmailWithFavorites(String email) {
+        return passengerRepository.findByEmailWithFavorites(email);
     }
 }

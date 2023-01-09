@@ -9,4 +9,8 @@ import org.springframework.data.domain.Pageable;
 public interface IPassengerService extends IJPAService<Passenger> {
 
     Passenger findByIdWithRides(Integer id);
+
+    Passenger findByIdWithFavorites(Integer id);
+
+    Passenger findByEmailWithFavorites(String email);
 }

@@ -7,9 +7,7 @@ import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.users.Passenger;
 import com.uberTim12.ihor.model.vehicle.VehicleType;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -17,7 +15,8 @@ import java.util.Set;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
 public class RideDTO {
     private Integer id;
     private LocalDateTime startTime;

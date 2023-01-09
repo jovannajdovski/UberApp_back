@@ -1,13 +1,12 @@
 package com.uberTim12.ihor.dto.route;
 
 import com.uberTim12.ihor.model.route.Location;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
 public class LocationDTO {
 
     private String address;
