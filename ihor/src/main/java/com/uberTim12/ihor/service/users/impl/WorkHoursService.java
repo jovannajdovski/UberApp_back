@@ -3,11 +3,13 @@ package com.uberTim12.ihor.service.users.impl;
 import com.uberTim12.ihor.exception.EntityPropertyIsNullException;
 import com.uberTim12.ihor.exception.ShiftAlreadyStartedException;
 import com.uberTim12.ihor.exception.WorkTimeExceededException;
+import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.users.WorkHours;
 import com.uberTim12.ihor.model.users.WorkHoursComp;
 import com.uberTim12.ihor.repository.users.IWorkHoursRepository;
 import com.uberTim12.ihor.service.base.impl.JPAService;
+import com.uberTim12.ihor.service.ride.interfaces.IRideService;
 import com.uberTim12.ihor.service.users.interfaces.IDriverService;
 import com.uberTim12.ihor.service.users.interfaces.IWorkHoursService;
 import com.uberTim12.ihor.service.vehicle.interfaces.IVehicleService;
@@ -18,31 +20,40 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Set;
 import java.util.TreeSet;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
 public class WorkHoursService extends JPAService<WorkHours> implements IWorkHoursService {
-
     private final IWorkHoursRepository workHoursRepository;
     private final IDriverService driverService;
     private final IVehicleService vehicleService;
+    private final IRideService rideService;
 
     @Autowired
-    WorkHoursService(IWorkHoursRepository workHoursRepository, IDriverService driverService, IVehicleService vehicleService) {
+    WorkHoursService(IWorkHoursRepository workHoursRepository, IDriverService driverService,
+                     IVehicleService vehicleService, IRideService rideService) {
         this.workHoursRepository = workHoursRepository;
         this.driverService = driverService;
         this.vehicleService = vehicleService;
+        this.rideService = rideService;
     }
 
     @Override
     protected JpaRepository<WorkHours, Integer> getEntityRepository() {
         return workHoursRepository;
+    }
+
+    @Override
+    public boolean isDriverAvailable(Driver driver, Ride ride) {
+        return getWorkingMinutesByDriverAtChosenDay(driver.getId(), LocalDate.now())
+                + rideService.getTimeOfNextRidesByDriverAtChoosedDay(driver.getId(),LocalDate.now())
+                + ride.getEstimatedTime() <= 8 * 60;
     }
 
     @Override
@@ -100,8 +111,9 @@ public class WorkHoursService extends JPAService<WorkHours> implements IWorkHour
     public Page<WorkHours> findFilteredWorkHours(Integer driverId, LocalDateTime from, LocalDateTime to, Pageable pageable) {
         return workHoursRepository.findByDriverIdAndDateRange(driverId, from, to, pageable);
     }
+
     @Override
-    public long getWorkingMinutesByDriverAtChoosedDay(Integer driverId, LocalDate date)
+    public long getWorkingMinutesByDriverAtChosenDay(Integer driverId, LocalDate date)
     {
         List<WorkHours> workHoursList=workHoursRepository.findByDriverIdAndStartTimeBetween(driverId,date.atStartOfDay(),date.atTime(23,59,59));
         long sum=0;

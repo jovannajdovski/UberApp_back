@@ -1,15 +1,11 @@
 package com.uberTim12.ihor.service.ride.impl;
 
-import com.uberTim12.ihor.dto.ride.CreateRideDTO;
-import com.uberTim12.ihor.dto.route.PathDTO;
-import com.uberTim12.ihor.dto.users.UserRideDTO;
+import com.uberTim12.ihor.exception.CannotScheduleDriveException;
+import com.uberTim12.ihor.exception.NotFoundException;
 import com.uberTim12.ihor.model.ride.ActiveDriver;
 import com.uberTim12.ihor.model.ride.ActiveDriverCriticalRide;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.ride.RideStatus;
-import com.uberTim12.ihor.model.route.Location;
-import com.uberTim12.ihor.model.route.Path;
-import com.uberTim12.ihor.model.users.Passenger;
 import com.uberTim12.ihor.repository.ride.IActiveDriverRepository;
 import com.uberTim12.ihor.service.ride.interfaces.IRideSchedulingService;
 import com.uberTim12.ihor.service.ride.interfaces.IRideService;
@@ -17,42 +13,51 @@ import com.uberTim12.ihor.service.route.interfaces.ILocationService;
 import com.uberTim12.ihor.service.route.interfaces.IPathService;
 import com.uberTim12.ihor.service.users.interfaces.IDriverService;
 import com.uberTim12.ihor.service.users.interfaces.IPassengerService;
+import com.uberTim12.ihor.service.users.interfaces.IWorkHoursService;
 import com.uberTim12.ihor.service.vehicle.interfaces.IVehicleService;
+import jakarta.persistence.EntityNotFoundException;
 import net.minidev.json.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Service
 public class RideSchedulingService implements IRideSchedulingService {
-    @Autowired
-    IRideService rideService;
-    @Autowired
-    IPathService pathService;
-    @Autowired
-    IPassengerService passengerService;
-    @Autowired
-    IVehicleService vehicleService;
-    @Autowired
-    IDriverService driverService;
-    @Autowired
-    IActiveDriverRepository activeDriverRepository;
+    private final IRideService rideService;
+    private final IVehicleService vehicleService;
+    private final IDriverService driverService;
+    private final IActiveDriverRepository activeDriverRepository;
+    private final ILocationService locationService;
+    private final IWorkHoursService workHoursService;
 
     @Autowired
-    ILocationService locationService;
+    public RideSchedulingService(IRideService rideService, IVehicleService vehicleService, IDriverService driverService, IActiveDriverRepository activeDriverRepository, ILocationService locationService, IWorkHoursService workHoursService) {
+        this.rideService = rideService;
+        this.vehicleService = vehicleService;
+        this.driverService = driverService;
+        this.activeDriverRepository = activeDriverRepository;
+        this.locationService = locationService;
+        this.workHoursService = workHoursService;
+    }
+
     @Override
-    public Ride findFreeVehicle(Ride ride) {
+    public Ride findFreeVehicle(Ride ride) throws CannotScheduleDriveException {
+        try{
+            ride.setEstimatedTime(locationService.calculateEstimatedTime(ride.getPaths().iterator().next().getStartPoint(),ride.getPaths().iterator().next().getEndPoint()));
+        }
+        catch(ParseException | IOException e)
+        {
+            ride.setEstimatedTime(Double.MAX_VALUE);
+        }
 
         List<ActiveDriver> activeDrivers=activeDriverRepository.findAll();
         List<ActiveDriver> attainableDrivers=new ArrayList<>();
         for(ActiveDriver activeDriver: activeDrivers)
         {
-            if(vehicleService.isVehicleMeetCriteria(activeDriver.getDriver().getVehicle(),ride) && driverService.isDriverAvailable(activeDriver.getDriver(),ride))
+            if(vehicleService.isVehicleMeetCriteria(activeDriver.getDriver().getVehicle(),ride) && workHoursService.isDriverAvailable(activeDriver.getDriver(),ride))
             {
                 attainableDrivers.add(activeDriver);
             }
@@ -100,7 +105,8 @@ public class RideSchedulingService implements IRideSchedulingService {
         }
 
         if(!freeDriver)
-            return null;
+            throw new CannotScheduleDriveException("Driving is not possible!");
+
         try{
             distance=locationService.calculateDistance(ride.getPaths().iterator().next().getStartPoint(), ride.getPaths().iterator().next().getEndPoint());
         }

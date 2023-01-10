@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 
+import java.util.Set;
+
 import static jakarta.persistence.InheritanceType.JOINED;
 import static jakarta.persistence.InheritanceType.TABLE_PER_CLASS;
 

@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 public interface IRideService extends IJPAService<Ride> {
     Page<Ride> findFilteredRides(Integer driverId, Pageable pageable);

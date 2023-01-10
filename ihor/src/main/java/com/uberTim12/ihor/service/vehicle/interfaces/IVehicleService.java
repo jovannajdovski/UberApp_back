@@ -20,8 +20,6 @@ public interface IVehicleService extends IJPAService<Vehicle> {
 
     Vehicle getVehicleOf(Integer driverId) throws EntityPropertyIsNullException;
     Vehicle save(Vehicle vehicle);
-    void remove(Integer id);
-    Vehicle findOne(Integer id);
 
     boolean isVehicleMeetCriteria(Vehicle vehicle, Ride ride);
 }

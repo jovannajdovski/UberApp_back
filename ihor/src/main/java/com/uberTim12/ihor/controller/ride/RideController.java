@@ -6,6 +6,7 @@ import com.uberTim12.ihor.dto.ride.CreateRideDTO;
 import com.uberTim12.ihor.dto.ride.RideFullDTO;
 import com.uberTim12.ihor.dto.route.PathDTO;
 import com.uberTim12.ihor.dto.users.UserRideDTO;
+import com.uberTim12.ihor.exception.CannotScheduleDriveException;
 import com.uberTim12.ihor.model.communication.Panic;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.ride.RideRejection;
@@ -15,45 +16,54 @@ import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.users.Passenger;
 import com.uberTim12.ihor.service.communication.impl.PanicService;
-import com.uberTim12.ihor.service.ride.impl.RideSchedulingService;
+import com.uberTim12.ihor.service.communication.interfaces.IPanicService;
 import com.uberTim12.ihor.service.ride.impl.RideService;
-import com.uberTim12.ihor.service.route.impl.LocationService;
+import com.uberTim12.ihor.service.ride.interfaces.IRideSchedulingService;
+import com.uberTim12.ihor.service.ride.interfaces.IRideService;
 import com.uberTim12.ihor.service.route.impl.PathService;
+import com.uberTim12.ihor.service.route.interfaces.ILocationService;
+import com.uberTim12.ihor.service.route.interfaces.IPathService;
 import com.uberTim12.ihor.service.users.impl.DriverService;
 import com.uberTim12.ihor.service.users.impl.PassengerService;
+import com.uberTim12.ihor.service.users.interfaces.IDriverService;
+import com.uberTim12.ihor.service.users.interfaces.IPassengerService;
+import jakarta.persistence.EntityNotFoundException;
 import net.minidev.json.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.Set;
 
 @RestController
 @RequestMapping(value = "api/ride")
 public class RideController {
-    private final RideService rideService;
-    private final PathService pathService;
-    private final PassengerService passengerService;
-    private final DriverService driverService;
-    private final PanicService panicService;
+    private final IRideService rideService;
+    private final IPathService pathService;
+    private final IPassengerService passengerService;
+    private final IDriverService driverService;
+    private final IPanicService panicService;
+    private final IRideSchedulingService rideSchedulingService;
 
     @Autowired
-    public RideController(RideService rideService, PathService pathService, PassengerService passengerService, DriverService driverService, PanicService panicService) {
+    public RideController(RideService rideService, PathService pathService, PassengerService passengerService,
+                          DriverService driverService, PanicService panicService,
+                          IRideSchedulingService rideSchedulingService) {
         this.rideService = rideService;
         this.pathService = pathService;
         this.passengerService = passengerService;
         this.driverService = driverService;
         this.panicService = panicService;
+        this.rideSchedulingService = rideSchedulingService;
     }
 
     @PostMapping(consumes = "application/json")
-    public ResponseEntity<?> createRide(@RequestBody CreateRideDTO rideDTO) {
-
+    public ResponseEntity<RideFullDTO> createRide(@RequestBody CreateRideDTO rideDTO) {
         Ride ride = new Ride(rideDTO);
 
         Set<Path> paths = new HashSet<>();
@@ -78,19 +88,13 @@ public class RideController {
             passengers.add(passenger);
         }
         ride.setPassengers(passengers);
-        try{
-            ride.setEstimatedTime(locationService.calculateEstimatedTime(ride.getPaths().iterator().next().getStartPoint(),ride.getPaths().iterator().next().getEndPoint()));
+
+        try {
+            ride=rideSchedulingService.findFreeVehicle(ride);
+        } catch (CannotScheduleDriveException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
-        catch(ParseException | IOException e)
-        {
-            ride.setEstimatedTime(Double.MAX_VALUE);
-        }
 
-
-        ride=rideSchedulingService.findFreeVehicle(ride);
-
-        if(ride==null)
-              return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("driving is not possible");
         return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
     }
 
