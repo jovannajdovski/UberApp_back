@@ -29,4 +29,6 @@ public interface IPassengerService extends IJPAService<Passenger> {
     Optional<Passenger> findByIdWithFavorites(Integer id);
 
     Passenger findByEmailWithFavorites(String email);
+
+    boolean isPassengersFree(Ride ride);
 }

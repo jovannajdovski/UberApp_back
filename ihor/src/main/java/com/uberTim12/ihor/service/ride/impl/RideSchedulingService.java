@@ -10,6 +10,7 @@ import com.uberTim12.ihor.service.ride.interfaces.IRideSchedulingService;
 import com.uberTim12.ihor.service.ride.interfaces.IRideService;
 import com.uberTim12.ihor.service.route.interfaces.ILocationService;
 import com.uberTim12.ihor.service.users.interfaces.IDriverService;
+import com.uberTim12.ihor.service.users.interfaces.IPassengerService;
 import com.uberTim12.ihor.service.users.interfaces.IWorkHoursService;
 import com.uberTim12.ihor.service.vehicle.interfaces.IVehicleService;
 import net.minidev.json.parser.ParseException;
@@ -28,15 +29,17 @@ public class RideSchedulingService implements IRideSchedulingService {
     private final IActiveDriverRepository activeDriverRepository;
     private final ILocationService locationService;
     private final IWorkHoursService workHoursService;
+    private final IPassengerService passengerService;
 
     @Autowired
-    public RideSchedulingService(IRideService rideService, IVehicleService vehicleService, IDriverService driverService, IActiveDriverRepository activeDriverRepository, ILocationService locationService, IWorkHoursService workHoursService) {
+    public RideSchedulingService(IRideService rideService, IVehicleService vehicleService, IDriverService driverService, IActiveDriverRepository activeDriverRepository, ILocationService locationService, IWorkHoursService workHoursService, IPassengerService passengerService) {
         this.rideService = rideService;
         this.vehicleService = vehicleService;
         this.driverService = driverService;
         this.activeDriverRepository = activeDriverRepository;
         this.locationService = locationService;
         this.workHoursService = workHoursService;
+        this.passengerService = passengerService;
     }
 
     @Override
@@ -48,7 +51,8 @@ public class RideSchedulingService implements IRideSchedulingService {
         {
             ride.setEstimatedTime(Double.MAX_VALUE);
         }
-
+        if(!passengerService.isPassengersFree(ride))
+            throw new CannotScheduleDriveException("Driving is not possible!");
         List<ActiveDriver> activeDrivers = activeDriverRepository.findAll();
         List<ActiveDriver> attainableDrivers=new ArrayList<>();
         for(ActiveDriver activeDriver: activeDrivers)
