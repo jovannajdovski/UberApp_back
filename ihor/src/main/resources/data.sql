@@ -1,11 +1,11 @@
 INSERT INTO authority(name)
-VALUES ('ADMIN');
+VALUES ('ROLE_ADMIN');
 
 INSERT INTO authority(name)
-VALUES ('DRIVER');
+VALUES ('ROLE_DRIVER');
 
 INSERT INTO authority(name)
-VALUES ('PASSENGER');
+VALUES ('ROLE_PASSENGER');
 
 INSERT INTO ihor (name, surname, profile_picture, telephone_number, email, address, password, is_blocked, is_active, authority_id)
 VALUES ('Miki', 'Mikic', null, '+3816563122', 'miki@email.com', 'Gogoljeva 3', '$2a$12$wwQ9iYllQax/wUT99HgAUeeHCdBk7tOT/oqo7usLtFLbMn9lpiL.S' , false, false, 3); --mikimilane

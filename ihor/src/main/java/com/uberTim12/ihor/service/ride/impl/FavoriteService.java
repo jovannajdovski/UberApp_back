@@ -6,21 +6,14 @@ import com.uberTim12.ihor.dto.users.UserRideDTO;
 import com.uberTim12.ihor.exception.AccessDeniedException;
 import com.uberTim12.ihor.exception.FavoriteRideExceedException;
 import com.uberTim12.ihor.exception.UnauthorizedException;
-import com.uberTim12.ihor.model.communication.Panic;
 import com.uberTim12.ihor.model.ride.Favorite;
-import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.route.Location;
 import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.users.Passenger;
-import com.uberTim12.ihor.model.users.User;
 import com.uberTim12.ihor.repository.ride.IFavoriteRepository;
-import com.uberTim12.ihor.repository.ride.IRideRepository;
-import com.uberTim12.ihor.repository.users.IDriverRepository;
-import com.uberTim12.ihor.repository.users.IPassengerRepository;
 import com.uberTim12.ihor.security.AuthUtil;
 import com.uberTim12.ihor.service.base.impl.JPAService;
 import com.uberTim12.ihor.service.ride.interfaces.IFavoriteService;
-import com.uberTim12.ihor.service.ride.interfaces.IRideService;
 import com.uberTim12.ihor.service.route.interfaces.IPathService;
 import com.uberTim12.ihor.service.users.interfaces.IPassengerService;
 import jakarta.persistence.EntityNotFoundException;
@@ -31,7 +24,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -39,15 +31,16 @@ import java.util.Set;
 @Service
 public class FavoriteService extends JPAService<Favorite> implements IFavoriteService {
     private final IFavoriteRepository favoriteRepository;
-
     private final IPassengerService passengerService;
-
     private final IPathService pathService;
+    private final AuthUtil authUtil;
+
     @Autowired
-    public FavoriteService(IFavoriteRepository favoriteRepository, IPassengerService passengerService, IPathService pathService) {
+    public FavoriteService(IFavoriteRepository favoriteRepository, IPassengerService passengerService, IPathService pathService, AuthUtil authUtil) {
         this.favoriteRepository = favoriteRepository;
         this.passengerService = passengerService;
         this.pathService = pathService;
+        this.authUtil = authUtil;
     }
 
     @Override
@@ -104,7 +97,7 @@ public class FavoriteService extends JPAService<Favorite> implements IFavoriteSe
             throw new UnauthorizedException("Unauthorized!");
         }
 
-        if (!AuthUtil.hasRole("PASSENGER")){
+        if (!authUtil.hasRole("PASSENGER")){
             throw new AccessDeniedException("Access denied!");
         }
 

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class ReviewController {
     }
 
     @PostMapping(value = "/{rideId}/vehicle/{id}",consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('PASSENGER')")
     public ResponseEntity<?> leaveReviewForVehicle(@PathVariable Integer rideId, @RequestBody ReviewRequestDTO reviewRequestDTO)
     {
         if(rideId==null) //TODO sve greske
@@ -46,6 +48,7 @@ public class ReviewController {
     }
 
     @PostMapping(value = "/{rideId}/driver/{id}",consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('PASSENGER')")
     public ResponseEntity<?> leaveReviewForDriver(@PathVariable Integer rideId, @RequestBody ReviewRequestDTO reviewRequestDTO)
     {
         if(rideId==null) //TODO sve greske

@@ -25,6 +25,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
@@ -90,6 +91,7 @@ public class UserController {
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getUsers(Pageable page)
     {
         Page<User> users = userService.getAll(page);
@@ -147,6 +149,7 @@ public class UserController {
     }
 
     @PutMapping(value = "/{id}/block")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> blockUser(@PathVariable("id") Integer id)
     {
         try {
@@ -160,6 +163,7 @@ public class UserController {
     }
 
     @PutMapping(value = "/{id}/unblock")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> unblockUser(@PathVariable("id") Integer id)
     {
         try {
@@ -172,6 +176,7 @@ public class UserController {
         }    }
 
     @PostMapping(value = "/{id}/note",consumes=MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createNote(@PathVariable Integer id, @RequestBody RequestNoteDTO requestNoteDTO)
     {
         if(id==null) //TODO sve greske
@@ -185,6 +190,7 @@ public class UserController {
         }
     }
     @GetMapping(value = "/{id}/note",produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getNotes(@PathVariable Integer id, Pageable page)
     {
         if(id==null) //TODO sve greske

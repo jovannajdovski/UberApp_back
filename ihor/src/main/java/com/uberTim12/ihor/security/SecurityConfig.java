@@ -24,7 +24,7 @@ import static org.springframework.http.HttpMethod.POST;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
+@EnableMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
 public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
 
@@ -55,9 +55,9 @@ public class SecurityConfig {
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .authenticationProvider(authenticationProvider())
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-            .exceptionHandling()
-            .authenticationEntryPoint(restAuthenticationEntryPoint);
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+//            .exceptionHandling()
+//            .authenticationEntryPoint(restAuthenticationEntryPoint);
 
         http.headers().frameOptions().sameOrigin();
         return http.build();

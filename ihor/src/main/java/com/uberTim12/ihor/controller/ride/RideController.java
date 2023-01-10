@@ -33,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -65,6 +66,7 @@ public class RideController {
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('PASSENGER')")
     public ResponseEntity<RideFullDTO> createRide(@RequestBody CreateRideDTO rideDTO) {
 
         Ride ride = new Ride(rideDTO);
@@ -102,6 +104,7 @@ public class RideController {
     }
 
     @GetMapping(value = "/driver/{driverId}/active")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
     public ResponseEntity<RideFullDTO> getActiveRideForDriver(@PathVariable Integer driverId) {
         try {
             Driver driver;
@@ -117,6 +120,7 @@ public class RideController {
     }
 
     @GetMapping(value = "/passenger/{passengerId}/active")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PASSENGER')")
     public ResponseEntity<RideFullDTO> getActiveRideForPassenger(@PathVariable Integer passengerId) {
         try {
             Passenger passenger;
@@ -142,6 +146,7 @@ public class RideController {
     }
 
     @PutMapping(value = "/{id}/withdraw")
+    @PreAuthorize("hasRole('DRIVER') or hasRole('PASSENGER')")
     public ResponseEntity<RideFullDTO> cancelRide(@PathVariable Integer id) {
         try {
             Ride ride = rideService.cancel(id);
@@ -168,6 +173,7 @@ public class RideController {
     }
 
     @PutMapping(value = "/{id}/start")
+    @PreAuthorize("hasRole('DRIVER')")
     public ResponseEntity<RideFullDTO> startRide(@PathVariable Integer id) {
         try {
             Ride ride = rideService.start(id);
@@ -180,6 +186,7 @@ public class RideController {
     }
 
     @PutMapping(value = "/{id}/accept")
+    @PreAuthorize("hasRole('DRIVER')")
     public ResponseEntity<RideFullDTO> acceptRide(@PathVariable Integer id) {
         try {
             Ride ride = rideService.accept(id);
@@ -192,6 +199,7 @@ public class RideController {
     }
 
     @PutMapping(value = "/{id}/end")
+    @PreAuthorize("hasRole('DRIVER')")
     public ResponseEntity<RideFullDTO> endRide(@PathVariable Integer id) {
         try {
             Ride ride = rideService.end(id);
@@ -204,6 +212,7 @@ public class RideController {
     }
 
     @PutMapping(value = "/{id}/cancel")
+    @PreAuthorize("hasRole('DRIVER')")
     public ResponseEntity<RideFullDTO> rejectRide(@PathVariable Integer id, @RequestBody ReasonDTO reason) {
 
         try {
@@ -217,6 +226,7 @@ public class RideController {
     }
 
     @PostMapping(value = "/favorites", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PASSENGER')")
     public ResponseEntity<FavoriteFullDTO> createFavorite(@RequestBody CreateFavoriteDTO favoriteDTO) {
         try {
             Favorite favorite = favoriteService.create(favoriteDTO);
@@ -229,6 +239,7 @@ public class RideController {
     }
 
     @GetMapping(value = "/favorites")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Set<FavoriteFullDTO>> getFavorites() {
         List<Favorite> favorites = favoriteService.getAll();
         Set<FavoriteFullDTO> favoritesDTO = new HashSet<>();
@@ -239,6 +250,7 @@ public class RideController {
     }
 
     @GetMapping(value = "/favorites/passenger")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PASSENGER')")
     public ResponseEntity<Set<FavoriteFullDTO>> getFavoritesForPassenger() {
         try {
             Set<Favorite> favorites = favoriteService.getForPassenger();
@@ -256,6 +268,7 @@ public class RideController {
     }
 
     @DeleteMapping(value = "/favorites/{id}")
+    @PreAuthorize("hasRole('PASSENGER')")
     public ResponseEntity<String> deleteFavorite(@PathVariable Integer id) {
         try {
             favoriteService.delete(id);
