@@ -15,18 +15,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class UnregisteredUserController {
     private final RideService rideService;
-    private final UserService userService;
 
     @Autowired
-    public UnregisteredUserController(RideService rideService, UserService userService) {
+    public UnregisteredUserController(RideService rideService) {
         this.rideService = rideService;
-        this.userService = userService;
     }
 
     @PostMapping(value = "api/unregisteredUser/",consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getEstimatedRoute(@RequestBody RideRequestDTO rideRequestDTO)
     {
-        RideResponseDTO estimatedRoute=rideService.getEstimatedRoute(rideRequestDTO);
+        //Todo refaktorisati
+        RideResponseDTO estimatedRoute = rideService.getEstimatedRoute(rideRequestDTO);
         if(estimatedRoute==null)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
         else

@@ -42,7 +42,7 @@ public class Ride {
             joinColumns = @JoinColumn(name = "ride_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "passenger_id", referencedColumnName = "id")
     )
-    public Set<Passenger> passengers = new HashSet<>();
+    private Set<Passenger> passengers = new HashSet<>();
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH}, fetch = FetchType.LAZY)
     @JoinTable(

@@ -14,6 +14,7 @@ import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.route.Location;
 import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.users.DriverDocument;
+import com.uberTim12.ihor.model.users.Passenger;
 import com.uberTim12.ihor.model.users.WorkHours;
 import com.uberTim12.ihor.model.vehicle.Vehicle;
 import com.uberTim12.ihor.model.vehicle.VehicleType;
@@ -27,9 +28,9 @@ import com.uberTim12.ihor.service.users.interfaces.IDriverService;
 import com.uberTim12.ihor.service.users.interfaces.IWorkHoursService;
 import com.uberTim12.ihor.service.vehicle.impl.VehicleService;
 import com.uberTim12.ihor.service.vehicle.interfaces.IVehicleService;
-import jakarta.persistence.EntityNotFoundException;
-import com.uberTim12.ihor.service.vehicle.interfaces.IVehicleTypeService;
 import com.uberTim12.ihor.util.ImageConverter;
+import jakarta.persistence.EntityNotFoundException;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -99,6 +100,8 @@ public class DriverController {
 
     @GetMapping(value = "/{id}")
     public ResponseEntity<DriverDetailsDTO> getDriverDetails(@PathVariable Integer id) {
+        Ride ride = rideService.get(id);
+
         try {
             Driver driver = driverService.get(id);
             return new ResponseEntity<>(new DriverDetailsDTO(driver), HttpStatus.OK);

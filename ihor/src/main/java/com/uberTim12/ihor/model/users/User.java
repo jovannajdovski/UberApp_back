@@ -3,6 +3,8 @@ package com.uberTim12.ihor.model.users;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Set;
+
 import static jakarta.persistence.InheritanceType.JOINED;
 import static jakarta.persistence.InheritanceType.TABLE_PER_CLASS;
 
@@ -31,7 +33,7 @@ public abstract class User {
     @Column(name = "telephone_number")
     private String telephoneNumber;
 
-    @Column(name = "email", nullable = false) //unique=true
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
     @Column(name = "address")
@@ -43,6 +45,9 @@ public abstract class User {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "authority_id")
     private Authority authority;
+
+    @OneToMany(mappedBy="user", fetch = FetchType.EAGER)
+    private Set<Note> notes;
 
     @Column(name = "is_blocked", nullable = false)
     private boolean isBlocked;

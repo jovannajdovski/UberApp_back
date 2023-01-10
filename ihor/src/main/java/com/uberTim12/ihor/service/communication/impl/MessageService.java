@@ -1,13 +1,18 @@
 package com.uberTim12.ihor.service.communication.impl;
 
 import com.uberTim12.ihor.dto.communication.MessageDTO;
+import com.uberTim12.ihor.exception.NotFoundException;
 import com.uberTim12.ihor.model.communication.Message;
-import com.uberTim12.ihor.dto.communication.SendingMessageDTO;
+import com.uberTim12.ihor.model.communication.MessageType;
+import com.uberTim12.ihor.model.ride.Ride;
+import com.uberTim12.ihor.model.users.User;
 import com.uberTim12.ihor.repository.communication.IMessageRepository;
-import com.uberTim12.ihor.repository.ride.IRideRepository;
-import com.uberTim12.ihor.repository.users.IUserRepository;
+import com.uberTim12.ihor.service.base.impl.JPAService;
 import com.uberTim12.ihor.service.communication.interfaces.IMessageService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.uberTim12.ihor.service.ride.interfaces.IRideService;
+import com.uberTim12.ihor.service.users.interfaces.IUserService;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -18,35 +23,55 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
-public class MessageService implements IMessageService {
-    @Autowired
-    private IMessageRepository messageRepository;
-    @Autowired
-    private IUserRepository userRepository;
+public class MessageService extends JPAService<Message> implements IMessageService {
+    private final IMessageRepository messageRepository;
+    private final IUserService userService;
+    private final IRideService rideService;
 
-    @Autowired
-    private IRideRepository rideRepository;
+    public MessageService(IMessageRepository messageRepository, IUserService userService, IRideService rideService) {
+        this.messageRepository = messageRepository;
+        this.userService = userService;
+        this.rideService = rideService;
+    }
+
+    @Override
+    protected JpaRepository<Message, Integer> getEntityRepository() {
+        return messageRepository;
+    }
 
     @Override
     public List<MessageDTO> getMessages(Integer id) {
         //List<Message> messages= messageRepository.findAllBySenderIdOrReceiverId(id,id);
-
-        List<Message> messages= sortMessagesToChatFormat(messageRepository.findAllBySenderIdOrReceiverId(id,id),id);
-
+        List<Message> messages = sortMessagesToChatFormat(messageRepository.findAllBySenderIdOrReceiverId(id,id),id);
         return messages.stream().map(MessageDTO::new).collect(Collectors.toList());
     }
-
     @Override
-    public MessageDTO sendMessage(Integer senderId, SendingMessageDTO sendingMessageDTO) {
-        Message message=new Message(userRepository.findById(senderId).get(),
-                userRepository.findById(sendingMessageDTO.getReceiverId()).get(),
-                sendingMessageDTO.getMessage(),
-                LocalDateTime.now(),
-                sendingMessageDTO.getType(),
-                rideRepository.findById(sendingMessageDTO.getRideId()).get());
-        message=messageRepository.saveAndFlush(message);
-        return new MessageDTO(message);
+    public Message sendMessage(Integer senderId, Integer receiverId, Integer rideId, String content,
+                               MessageType type) throws EntityNotFoundException {
+        User sender = null;
+        User receiver = null;
+        Ride ride = null;
+        try {
+            sender = userService.get(senderId);
+            receiver = userService.get(receiverId);
+            ride = rideService.get(rideId);
+            LocalDateTime currentTime = LocalDateTime.now();
+            Message message = new Message(sender, receiver, content, currentTime, type, ride);
+            return save(message);
+        } catch (EntityNotFoundException e) {
+            if (sender == null) {
+                throw new NotFoundException("User does not exist!");
+            }
+            else if (receiver == null) {
+                throw new NotFoundException("Receiver does not exist!");
+            }
+            else if (ride == null) {
+                throw new NotFoundException("Ride does not exist!");
+            }
+        }
+        return null;
     }
+
     private List<Message> sortMessagesToChatFormat(List<Message> messages, Integer userId)
     {
         List<Message> groupedMessages=messages.stream()

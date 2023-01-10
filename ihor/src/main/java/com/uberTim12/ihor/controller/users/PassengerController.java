@@ -86,7 +86,7 @@ public class PassengerController {
     }
 
     @PutMapping(value = "/{id}", consumes = "application/json")
-    public ResponseEntity<?> updatePassenger(@PathVariable Integer id, @RequestBody PassengerRegistrationDTO passengerDTO) {
+    public ResponseEntity<PassengerDTO> updatePassenger(@PathVariable Integer id, @RequestBody PassengerRegistrationDTO passengerDTO) {
         try {
             Passenger passenger = passengerService.update(id, passengerDTO.getName(), passengerDTO.getSurname(),
                     passengerDTO.getProfilePicture(), passengerDTO.getTelephoneNumber(), passengerDTO.getEmail(),
@@ -98,7 +98,7 @@ public class PassengerController {
     }
 
     @GetMapping(value = "/{id}/ride")
-    public ResponseEntity<?> getPassengerRidesPage(@PathVariable Integer id, Pageable page,
+    public ResponseEntity<ObjectListResponseDTO<RideNoStatusDTO>> getPassengerRidesPage(@PathVariable Integer id, Pageable page,
                                                    @RequestParam(required = false) String from,
                                                    @RequestParam(required = false) String to) {
 
