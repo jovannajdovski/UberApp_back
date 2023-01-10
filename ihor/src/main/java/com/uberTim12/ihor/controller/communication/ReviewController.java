@@ -23,7 +23,7 @@ public class ReviewController {
         this.reviewService = reviewService;
     }
 
-    @PostMapping(value = "/{rideId}/vehicle/{id}",consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/{rideId}/vehicle",consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> leaveReviewForVehicle(@PathVariable Integer rideId, @RequestBody ReviewRequestDTO reviewRequestDTO)
     {
         if(rideId==null) //TODO sve greske
@@ -45,7 +45,7 @@ public class ReviewController {
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
-    @PostMapping(value = "/{rideId}/driver/{id}",consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/{rideId}/driver",consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> leaveReviewForDriver(@PathVariable Integer rideId, @RequestBody ReviewRequestDTO reviewRequestDTO)
     {
         if(rideId==null) //TODO sve greske
