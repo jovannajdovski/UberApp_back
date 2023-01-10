@@ -3,7 +3,10 @@ package com.uberTim12.ihor.model.communication;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.users.User;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 

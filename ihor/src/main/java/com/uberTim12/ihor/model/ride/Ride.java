@@ -1,12 +1,17 @@
 package com.uberTim12.ihor.model.ride;
 
+import com.uberTim12.ihor.dto.ride.CreateRideDTO;
+import com.uberTim12.ihor.dto.ride.RideDTO;
 import com.uberTim12.ihor.model.communication.Review;
 import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.users.Passenger;
 import com.uberTim12.ihor.model.vehicle.VehicleType;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -26,7 +31,7 @@ public class Ride {
     @Column(name = "start_time", nullable = false)
     private LocalDateTime startTime;
 
-    @Column(name = "end_time", nullable = false)
+    @Column(name = "end_time")
     private LocalDateTime endTime;
 
     @Column(name = "total_price", nullable = false)
@@ -77,4 +82,12 @@ public class Ride {
     @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH})
     @JoinColumn(name = "vehicle_type")
     private VehicleType vehicleType;
+
+    public Ride(CreateRideDTO rideDTO) {
+        this.babiesAllowed = rideDTO.isBabyTransport();
+        this.petsAllowed = rideDTO.isPetTransport();
+        this.startTime=rideDTO.getStartTime();
+        this.vehicleType=new VehicleType();
+        this.vehicleType.setVehicleCategory(rideDTO.getVehicleType());
+    }
 }

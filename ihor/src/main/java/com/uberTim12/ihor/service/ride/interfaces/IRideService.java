@@ -10,6 +10,7 @@ import com.uberTim12.ihor.service.base.interfaces.IJPAService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -29,4 +30,10 @@ public interface IRideService extends IJPAService<Ride> {
     List<Passenger> findPassengersForRide(Integer id);
 
     List<Path> findPathsForRide(Integer id);
+
+    double getTimeOfNextRidesByDriverAtChoosedDay(Integer driverId, LocalDate now);
+
+    boolean hasIntersectionBetweenRides(LocalDateTime rideStart, LocalDateTime rideEnd, LocalDateTime newRideStart, LocalDateTime newRideEnd);
+
+    Ride findCriticalRide(Set<Ride> rides, Ride newRide);
 }

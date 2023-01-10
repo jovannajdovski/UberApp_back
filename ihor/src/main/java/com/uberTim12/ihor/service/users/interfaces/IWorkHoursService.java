@@ -16,4 +16,5 @@ public interface IWorkHoursService extends IJPAService<WorkHours> {
     WorkHours startShift(Integer driverId, WorkHours workHours) throws EntityNotFoundException, EntityPropertyIsNullException, ShiftAlreadyStartedException, WorkTimeExceededException;
     Page<WorkHours> findFilteredWorkHours(Integer driverId, Pageable pageable);
     Page<WorkHours> findFilteredWorkHours(Integer driverId, LocalDateTime from, LocalDateTime to, Pageable pageable);
+    long getWorkingMinutesByDriverAtChoosedDay(Integer driverId, LocalDate date);
 }

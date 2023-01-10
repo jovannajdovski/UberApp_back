@@ -1,35 +1,29 @@
 package com.uberTim12.ihor.model.ride;
 
-import com.uberTim12.ihor.model.users.User;
+import com.uberTim12.ihor.model.route.Location;
+import com.uberTim12.ihor.model.users.Driver;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @Entity
-public class RideRejection {
+public class ActiveDriver {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @OneToOne(cascade = CascadeType.REFRESH)
-    private Ride ride;
+    private Driver driver;
 
-    @Column(name = "reason", nullable = false)
-    private String reason;
+    @ManyToOne(fetch=FetchType.EAGER)
+    @JoinColumn(name = "location_id")
+    private Location location;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
-    private User user;
-
-    @Column(name = "time", nullable = false)
-    private LocalDateTime time;
 }

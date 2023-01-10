@@ -4,10 +4,10 @@ package com.uberTim12.ihor.service.ride.impl;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.dto.ride.RideRequestDTO;
 import com.uberTim12.ihor.dto.ride.RideResponseDTO;
+import com.uberTim12.ihor.model.ride.RideStatus;
 import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.users.Passenger;
-import com.uberTim12.ihor.model.vehicle.Vehicle;
 import com.uberTim12.ihor.repository.ride.IRideRepository;
 import com.uberTim12.ihor.repository.users.IDriverRepository;
 import com.uberTim12.ihor.repository.users.IPassengerRepository;
@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Optional;
@@ -132,6 +133,39 @@ public class RideService extends JPAService<Ride> implements IRideService {
     @Override
     public List<Path> findPathsForRide(Integer id) {
         return rideRepository.findPathsForRide(id);
+    }
+
+    @Override
+    public double getTimeOfNextRidesByDriverAtChoosedDay(Integer driverId, LocalDate now) {
+        Double res=rideRepository.sumEstimatedTimeOfNextRidesByDriverAtThatDay(driverId, now);
+        if(res!=null) return res;
+        return 0.0;
+    }
+
+    @Override
+    public boolean hasIntersectionBetweenRides(LocalDateTime rideStart, LocalDateTime rideEnd, LocalDateTime newRideStart, LocalDateTime newRideEnd) {
+        return rideEnd.isAfter(newRideStart) && newRideEnd.isAfter(rideStart);
+    }
+
+    @Override
+    public Ride findCriticalRide(Set<Ride> rides, Ride newRide) {
+        LocalDateTime rideEnd, newRideEnd=newRide.getStartTime().plusMinutes(newRide.getEstimatedTime().longValue());
+        Ride criticalRide=null;
+        LocalDateTime latestCriticalRideEnd=null;
+        for(Ride ride: rides)
+        {
+            rideEnd=ride.getStartTime().plusMinutes(ride.getEstimatedTime().longValue());
+            if(hasIntersectionBetweenRides(ride.getStartTime(),rideEnd,newRide.getStartTime(),newRideEnd)
+                    && newRide.getStartTime().plusMinutes(30).isAfter(rideEnd))
+            {
+                if(latestCriticalRideEnd==null || rideEnd.isAfter(latestCriticalRideEnd))
+                {
+                    criticalRide=ride;
+                    latestCriticalRideEnd=rideEnd;
+                }
+            }
+        }
+        return criticalRide;
     }
 
 }

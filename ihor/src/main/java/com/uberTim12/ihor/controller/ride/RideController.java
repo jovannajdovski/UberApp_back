@@ -14,18 +14,22 @@ import com.uberTim12.ihor.model.route.Location;
 import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.users.Passenger;
-import com.uberTim12.ihor.model.vehicle.VehicleType;
 import com.uberTim12.ihor.service.communication.impl.PanicService;
+import com.uberTim12.ihor.service.ride.impl.RideSchedulingService;
 import com.uberTim12.ihor.service.ride.impl.RideService;
+import com.uberTim12.ihor.service.route.impl.LocationService;
 import com.uberTim12.ihor.service.route.impl.PathService;
 import com.uberTim12.ihor.service.users.impl.DriverService;
 import com.uberTim12.ihor.service.users.impl.PassengerService;
+import net.minidev.json.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -50,11 +54,7 @@ public class RideController {
     @PostMapping(consumes = "application/json")
     public ResponseEntity<?> createRide(@RequestBody CreateRideDTO rideDTO) {
 
-        Ride ride = new Ride();
-        ride.setVehicleType(new VehicleType());
-        ride.getVehicleType().setVehicleCategory(rideDTO.getVehicleType());
-        ride.setBabiesAllowed(rideDTO.isBabyTransport());
-        ride.setPetsAllowed(rideDTO.isPetTransport());
+        Ride ride = new Ride(rideDTO);
 
         Set<Path> paths = new HashSet<>();
 
@@ -78,30 +78,20 @@ public class RideController {
             passengers.add(passenger);
         }
         ride.setPassengers(passengers);
+        try{
+            ride.setEstimatedTime(locationService.calculateEstimatedTime(ride.getPaths().iterator().next().getStartPoint(),ride.getPaths().iterator().next().getEndPoint()));
+        }
+        catch(ParseException | IOException e)
+        {
+            ride.setEstimatedTime(Double.MAX_VALUE);
+        }
 
-//        Driver mokapDriver = new Driver();        // mockup data
-//        mokapDriver.setId(9999);
-//        mokapDriver.setEmail("mokap@gmail.com");
 
-        Driver mokapDriver = driverService.get(2);
+        ride=rideSchedulingService.findFreeVehicle(ride);
 
-        ride.setDriver(mokapDriver);
-        ride.setStartTime(LocalDateTime.now());
-        ride.setEndTime(LocalDateTime.now().plusMinutes(20));
-        ride.setTotalPrice(666.0);
-        ride.setEstimatedTime(20.0);
-        ride.setRideStatus(RideStatus.PENDING);
-
-/*
-        RideRejection mokapRideRejection = new RideRejection();
-        mokapRideRejection.setReason("exit");
-        mokapRideRejection.setTime(LocalDateTime.now());
-        ride.setRideRejection(mokapRideRejection);
-*/
-
-        ride = rideService.save(ride);
+        if(ride==null)
+              return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("driving is not possible");
         return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
-
     }
 
     @GetMapping(value = "/driver/{driverId}/active")
@@ -182,15 +172,6 @@ public class RideController {
         panic.setCurrentRide(ride);
         panic.setTime(LocalDateTime.now());
         panic.setReason(reason.getReason());
-
-//        Driver mokapDriver = new Driver();        // mockup data
-//        mokapDriver.setId(9999);
-//        mokapDriver.setEmail("mokap@gmail.com");
-//        mokapDriver.setName("Mika");
-//        mokapDriver.setSurname("Mikic");
-//        mokapDriver.setTelephoneNumber("381666666");
-//        mokapDriver.setAddress("Bulevar Oslobodjenja 1");
-//        mokapDriver.setProfilePicture("43dkl343lkwecc");
 
         Driver driver = ride.getDriver();
 

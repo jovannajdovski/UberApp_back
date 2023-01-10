@@ -3,6 +3,7 @@ package com.uberTim12.ihor.service.vehicle.impl;
 import com.uberTim12.ihor.exception.EntityPropertyIsNullException;
 import com.uberTim12.ihor.model.route.Location;
 import com.uberTim12.ihor.model.users.Driver;
+import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.vehicle.Vehicle;
 import com.uberTim12.ihor.model.vehicle.VehicleCategory;
 import com.uberTim12.ihor.repository.vehicle.IVehicleRepository;
@@ -84,5 +85,15 @@ public class VehicleService extends JPAService<Vehicle> implements IVehicleServi
             throw new EntityPropertyIsNullException("Driver does not have assigned vehicle!");
 
         return driver.getVehicle();
+    }
+
+    @Override
+    public boolean isVehicleMeetCriteria(Vehicle vehicle, Ride ride) {
+        VehicleCategory choosenVehicleCategory=ride.getVehicleType().getVehicleCategory();
+        if((choosenVehicleCategory!=null && vehicle.getVehicleType().getVehicleCategory()!=choosenVehicleCategory)
+            || (ride.isPetsAllowed() && !vehicle.isPetsAllowed())
+            || (ride.isBabiesAllowed() && !vehicle.isBabiesAllowed()))
+            return false;
+        return true;
     }
 }

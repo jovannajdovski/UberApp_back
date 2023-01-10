@@ -7,15 +7,18 @@ import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.users.User;
 import com.uberTim12.ihor.model.vehicle.VehicleCategory;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
 public class CreateRideDTO {
 
     private Set<PathDTO> locations = new HashSet<>();
@@ -27,9 +30,11 @@ public class CreateRideDTO {
 
     private boolean petTransport;
 
+    private LocalDateTime startTime;
+
 
     public CreateRideDTO(Ride ride){
-        this(ride.getVehicleType().getVehicleCategory(), ride.isBabiesAllowed(), ride.isPetsAllowed());
+        this(ride.getStartTime(),ride.getVehicleType().getVehicleCategory(), ride.isBabiesAllowed(), ride.isPetsAllowed());
 
         Set<UserRideDTO> passengers = new HashSet<>();
         for (User u : ride.getPassengers()){
@@ -44,9 +49,10 @@ public class CreateRideDTO {
         this.locations = locations;
     }
 
-    public CreateRideDTO(VehicleCategory vehicleCategory, boolean babiesAllowed, boolean petsAllowed) {
+    public CreateRideDTO(LocalDateTime startTime, VehicleCategory vehicleCategory, boolean babiesAllowed, boolean petsAllowed) {
         this.vehicleType = vehicleCategory;
         this.babyTransport = babiesAllowed;
         this.petTransport = petsAllowed;
+        this.startTime=startTime;
     }
 }

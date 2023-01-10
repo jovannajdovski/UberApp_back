@@ -1,6 +1,7 @@
 package com.uberTim12.ihor.repository.ride;
 
 import com.uberTim12.ihor.model.ride.Ride;
+import com.uberTim12.ihor.model.ride.RideStatus;
 import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.users.Passenger;
@@ -10,6 +11,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -38,5 +40,11 @@ public interface IRideRepository extends JpaRepository<Ride, Integer> {
 
     @Query("select r.paths from Ride as r join r.paths as p where r.id =?1")
     List<Path> findPathsForRide(Integer id);
+
+    @Query("select sum(r.estimatedTime) from Ride r where r.driver.id=?1  and (r.rideStatus=1 or r.rideStatus=3) and cast(r.startTime as localdate)=?2")
+    public Double sumEstimatedTimeOfNextRidesByDriverAtThatDay(Integer driverId, LocalDate date);
+
+    /*@Query("select sum(r.estimatedTime) from Ride r where r.driver.id=?1 and r.endTime IS NULL")
+    public double sumEstimatedTimeOfNextRidesByDriverAtThatDay(Integer driverId);*/
 
 }

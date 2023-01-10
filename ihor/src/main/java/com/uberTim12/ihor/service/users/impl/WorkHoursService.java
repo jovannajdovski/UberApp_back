@@ -23,6 +23,8 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Set;
 import java.util.TreeSet;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @Service
 public class WorkHoursService extends JPAService<WorkHours> implements IWorkHoursService {
@@ -97,5 +99,19 @@ public class WorkHoursService extends JPAService<WorkHours> implements IWorkHour
     @Override
     public Page<WorkHours> findFilteredWorkHours(Integer driverId, LocalDateTime from, LocalDateTime to, Pageable pageable) {
         return workHoursRepository.findByDriverIdAndDateRange(driverId, from, to, pageable);
+    }
+    @Override
+    public long getWorkingMinutesByDriverAtChoosedDay(Integer driverId, LocalDate date)
+    {
+        List<WorkHours> workHoursList=workHoursRepository.findByDriverIdAndStartTimeBetween(driverId,date.atStartOfDay(),date.atTime(23,59,59));
+        long sum=0;
+        for(WorkHours workHours:workHoursList)
+        {
+            if(workHours.getEndTime()!=null)
+                sum+=ChronoUnit.MINUTES.between(workHours.getStartTime(), workHours.getEndTime());
+            else
+                sum+=ChronoUnit.MINUTES.between(workHours.getStartTime(), LocalDateTime.now());
+        }
+        return sum;
     }
 }
