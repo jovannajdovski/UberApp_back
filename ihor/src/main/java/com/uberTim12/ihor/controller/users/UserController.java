@@ -112,11 +112,9 @@ public class UserController {
                     new UsernamePasswordAuthenticationToken(userCredentialDTO.getEmail(), userCredentialDTO.getPassword())
             );
             SecurityContextHolder.getContext().setAuthentication(authentication);
+
             String token = jwtUtil.generateToken(authentication);
-            String username = jwtUtil.extractUsername(token);
-            var user = userService.findByEmail(userCredentialDTO.getEmail());
-            AuthTokenDTO tokenDTO = new AuthTokenDTO(token, username, user.getId(), user.getName(), user.getSurname(),
-                    user.getEmail(), true, user.getAuthority());
+            AuthTokenDTO tokenDTO = new AuthTokenDTO(token, token);
             return new ResponseEntity<>(tokenDTO, HttpStatus.OK);
         } catch (AuthenticationException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong username or password!");

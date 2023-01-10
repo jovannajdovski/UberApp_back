@@ -7,8 +7,6 @@ import com.uberTim12.ihor.exception.PasswordDoesNotMatchException;
 import com.uberTim12.ihor.exception.UserAlreadyBlockedException;
 import com.uberTim12.ihor.exception.UserNotBlockedException;
 import com.uberTim12.ihor.model.users.User;
-import com.uberTim12.ihor.repository.users.IDriverRepository;
-import com.uberTim12.ihor.repository.users.IPassengerRepository;
 import com.uberTim12.ihor.repository.users.IUserRepository;
 import com.uberTim12.ihor.service.base.impl.JPAService;
 import com.uberTim12.ihor.service.users.interfaces.IUserService;
@@ -20,6 +18,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -28,14 +27,12 @@ import java.util.Set;
 @Service
 public class UserService extends JPAService<User> implements IUserService, UserDetailsService {
     private final IUserRepository userRepository;
-    private final IDriverRepository driverRepository;
-    private final IPassengerRepository passengerRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Autowired
-    public UserService(IUserRepository userRepository, IDriverRepository driverRepository, IPassengerRepository passengerRepository) {
+    public UserService(IUserRepository userRepository) {
         this.userRepository = userRepository;
-        this.driverRepository = driverRepository;
-        this.passengerRepository = passengerRepository;
+        this.bCryptPasswordEncoder = new BCryptPasswordEncoder();
     }
 
     @Override
@@ -75,10 +72,10 @@ public class UserService extends JPAService<User> implements IUserService, UserD
     public void changePassword(Integer id, String oldPassword, String newPassword)
             throws EntityNotFoundException, PasswordDoesNotMatchException {
         User user = get(id);
-        if (!user.getPassword().equals(oldPassword))
+        if (!user.getPassword().equals(bCryptPasswordEncoder.encode(oldPassword)))
             throw new PasswordDoesNotMatchException("Current password is not matching!");
 
-        user.setPassword(newPassword);
+        user.setPassword(bCryptPasswordEncoder.encode(newPassword));
         save(user);
     }
 
