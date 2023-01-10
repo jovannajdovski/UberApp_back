@@ -40,7 +40,7 @@ public class WorkHoursService implements IWorkHoursService {
     @Override
     public long getWorkingMinutesByDriverAtChoosedDay(Integer driverId, LocalDate date)
     {
-        List<WorkHours> workHoursList=workHoursRepository.findByDriverIdAndStartTimeDate(driverId,date);
+        List<WorkHours> workHoursList=workHoursRepository.findByDriverIdAndStartTimeBetween(driverId,date.atStartOfDay(),date.atTime(23,59,59));
         long sum=0;
         for(WorkHours workHours:workHoursList)
         {

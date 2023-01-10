@@ -4,14 +4,14 @@ import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.users.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
 @Entity
 public class Message {
 

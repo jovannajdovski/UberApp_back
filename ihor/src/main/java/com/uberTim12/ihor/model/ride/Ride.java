@@ -9,7 +9,8 @@ import com.uberTim12.ihor.model.users.Passenger;
 import com.uberTim12.ihor.model.vehicle.VehicleType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
@@ -18,7 +19,8 @@ import java.util.Set;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
 @Entity
 public class Ride {
 
@@ -85,6 +87,6 @@ public class Ride {
         this.petsAllowed = rideDTO.isPetTransport();
         this.startTime=rideDTO.getStartTime();
         this.vehicleType=new VehicleType();
-        this.vehicleType.setVehicleCategory(rideDTO.getVehicleCategory());
+        this.vehicleType.setVehicleCategory(rideDTO.getVehicleType());
     }
 }

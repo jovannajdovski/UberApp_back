@@ -2,7 +2,8 @@ package com.uberTim12.ihor.model.users;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 
 import static jakarta.persistence.InheritanceType.JOINED;
@@ -10,7 +11,8 @@ import static jakarta.persistence.InheritanceType.TABLE_PER_CLASS;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
 @Entity
 @Inheritance(strategy=JOINED)
 @Table(name = "ihor")

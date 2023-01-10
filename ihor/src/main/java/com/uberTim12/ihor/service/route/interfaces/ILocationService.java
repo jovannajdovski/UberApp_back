@@ -12,4 +12,6 @@ public interface ILocationService {
     Location save(Location location);
 
     Double calculateDistance(Location location1, Location location2) throws IOException, ParseException;
+
+    Double calculateEstimatedTime(Location location1, Location location2) throws IOException, ParseException;
 }

@@ -7,7 +7,8 @@ import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.users.User;
 import com.uberTim12.ihor.model.vehicle.VehicleCategory;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
@@ -16,14 +17,15 @@ import java.util.Set;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
 public class CreateRideDTO {
 
     private Set<PathDTO> locations = new HashSet<>();
 
     private Set<UserRideDTO> passengers = new HashSet<>();
 
-    private VehicleCategory vehicleCategory;
+    private VehicleCategory vehicleType;
     private boolean babyTransport;
 
     private boolean petTransport;
@@ -48,7 +50,7 @@ public class CreateRideDTO {
     }
 
     public CreateRideDTO(LocalDateTime startTime, VehicleCategory vehicleCategory, boolean babiesAllowed, boolean petsAllowed) {
-        this.vehicleCategory = vehicleCategory;
+        this.vehicleType = vehicleCategory;
         this.babyTransport = babiesAllowed;
         this.petTransport = petsAllowed;
         this.startTime=startTime;

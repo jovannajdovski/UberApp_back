@@ -69,6 +69,9 @@ public class DriverService implements IDriverService {
 
     @Override
     public boolean isDriverAvailable(Driver driver, Ride ride) {
+        Long d1=workHoursService.getWorkingMinutesByDriverAtChoosedDay(driver.getId(), LocalDate.now());
+        Double d2=rideService.getTimeOfNextRidesByDriverAtChoosedDay(driver.getId(),LocalDate.now());
+        Double d3=ride.getEstimatedTime();
         return workHoursService.getWorkingMinutesByDriverAtChoosedDay(driver.getId(), LocalDate.now())
                 + rideService.getTimeOfNextRidesByDriverAtChoosedDay(driver.getId(),LocalDate.now())
                 + ride.getEstimatedTime() <= 8 * 60;

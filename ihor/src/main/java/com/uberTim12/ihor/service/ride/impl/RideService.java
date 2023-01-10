@@ -126,12 +126,14 @@ public class RideService implements IRideService {
 
     @Override
     public double getTimeOfNextRidesByDriverAtChoosedDay(Integer driverId, LocalDate now) {
-        return rideRepository.sumByDriverIdAndRideStatusAndStartTimeDate(driverId, RideStatus.ACCEPTED, RideStatus.ACTIVE, now);
+        Double res=rideRepository.sumEstimatedTimeOfNextRidesByDriverAtThatDay(driverId, now);
+        if(res!=null) return res;
+        return 0.0;
     }
 
     @Override
     public boolean hasIntersectionBetweenRides(LocalDateTime rideStart, LocalDateTime rideEnd, LocalDateTime newRideStart, LocalDateTime newRideEnd) {
-        return !rideEnd.isBefore(newRideStart) && !newRideEnd.isBefore(rideStart);
+        return rideEnd.isAfter(newRideStart) && newRideEnd.isAfter(rideStart);
     }
 
     @Override

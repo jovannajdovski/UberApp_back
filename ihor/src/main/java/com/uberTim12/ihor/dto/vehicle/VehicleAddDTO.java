@@ -4,12 +4,14 @@ import com.uberTim12.ihor.dto.route.LocationDTO;
 import com.uberTim12.ihor.model.vehicle.Vehicle;
 import com.uberTim12.ihor.model.vehicle.VehicleCategory;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
 public class VehicleAddDTO {
     private VehicleCategory vehicleType;
     private String model;

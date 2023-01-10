@@ -94,12 +94,21 @@ public class RideSchedulingService implements IRideSchedulingService {
                     ride.setDriver(attainableDriver.getDriver());
                     ride.setRideStatus(RideStatus.PENDING);
                     ride.setVehicleType(ride.getDriver().getVehicle().getVehicleType());
+                    break;
                 }
             }
         }
 
         if(!freeDriver)
             return null;
+        try{
+            distance=locationService.calculateDistance(ride.getPaths().iterator().next().getStartPoint(), ride.getPaths().iterator().next().getEndPoint());
+        }
+        catch(ParseException | IOException e)
+        {
+            distance=Double.MAX_VALUE;
+        }
+        ride.setTotalPrice(ride.getVehicleType().getPricePerKM()+distance*120);
         rideService.save(ride);
         return ride;
     }

@@ -17,14 +17,17 @@ import com.uberTim12.ihor.model.users.Passenger;
 import com.uberTim12.ihor.service.communication.impl.PanicService;
 import com.uberTim12.ihor.service.ride.impl.RideSchedulingService;
 import com.uberTim12.ihor.service.ride.impl.RideService;
+import com.uberTim12.ihor.service.route.impl.LocationService;
 import com.uberTim12.ihor.service.route.impl.PathService;
 import com.uberTim12.ihor.service.users.impl.DriverService;
 import com.uberTim12.ihor.service.users.impl.PassengerService;
+import net.minidev.json.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
@@ -47,7 +50,8 @@ public class RideController {
 
     @Autowired
     private DriverService driverService;
-
+    @Autowired
+    private LocationService locationService;
     @Autowired
     private PanicService panicService;
 
@@ -78,27 +82,20 @@ public class RideController {
             passengers.add(passenger);
         }
         ride.setPassengers(passengers);
+        try{
+            ride.setEstimatedTime(locationService.calculateEstimatedTime(ride.getPaths().iterator().next().getStartPoint(),ride.getPaths().iterator().next().getEndPoint()));
+        }
+        catch(ParseException | IOException e)
+        {
+            ride.setEstimatedTime(Double.MAX_VALUE);
+        }
+
+
         ride=rideSchedulingService.findFreeVehicle(ride);
+
         if(ride==null)
               return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("driving is not possible");
         return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
-
-//        if(ChronoUnit.MINUTES.between(LocalDateTime.now(), rideDTO.getStartTime())>30)
-//        {
-//            Ride ride=rideSchedulingService.bookRide(rideDTO);
-//            if(rideReservation==null)
-//                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to book a ride");
-//            return new ResponseEntity<>(new RideReservationFullDTO(rideReservation), HttpStatus.OK);
-//        }
-//        else{
-//
-//
-//            Ride ride = rideSchedulingService.findFreeVehicle(rideDTO);
-//            if(ride==null)
-//                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("driving is not possible");
-//            return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
-//        }
-
     }
 
     @GetMapping(value = "/driver/{driverId}/active")
