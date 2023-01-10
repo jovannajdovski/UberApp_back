@@ -18,6 +18,7 @@ import com.uberTim12.ihor.service.ride.impl.RideService;
 import com.uberTim12.ihor.service.ride.interfaces.IRideService;
 import com.uberTim12.ihor.service.users.impl.UserService;
 import com.uberTim12.ihor.service.users.interfaces.IUserService;
+import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -34,6 +35,7 @@ import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -222,16 +224,17 @@ public class UserController {
         }
     }
     @GetMapping(value="/{id}/resetPassword")
-    public ResponseEntity<?> sendResetCodeToEmail(@PathVariable Integer id)
+    public ResponseEntity<String> sendResetCodeToEmail(@PathVariable Integer id)
     {
-        User user = userService.get(id);
-
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist!");
+        try {
+            userService.forgotPassword(id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Email with reset code has been sent!");
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User does not exist!");
+        } catch (MessagingException | UnsupportedEncodingException e) {
+            throw new ResponseStatusException(HttpStatus.FAILED_DEPENDENCY, "Error while sending mail!");
         }
-        //TODO
 
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Email with reset code has been sent!");
     }
     @PutMapping(value="/{id}/resetPassword", consumes = "application/json")
     public ResponseEntity<?> changePasswordWithResetCode(@PathVariable Integer id, @RequestBody ResetPasswordDTO resetPasswordDTO)
