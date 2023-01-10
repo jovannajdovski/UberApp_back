@@ -1,7 +1,6 @@
 package com.uberTim12.ihor.service.ride.impl;
 
 import com.uberTim12.ihor.exception.CannotScheduleDriveException;
-import com.uberTim12.ihor.exception.NotFoundException;
 import com.uberTim12.ihor.model.ride.ActiveDriver;
 import com.uberTim12.ihor.model.ride.ActiveDriverCriticalRide;
 import com.uberTim12.ihor.model.ride.Ride;
@@ -10,12 +9,9 @@ import com.uberTim12.ihor.repository.ride.IActiveDriverRepository;
 import com.uberTim12.ihor.service.ride.interfaces.IRideSchedulingService;
 import com.uberTim12.ihor.service.ride.interfaces.IRideService;
 import com.uberTim12.ihor.service.route.interfaces.ILocationService;
-import com.uberTim12.ihor.service.route.interfaces.IPathService;
 import com.uberTim12.ihor.service.users.interfaces.IDriverService;
-import com.uberTim12.ihor.service.users.interfaces.IPassengerService;
 import com.uberTim12.ihor.service.users.interfaces.IWorkHoursService;
 import com.uberTim12.ihor.service.vehicle.interfaces.IVehicleService;
-import jakarta.persistence.EntityNotFoundException;
 import net.minidev.json.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -53,7 +49,7 @@ public class RideSchedulingService implements IRideSchedulingService {
             ride.setEstimatedTime(Double.MAX_VALUE);
         }
 
-        List<ActiveDriver> activeDrivers=activeDriverRepository.findAll();
+        List<ActiveDriver> activeDrivers = activeDriverRepository.findAll();
         List<ActiveDriver> attainableDrivers=new ArrayList<>();
         for(ActiveDriver activeDriver: activeDrivers)
         {

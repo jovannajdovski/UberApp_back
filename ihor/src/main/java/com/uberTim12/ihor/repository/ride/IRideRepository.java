@@ -42,8 +42,8 @@ public interface IRideRepository extends JpaRepository<Ride, Integer> {
     @Query("select r.paths from Ride as r join r.paths as p where r.id =?1")
     List<Path> findPathsForRide(Integer id);
 
-    @Query("select sum(r.estimatedTime) from Ride r where r.driver.id=?1  and (r.rideStatus=1 or r.rideStatus=3) and cast(r.startTime as localdate)=?2")
-    public Double sumEstimatedTimeOfNextRidesByDriverAtThatDay(Integer driverId, LocalDate date);
+    @Query("select sum(r.estimatedTime) from Ride r where r.driver.id=?1  and (r.rideStatus=2 or r.rideStatus=4) and cast(r.startTime as localdate)=?2")
+    Double sumEstimatedTimeOfNextRidesByDriverAtThatDay(Integer driverId, LocalDate date);
 
     /*@Query("select sum(r.estimatedTime) from Ride r where r.driver.id=?1 and r.endTime IS NULL")
     public double sumEstimatedTimeOfNextRidesByDriverAtThatDay(Integer driverId);*/

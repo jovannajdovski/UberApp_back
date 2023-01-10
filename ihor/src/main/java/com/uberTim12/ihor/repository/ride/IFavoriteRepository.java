@@ -16,7 +16,7 @@ import java.util.Optional;
 public interface IFavoriteRepository extends JpaRepository<Favorite, Integer> {
 
     @Query("select f from Favorite f join f.passengers p join f.paths l where f.id =?1")
-    Optional<Favorite> findById(Integer id);
+    Optional<Favorite> getWithPassengersAndPaths(Integer id);
 
     @Query("select f from Favorite f join f.passengers p join f.paths l")
     List<Favorite> getAllWithPassengersAndPaths();

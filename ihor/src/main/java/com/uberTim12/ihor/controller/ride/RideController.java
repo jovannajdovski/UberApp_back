@@ -7,15 +7,11 @@ import com.uberTim12.ihor.dto.ride.CreateRideDTO;
 import com.uberTim12.ihor.dto.ride.FavoriteFullDTO;
 import com.uberTim12.ihor.dto.ride.RideFullDTO;
 import com.uberTim12.ihor.dto.route.PathDTO;
-import com.uberTim12.ihor.dto.users.DriverDetailsDTO;
-import com.uberTim12.ihor.dto.users.DriverRegistrationDTO;
 import com.uberTim12.ihor.dto.users.UserRideDTO;
 import com.uberTim12.ihor.exception.*;
 import com.uberTim12.ihor.model.communication.Panic;
 import com.uberTim12.ihor.model.ride.Favorite;
 import com.uberTim12.ihor.model.ride.Ride;
-import com.uberTim12.ihor.model.ride.RideRejection;
-import com.uberTim12.ihor.model.ride.RideStatus;
 import com.uberTim12.ihor.model.route.Location;
 import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.users.Driver;
@@ -26,20 +22,12 @@ import com.uberTim12.ihor.service.ride.impl.RideService;
 import com.uberTim12.ihor.service.ride.interfaces.IRideSchedulingService;
 import com.uberTim12.ihor.service.ride.interfaces.IRideService;
 import com.uberTim12.ihor.service.route.impl.PathService;
-import com.uberTim12.ihor.service.route.interfaces.ILocationService;
-import com.uberTim12.ihor.service.ride.impl.FavoriteService;
-import com.uberTim12.ihor.service.ride.impl.RideService;
 import com.uberTim12.ihor.service.ride.interfaces.IFavoriteService;
-import com.uberTim12.ihor.service.ride.interfaces.IRideService;
-import com.uberTim12.ihor.service.route.impl.PathService;
 import com.uberTim12.ihor.service.route.interfaces.IPathService;
 import com.uberTim12.ihor.service.users.impl.DriverService;
 import com.uberTim12.ihor.service.users.impl.PassengerService;
 import com.uberTim12.ihor.service.users.interfaces.IDriverService;
 import com.uberTim12.ihor.service.users.interfaces.IPassengerService;
-import jakarta.persistence.EntityNotFoundException;
-import net.minidev.json.parser.ParseException;
-import com.uberTim12.ihor.util.ImageConverter;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -48,8 +36,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -63,33 +49,25 @@ public class RideController {
     private final IDriverService driverService;
     private final IPanicService panicService;
     private final IRideSchedulingService rideSchedulingService;
+    private final IFavoriteService favoriteService;
 
     @Autowired
     public RideController(RideService rideService, PathService pathService, PassengerService passengerService,
                           DriverService driverService, PanicService panicService,
-                          IRideSchedulingService rideSchedulingService) {
+                          IRideSchedulingService rideSchedulingService, IFavoriteService favoriteService) {
         this.rideService = rideService;
         this.pathService = pathService;
         this.passengerService = passengerService;
         this.driverService = driverService;
         this.panicService = panicService;
         this.rideSchedulingService = rideSchedulingService;
-    }
-
-    @PostMapping(consumes = "application/json")
-    public ResponseEntity<RideFullDTO> createRide(@RequestBody CreateRideDTO rideDTO) {
-        Ride ride = new Ride(rideDTO);
         this.favoriteService = favoriteService;
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<RideFullDTO> createRide(@RequestBody CreateRideDTO rideDTO) {
 
-        Ride ride = new Ride();
-        ride.setVehicleType(new VehicleType());
-        ride.getVehicleType().setVehicleCategory(rideDTO.getVehicleType());
-        ride.setBabiesAllowed(rideDTO.isBabyTransport());
-        ride.setPetsAllowed(rideDTO.isPetTransport());
+        Ride ride = new Ride(rideDTO);
 
         Set<Path> paths = new HashSet<>();
 

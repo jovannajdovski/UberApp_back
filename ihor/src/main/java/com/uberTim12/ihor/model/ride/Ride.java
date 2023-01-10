@@ -1,7 +1,6 @@
 package com.uberTim12.ihor.model.ride;
 
 import com.uberTim12.ihor.dto.ride.CreateRideDTO;
-import com.uberTim12.ihor.dto.ride.RideDTO;
 import com.uberTim12.ihor.model.communication.Review;
 import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.users.Driver;
@@ -10,8 +9,8 @@ import com.uberTim12.ihor.model.vehicle.VehicleType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -28,7 +27,6 @@ public class Ride {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "start_time", nullable = false)
     private LocalDateTime startTime;
 

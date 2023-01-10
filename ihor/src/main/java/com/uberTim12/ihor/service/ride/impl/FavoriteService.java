@@ -38,7 +38,6 @@ import java.util.Set;
 
 @Service
 public class FavoriteService extends JPAService<Favorite> implements IFavoriteService {
-
     private final IFavoriteRepository favoriteRepository;
 
     private final IPassengerService passengerService;
