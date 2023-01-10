@@ -20,6 +20,8 @@ public interface IPassengerService extends IJPAService<Passenger> {
                      String telephoneNumber, String email, String address, String password)
             throws EntityNotFoundException;
 
+    Passenger findByEmail(String email);
+
     Page<Ride> findAllById(Integer passengerId, LocalDateTime start, LocalDateTime end, Pageable page);
 
     Page<Ride> findAllById(Passenger passenger, Pageable page);

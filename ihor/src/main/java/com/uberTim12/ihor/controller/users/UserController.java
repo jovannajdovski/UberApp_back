@@ -131,7 +131,7 @@ public class UserController {
         try {
             userService.get(id);
             List<MessageDTO> messages = messageService.getMessages(id);
-            ObjectListResponseDTO<MessageDTO> res = new ObjectListResponseDTO<>(messageService.getAll().size(),messages);
+            ObjectListResponseDTO<MessageDTO> res = new ObjectListResponseDTO<>(messageService.getAll().size(), messages);
             return new ResponseEntity<>(res, HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User does not exist!");

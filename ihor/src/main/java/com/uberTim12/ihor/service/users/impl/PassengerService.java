@@ -71,6 +71,11 @@ public class PassengerService extends JPAService<Passenger> implements IPassenge
     }
 
     @Override
+    public Passenger findByEmail(String email) {
+        return passengerRepository.findByEmail(email);
+    }
+
+    @Override
     public Page<Ride> findAllById(Integer passengerId, LocalDateTime start, LocalDateTime end, Pageable page){
         Optional<Passenger> passenger=passengerRepository.findById(passengerId);
         return passenger.map(value -> rideRepository.findAllInRangeForPassenger(value, start, end, page)).orElse(null);

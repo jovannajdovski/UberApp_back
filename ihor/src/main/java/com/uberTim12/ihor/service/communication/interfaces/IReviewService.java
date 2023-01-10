@@ -1,24 +1,25 @@
 package com.uberTim12.ihor.service.communication.interfaces;
 
 import com.uberTim12.ihor.dto.communication.*;
+import com.uberTim12.ihor.model.communication.Review;
+import com.uberTim12.ihor.model.route.Location;
+import com.uberTim12.ihor.service.base.interfaces.IJPAService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.awt.*;
 import java.util.List;
 
-public interface IReviewService {
-    NoteDTO createNote(Integer id, RequestNoteDTO requestNoteDTO);
+public interface IReviewService extends IJPAService<Review> {
 
-    Page<NoteDTO> getNotes(Integer id, Pageable pageable);
+    Review createVehicleReview(Integer rideId, Double rating, String comment) throws EntityNotFoundException;
 
-    ReviewDTO createVehicleReview(Integer rideId, ReviewRequestDTO reviewRequestDTO);
+    Review createDriverReview(Integer rideId, Double rating, String comment) throws EntityNotFoundException;
 
-    ReviewDTO createDriverReview(Integer rideId, ReviewRequestDTO reviewRequestDTO);
+    List<Review> getReviewsForVehicle(Integer vehicleId);
 
-    List<ReviewDTO> getReviewsForVehicle(Integer vehicleId);
+    List<Review> getReviewsForDriver(Integer driverId);
 
-    List<ReviewDTO> getReviewsForDriver(Integer driverId);
-
-    List<FullReviewDTO> getReviewsForRide(Integer rideId);
+    List<Review> getReviewsForRide(Integer rideId);
 }

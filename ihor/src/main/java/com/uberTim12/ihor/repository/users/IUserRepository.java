@@ -1,6 +1,5 @@
 package com.uberTim12.ihor.repository.users;
 
-import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.users.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,9 +8,9 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface IUserRepository extends JpaRepository<User,Integer> {
-    public User findByEmailAndPassword(String email, String password);
+    User findByEmailAndPassword(String email, String password);
 
-    public User findByEmail(String email);
+    User findByEmail(String email);
 
-    public Page<User> findAll(Pageable pageable);
+    Page<User> findAll(Pageable pageable);
 }
