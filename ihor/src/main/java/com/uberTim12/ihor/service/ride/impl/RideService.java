@@ -1,9 +1,12 @@
 package com.uberTim12.ihor.service.ride.impl;
 
 
+import com.uberTim12.ihor.exception.NoActiveRideException;
+import com.uberTim12.ihor.exception.RideStatusException;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.dto.ride.RideRequestDTO;
 import com.uberTim12.ihor.dto.ride.RideResponseDTO;
+import com.uberTim12.ihor.model.ride.RideRejection;
 import com.uberTim12.ihor.model.ride.RideStatus;
 import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.users.Driver;
@@ -13,7 +16,7 @@ import com.uberTim12.ihor.repository.users.IDriverRepository;
 import com.uberTim12.ihor.repository.users.IPassengerRepository;
 import com.uberTim12.ihor.service.base.impl.JPAService;
 import com.uberTim12.ihor.service.ride.interfaces.IRideService;
-import com.uberTim12.ihor.service.vehicle.interfaces.IVehicleService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -41,6 +44,10 @@ public class RideService extends JPAService<Ride> implements IRideService {
         this.passengerRepository = passengerRepository;
     }
 
+    @Override
+    protected JpaRepository<Ride, Integer> getEntityRepository() {
+        return rideRepository;
+    }
 
     @Override
     public Page<Ride> findFilteredRides(Integer driverId, Pageable pageable) {
@@ -55,8 +62,7 @@ public class RideService extends JPAService<Ride> implements IRideService {
 
 
     @Override
-    public RideResponseDTO getEstimatedRoute(RideRequestDTO rideRequestDTO)
-    {
+    public RideResponseDTO getEstimatedRoute(RideRequestDTO rideRequestDTO) {
         return new RideResponseDTO(20.0, 450.0);
     }
 
@@ -64,8 +70,8 @@ public class RideService extends JPAService<Ride> implements IRideService {
     @Override
     public Page<Ride> getRides(Integer userId, LocalDateTime start, LocalDateTime end, Pageable page) {
         Optional<Driver> driver = driverRepository.findById(userId);
-        if(start==null) start=LocalDateTime.MIN;
-        if(end==null) end=LocalDateTime.MAX;
+        if (start == null) start = LocalDateTime.MIN;
+        if (end == null) end = LocalDateTime.MAX;
         if (driver.isPresent())
             return rideRepository.findAllInRangeForDriver(userId, start, end, page);
 
@@ -78,32 +84,27 @@ public class RideService extends JPAService<Ride> implements IRideService {
     }
 
     @Override
-    protected JpaRepository<Ride, Integer> getEntityRepository() {
-        return rideRepository;
-    }
-
-    @Override
-    public Ride save(Ride ride){
+    public Ride save(Ride ride) {
         return rideRepository.save(ride);
     }
 
-    @Override
-    public Ride get(Integer id){
-        Ride ride = rideRepository.findById(id).orElse(null);
-        if (ride==null){
-            return null;
-        } else {
-            Set<Passenger> passengers = new HashSet<>(findPassengersForRide(ride.getId()));
-            ride.setPassengers(passengers);
-            return ride;
-        }
-    }
+//    @Override
+//    public Ride get(Integer id){
+//        Ride ride = rideRepository.findById(id).orElse(null);
+//        if (ride==null){
+//            return null;
+//        } else {
+//            Set<Passenger> passengers = new HashSet<>(findPassengersForRide(ride.getId()));
+//            ride.setPassengers(passengers);
+//            return ride;
+//        }
+//    }
 
     @Override
-    public Ride findActiveByDriver(Driver driver){
+    public Ride findActiveByDriver(Driver driver) throws NoActiveRideException {
         List<Ride> rides = rideRepository.findActiveByDriver(driver, LocalDateTime.now());
-        if (rides.isEmpty()){
-            return null;
+        if (rides.isEmpty()) {
+            throw new NoActiveRideException("Active ride does not exist!");
         } else {
             Ride ride = rides.get(0);
             Set<Passenger> passengers = new HashSet<>(findPassengersForRide(ride.getId()));
@@ -113,10 +114,10 @@ public class RideService extends JPAService<Ride> implements IRideService {
     }
 
     @Override
-    public Ride findActiveByPassenger(Passenger passenger){
+    public Ride findActiveByPassenger(Passenger passenger) throws NoActiveRideException {
         List<Ride> rides = rideRepository.findActiveByPassenger(passenger, LocalDateTime.now());
-        if (rides.isEmpty()){
-            return null;
+        if (rides.isEmpty()) {
+            throw new NoActiveRideException("Active ride does not exist!");
         } else {
             Ride ride = rides.get(0);
             Set<Passenger> passengers = new HashSet<>(findPassengersForRide(ride.getId()));
@@ -168,4 +169,68 @@ public class RideService extends JPAService<Ride> implements IRideService {
         return criticalRide;
     }
 
+    public Ride cancel(Integer id) throws EntityNotFoundException, RideStatusException {
+        Ride ride = this.get(id);
+
+        if (ride.getRideStatus() != RideStatus.PENDING && ride.getRideStatus() != RideStatus.STARTED) {
+            throw new RideStatusException("Cannot cancel a ride that is not in status PENDING or STARTED!");
+        }
+
+        ride.setRideStatus(RideStatus.CANCELED);
+        return this.save(ride);
+    }
+
+    @Override
+    public Ride start(Integer id) throws EntityNotFoundException, RideStatusException {
+        Ride ride = this.get(id);
+
+        if (ride.getRideStatus() != RideStatus.ACCEPTED) {
+            throw new RideStatusException("Cannot start a ride that is not in status ACCEPTED!");
+        }
+
+        ride.setRideStatus(RideStatus.STARTED);
+        return this.save(ride);
+    }
+
+    @Override
+    public Ride accept(Integer id) throws EntityNotFoundException, RideStatusException {
+        Ride ride = this.get(id);
+
+        if (ride.getRideStatus() != RideStatus.PENDING) {
+            throw new RideStatusException("Cannot accept a ride that is not in status PENDING!");
+        }
+
+        ride.setRideStatus(RideStatus.ACCEPTED);
+        return this.save(ride);
+    }
+
+    @Override
+    public Ride end(Integer id) throws EntityNotFoundException, RideStatusException {
+        Ride ride = this.get(id);
+
+        if (ride.getRideStatus() != RideStatus.ACTIVE) {
+            throw new RideStatusException("Cannot end a ride that is not in status ACTIVE!");
+        }
+
+        ride.setRideStatus(RideStatus.FINISHED);
+        return this.save(ride);
+    }
+
+    @Override
+    public Ride reject(Integer id, String reason) throws EntityNotFoundException, RideStatusException {
+        Ride ride = this.get(id);
+
+        if (ride.getRideStatus() != RideStatus.PENDING) {
+            throw new RideStatusException("Cannot cancel a ride that is not in status PENDING!");
+        }
+
+        if (ride.getRideRejection() == null) {
+            ride.setRideRejection(new RideRejection());
+        }
+        ride.getRideRejection().setReason(reason);
+        ride.getRideRejection().setTime(LocalDateTime.now());
+
+        ride.setRideStatus(RideStatus.REJECTED);
+        return this.save(ride);
+    }
 }

@@ -2,12 +2,17 @@ package com.uberTim12.ihor.controller.ride;
 
 import com.uberTim12.ihor.dto.communication.PanicDTO;
 import com.uberTim12.ihor.dto.communication.ReasonDTO;
+import com.uberTim12.ihor.dto.ride.CreateFavoriteDTO;
 import com.uberTim12.ihor.dto.ride.CreateRideDTO;
+import com.uberTim12.ihor.dto.ride.FavoriteFullDTO;
 import com.uberTim12.ihor.dto.ride.RideFullDTO;
 import com.uberTim12.ihor.dto.route.PathDTO;
+import com.uberTim12.ihor.dto.users.DriverDetailsDTO;
+import com.uberTim12.ihor.dto.users.DriverRegistrationDTO;
 import com.uberTim12.ihor.dto.users.UserRideDTO;
-import com.uberTim12.ihor.exception.CannotScheduleDriveException;
+import com.uberTim12.ihor.exception.*;
 import com.uberTim12.ihor.model.communication.Panic;
+import com.uberTim12.ihor.model.ride.Favorite;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.ride.RideRejection;
 import com.uberTim12.ihor.model.ride.RideStatus;
@@ -22,6 +27,11 @@ import com.uberTim12.ihor.service.ride.interfaces.IRideSchedulingService;
 import com.uberTim12.ihor.service.ride.interfaces.IRideService;
 import com.uberTim12.ihor.service.route.impl.PathService;
 import com.uberTim12.ihor.service.route.interfaces.ILocationService;
+import com.uberTim12.ihor.service.ride.impl.FavoriteService;
+import com.uberTim12.ihor.service.ride.impl.RideService;
+import com.uberTim12.ihor.service.ride.interfaces.IFavoriteService;
+import com.uberTim12.ihor.service.ride.interfaces.IRideService;
+import com.uberTim12.ihor.service.route.impl.PathService;
 import com.uberTim12.ihor.service.route.interfaces.IPathService;
 import com.uberTim12.ihor.service.users.impl.DriverService;
 import com.uberTim12.ihor.service.users.impl.PassengerService;
@@ -29,8 +39,11 @@ import com.uberTim12.ihor.service.users.interfaces.IDriverService;
 import com.uberTim12.ihor.service.users.interfaces.IPassengerService;
 import jakarta.persistence.EntityNotFoundException;
 import net.minidev.json.parser.ParseException;
+import com.uberTim12.ihor.util.ImageConverter;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -38,6 +51,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -65,14 +79,25 @@ public class RideController {
     @PostMapping(consumes = "application/json")
     public ResponseEntity<RideFullDTO> createRide(@RequestBody CreateRideDTO rideDTO) {
         Ride ride = new Ride(rideDTO);
+        this.favoriteService = favoriteService;
+    }
+
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<RideFullDTO> createRide(@RequestBody CreateRideDTO rideDTO) {
+
+        Ride ride = new Ride();
+        ride.setVehicleType(new VehicleType());
+        ride.getVehicleType().setVehicleCategory(rideDTO.getVehicleType());
+        ride.setBabiesAllowed(rideDTO.isBabyTransport());
+        ride.setPetsAllowed(rideDTO.isPetTransport());
 
         Set<Path> paths = new HashSet<>();
 
-        for (PathDTO pdto: rideDTO.getLocations()){
+        for (PathDTO pathDTO : rideDTO.getLocations()) {
             Path path = new Path();
 
-            Location departure = pdto.getDeparture().generateLocation();
-            Location destination = pdto.getDestination().generateLocation();
+            Location departure = pathDTO.getDeparture().generateLocation();
+            Location destination = pathDTO.getDestination().generateLocation();
 
             path.setStartPoint(departure);
             path.setEndPoint(destination);
@@ -83,8 +108,8 @@ public class RideController {
         ride.setPaths(paths);
 
         Set<Passenger> passengers = new HashSet<>();
-        for (UserRideDTO udto: rideDTO.getPassengers()){
-            Passenger passenger = passengerService.get(udto.getId());
+        for (UserRideDTO userDTO : rideDTO.getPassengers()) {
+            Passenger passenger = passengerService.get(userDTO.getId());
             passengers.add(passenger);
         }
         ride.setPassengers(passengers);
@@ -99,145 +124,166 @@ public class RideController {
     }
 
     @GetMapping(value = "/driver/{driverId}/active")
-    public ResponseEntity<?> getActiveRideForDriver(@PathVariable Integer driverId) {
+    public ResponseEntity<RideFullDTO> getActiveRideForDriver(@PathVariable Integer driverId) {
+        try {
+            Driver driver;
+            driver = driverService.get(driverId);
 
-        if (driverId == 1)
-            driverId++;
-
-        Driver driver = driverService.get(driverId);
-
-        if (driver == null){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
-        } else {
             Ride ride = rideService.findActiveByDriver(driver);
-            if (ride == null){
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            } else {
-                return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
-            }
+            return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Driver does not exist!");
+        } catch (NoActiveRideException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Active ride does not exist!");
         }
     }
 
     @GetMapping(value = "/passenger/{passengerId}/active")
-    public ResponseEntity<?> getActiveRideForPassenger(@PathVariable Integer passengerId) {
+    public ResponseEntity<RideFullDTO> getActiveRideForPassenger(@PathVariable Integer passengerId) {
+        try {
+            Passenger passenger;
+            passenger = passengerService.get(passengerId);
 
-        Passenger passenger = passengerService.get(passengerId);
-
-        if (passenger == null){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
-        } else {
             Ride ride = rideService.findActiveByPassenger(passenger);
-            if (ride == null){
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            } else {
-                return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
-            }
+            return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Passenger does not exist!");
+        } catch (NoActiveRideException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Active ride does not exist!");
         }
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<?> getRideById(@PathVariable Integer id) {
-
-        Ride ride = rideService.get(id);
-
-        if (ride == null){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
-        } else {
+    public ResponseEntity<RideFullDTO> getRideById(@PathVariable Integer id) {
+        try {
+            Ride ride = rideService.get(id);
             return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Ride does not exist!");
         }
     }
 
     @PutMapping(value = "/{id}/withdraw")
-    public ResponseEntity<?> cancelRide(@PathVariable Integer id) {
-
-        Ride ride = rideService.get(id);
-
-        if (ride == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
+    public ResponseEntity<RideFullDTO> cancelRide(@PathVariable Integer id) {
+        try {
+            Ride ride = rideService.cancel(id);
+            return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Ride does not exist!");
+        } catch (RideStatusException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot cancel a ride that is not in status PENDING or STARTED!");
         }
-
-        ride.setRideStatus(RideStatus.CANCELED);
-
-        ride = rideService.save(ride);
-
-        return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
     }
 
     @PutMapping(value = "/{id}/panic")
-    public ResponseEntity<?> panicRide(@PathVariable Integer id, @RequestBody ReasonDTO reason) {
+    public ResponseEntity<PanicDTO> panicRide(@PathVariable Integer id, @RequestBody ReasonDTO reason) {
 
-        Ride ride = rideService.get(id);
-
-        if (ride == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
+        try {
+            Ride ride = rideService.get(id);
+            Panic panic = panicService.createForRide(ride, reason.getReason());
+            return new ResponseEntity<>(new PanicDTO(panic), HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Ride does not exist!");
+        } catch (UnauthorizedException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized!");
         }
+    }
 
-        Panic panic = new Panic();
-        panic.setCurrentRide(ride);
-        panic.setTime(LocalDateTime.now());
-        panic.setReason(reason.getReason());
-
-        Driver driver = ride.getDriver();
-
-        panic.setUser(driver);
-
-        panic = panicService.save(panic);
-        return new ResponseEntity<>(new PanicDTO(panic), HttpStatus.OK);
+    @PutMapping(value = "/{id}/start")
+    public ResponseEntity<RideFullDTO> startRide(@PathVariable Integer id) {
+        try {
+            Ride ride = rideService.start(id);
+            return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Ride does not exist!");
+        } catch (RideStatusException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot start a ride that is not in status ACCEPTED!");
+        }
     }
 
     @PutMapping(value = "/{id}/accept")
-    public ResponseEntity<?> acceptRide(@PathVariable Integer id) {
-
-        Ride ride = rideService.get(id);
-
-        if (ride == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
+    public ResponseEntity<RideFullDTO> acceptRide(@PathVariable Integer id) {
+        try {
+            Ride ride = rideService.accept(id);
+            return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Ride does not exist!");
+        } catch (RideStatusException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot accept a ride that is not in status PENDING!");
         }
-
-        ride.setRideStatus(RideStatus.ACCEPTED);
-
-        ride = rideService.save(ride);
-
-        return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
     }
 
     @PutMapping(value = "/{id}/end")
-    public ResponseEntity<?> endRide(@PathVariable Integer id) {
-
-        Ride ride = rideService.get(id);
-
-        if (ride == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
+    public ResponseEntity<RideFullDTO> endRide(@PathVariable Integer id) {
+        try {
+            Ride ride = rideService.end(id);
+            return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Ride does not exist!");
+        } catch (RideStatusException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot end a ride that is not in status ACTIVE!");
         }
-
-        ride.setRideStatus(RideStatus.FINISHED);
-
-        ride = rideService.save(ride);
-
-        return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
     }
 
     @PutMapping(value = "/{id}/cancel")
-    public ResponseEntity<?> rejectRide(@PathVariable Integer id, @RequestBody ReasonDTO reason) {
+    public ResponseEntity<RideFullDTO> rejectRide(@PathVariable Integer id, @RequestBody ReasonDTO reason) {
 
-    Ride ride = rideService.get(id);
-
-        if (ride == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
+        try {
+            Ride ride = rideService.reject(id, reason.getReason());
+            return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Ride does not exist!");
+        } catch (RideStatusException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot cancel a ride that is not in status PENDING!");
         }
-
-        if(ride.getRideRejection()==null){
-            ride.setRideRejection(new RideRejection());
-        }
-
-        ride.getRideRejection().setReason(reason.getReason());
-        ride.getRideRejection().setTime(LocalDateTime.now());
-        ride.setRideStatus(RideStatus.REJECTED);
-
-        ride = rideService.save(ride);
-
-        return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
     }
 
+    @PostMapping(value = "/favorites", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<FavoriteFullDTO> createFavorite(@RequestBody CreateFavoriteDTO favoriteDTO) {
+        try {
+            Favorite favorite = favoriteService.create(favoriteDTO);
+            return new ResponseEntity<>(new FavoriteFullDTO(favorite), HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Passenger does not exist!");
+        } catch (FavoriteRideExceedException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
 
+    @GetMapping(value = "/favorites")
+    public ResponseEntity<Set<FavoriteFullDTO>> getFavorites() {
+        List<Favorite> favorites = favoriteService.getAll();
+        Set<FavoriteFullDTO> favoritesDTO = new HashSet<>();
+        for (Favorite favorite : favorites) {
+            favoritesDTO.add(new FavoriteFullDTO(favorite));
+        }
+        return new ResponseEntity<>(favoritesDTO, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/favorites/passenger")
+    public ResponseEntity<Set<FavoriteFullDTO>> getFavoritesForPassenger() {
+        try {
+            Set<Favorite> favorites = favoriteService.getForPassenger();
+            // if all then favoriteService.getAll();
+            Set<FavoriteFullDTO> favoritesDTO = new HashSet<>();
+            for (Favorite favorite : favorites) {
+                favoritesDTO.add(new FavoriteFullDTO(favorite));
+            }
+            return new ResponseEntity<>(favoritesDTO, HttpStatus.OK);
+        } catch (UnauthorizedException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized!");
+        } catch (AccessDeniedException e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied!");
+        }
+    }
+
+    @DeleteMapping(value = "/favorites/{id}")
+    public ResponseEntity<String> deleteFavorite(@PathVariable Integer id) {
+        try {
+            favoriteService.delete(id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Successful deletion of favorite location!");
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Favorite location does not exist!");
+        }
+    }
 }

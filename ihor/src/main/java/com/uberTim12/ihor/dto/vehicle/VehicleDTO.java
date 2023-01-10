@@ -1,5 +1,4 @@
 package com.uberTim12.ihor.dto.vehicle;
-
 import com.uberTim12.ihor.dto.route.LocationDTO;
 import com.uberTim12.ihor.model.route.Location;
 import com.uberTim12.ihor.model.vehicle.Vehicle;

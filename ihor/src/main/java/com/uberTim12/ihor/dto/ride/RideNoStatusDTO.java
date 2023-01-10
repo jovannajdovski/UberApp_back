@@ -1,5 +1,6 @@
 package com.uberTim12.ihor.dto.ride;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.uberTim12.ihor.dto.route.PathDTO;
 import com.uberTim12.ihor.dto.users.UserRideDTO;
 import com.uberTim12.ihor.model.ride.Ride;
@@ -23,8 +24,10 @@ import java.util.Set;
 public class RideNoStatusDTO {
 
     private Integer id;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     private LocalDateTime startTime;
 
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     private LocalDateTime endTime;
 
     private Double totalCost;
