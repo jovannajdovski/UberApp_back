@@ -12,7 +12,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface IUserService extends IJPAService<User> {
     User findByEmail(String email);
-    UserTokensDTO getUserTokens(UserCredentialsDTO userCredentialDTO);
+
     Page<User> getAll(Pageable page);
 
     void changePassword(Integer id, String oldPassword, String newPassword)

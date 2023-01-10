@@ -99,14 +99,13 @@ public class DriverController {
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<DriverDetailsDTO> getDriverDetails(@PathVariable Integer id) {
-        Ride ride = rideService.get(id);
-
+    public ResponseEntity<?> getDriverDetails(@PathVariable Integer id) {
         try {
             Driver driver = driverService.get(id);
             return new ResponseEntity<>(new DriverDetailsDTO(driver), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Driver does not exist!");
+//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Driver does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Driver does not exist!");
         }
     }
 

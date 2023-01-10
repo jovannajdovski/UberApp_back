@@ -104,11 +104,11 @@ public class UserController {
         }
     }
 
-    @PostMapping(value = "/login",consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/login",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AuthTokenDTO> loginUser(@RequestBody UserCredentialsDTO userCredentialDTO)
     {
         try {
-            var authentication = authenticationManager.authenticate(
+            var authentication = authenticationManager.authenticate (
                     new UsernamePasswordAuthenticationToken(userCredentialDTO.getEmail(), userCredentialDTO.getPassword())
             );
             SecurityContextHolder.getContext().setAuthentication(authentication);
