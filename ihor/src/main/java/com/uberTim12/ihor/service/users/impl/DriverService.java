@@ -76,7 +76,7 @@ public class DriverService extends JPAService<Driver> implements IDriverService 
             rideStart=ride.getStartTime();
             rideEnd=rideStart.plusMinutes(ride.getEstimatedTime().longValue());
             if(rideService.hasIntersectionBetweenRides(rideStart, rideEnd, newRideStart,newRideEnd) &&
-                    (ride.getRideStatus()== RideStatus.ACCEPTED || ride.getRideStatus()==RideStatus.ACTIVE))
+                    (ride.getRideStatus()== RideStatus.ACCEPTED || ride.getRideStatus()==RideStatus.STARTED))
                 return false;
         }
         return true;
@@ -90,7 +90,8 @@ public class DriverService extends JPAService<Driver> implements IDriverService 
         for(ActiveDriver activeDriver:activeDrivers)
         {
             criticalRide=rideService.findCriticalRide(activeDriver.getDriver().getRides(),newRide);
-            activeDriversCriticalRides.add(new ActiveDriverCriticalRide(activeDriver,criticalRide));
+            if(criticalRide!=null)
+                activeDriversCriticalRides.add(new ActiveDriverCriticalRide(activeDriver,criticalRide));
 
         }
         activeDriversCriticalRides.sort(RideEndComparator);

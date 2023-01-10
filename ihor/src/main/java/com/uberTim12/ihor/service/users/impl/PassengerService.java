@@ -2,16 +2,19 @@ package com.uberTim12.ihor.service.users.impl;
 
 import com.uberTim12.ihor.exception.EmailAlreadyExistsException;
 import com.uberTim12.ihor.model.ride.Ride;
+import com.uberTim12.ihor.model.ride.RideStatus;
 import com.uberTim12.ihor.model.users.Passenger;
 import com.uberTim12.ihor.repository.ride.IRideRepository;
 import com.uberTim12.ihor.repository.users.IPassengerRepository;
 import com.uberTim12.ihor.service.base.impl.JPAService;
+import com.uberTim12.ihor.service.ride.interfaces.IRideService;
 import com.uberTim12.ihor.service.users.interfaces.IPassengerService;
 import com.uberTim12.ihor.service.users.interfaces.IUserActivationService;
 import com.uberTim12.ihor.service.users.interfaces.IUserService;
 import com.uberTim12.ihor.util.ImageConverter;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -26,13 +29,15 @@ public class PassengerService extends JPAService<Passenger> implements IPassenge
     private final IRideRepository rideRepository;
     private final IUserService userService;
     private final IUserActivationService userActivationService;
+    private final IRideService rideService;
 
     @Autowired
-    public PassengerService(IPassengerRepository passengerRepository, IRideRepository rideRepository, IUserService userService, IUserActivationService userActivationService) {
+    public PassengerService(IPassengerRepository passengerRepository, IRideRepository rideRepository, IUserService userService, IUserActivationService userActivationService, IRideService rideService) {
         this.passengerRepository = passengerRepository;
         this.rideRepository = rideRepository;
         this.userService = userService;
         this.userActivationService = userActivationService;
+        this.rideService = rideService;
     }
 
     @Override
@@ -89,5 +94,23 @@ public class PassengerService extends JPAService<Passenger> implements IPassenge
     @Override
     public Passenger findByEmailWithFavorites(String email) {
         return passengerRepository.findByEmailWithFavorites(email);
+    }
+
+    @Override
+    public boolean isPassengersFree(Ride newRide) {
+        LocalDateTime rideStart, rideEnd;
+        LocalDateTime newRideStart=newRide.getStartTime(), newRideEnd=newRideStart.plusMinutes(newRide.getEstimatedTime().longValue());
+        for(Passenger passenger: newRide.getPassengers())
+        {
+            for(Ride ride: passenger.getRides())
+            {
+                rideStart=ride.getStartTime();
+                rideEnd=rideStart.plusMinutes(ride.getEstimatedTime().longValue());
+                if(rideService.hasIntersectionBetweenRides(rideStart, rideEnd, newRideStart,newRideEnd) &&
+                        (ride.getRideStatus()== RideStatus.ACCEPTED || ride.getRideStatus()==RideStatus.STARTED))
+                    return false;
+            }
+        }
+        return true;
     }
 }

@@ -208,7 +208,7 @@ public class RideService extends JPAService<Ride> implements IRideService {
     public Ride end(Integer id) throws EntityNotFoundException, RideStatusException {
         Ride ride = this.get(id);
 
-        if (ride.getRideStatus() != RideStatus.ACTIVE) {
+        if (ride.getRideStatus() != RideStatus.STARTED) {
             throw new RideStatusException("Cannot end a ride that is not in status ACTIVE!");
         }
 
