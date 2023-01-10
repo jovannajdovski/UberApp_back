@@ -8,24 +8,28 @@ INSERT INTO authority(name)
 VALUES ('PASSENGER');
 
 INSERT INTO ihor (name, surname, profile_picture, telephone_number, email, address, password, is_blocked, is_active, authority_id)
-VALUES ('Miki', 'Mikic', null, '+3816563122', 'miki@email.com', 'Gogoljeva 3', 'mikimilane' , false, false, 3);
+VALUES ('Miki', 'Mikic', null, '+3816563122', 'miki@email.com', 'Gogoljeva 3', '$2a$12$wwQ9iYllQax/wUT99HgAUeeHCdBk7tOT/oqo7usLtFLbMn9lpiL.S' , false, false, 3); --mikimilane
 INSERT INTO passenger (id) values ( 1 );
 
 INSERT INTO ihor (name, surname, profile_picture, telephone_number, email, address, password, is_blocked,is_active, authority_id)
-VALUES ('User', 'Usser', 'ffdfdfedf', '+3816563122', 'user@example.com', 'Gogoljeva 3', 'user' , false, false, 3);
+VALUES ('User', 'Usser', 'ffdfdfedf', '+3816563122', 'user@example.com', 'Gogoljeva 3', '$2a$12$54NuKbL1rlXtwBClcpte8eOPgisxCI4crc0yZTjavUfy5NaJm5KWC' , false, false, 3); --user
 INSERT INTO passenger (id) values ( 2 );
 
 INSERT INTO ihor (name, surname, profile_picture, telephone_number, email, address, password, is_blocked,is_active, authority_id)
-VALUES ('Zoki', 'Zokic', 'ffdfdfedf', '+3816563122', 'zoki@email.com', 'Gogoljeva 3', 'zokizoki' , false, false, 2);
+VALUES ('Zoki', 'Zokic', 'ffdfdfedf', '+3816563122', 'zoki@email.com', 'Gogoljeva 3', '$2a$12$k0VBF/xbK6qti0euHe/abeIsKILktIi3YIGjoj6.P1nFBEs99GwJS' , false, false, 2); --zokizoki
 INSERT INTO driver (id) VALUES ( 3 );
 
 INSERT INTO ihor (name, surname, profile_picture, telephone_number, email, address, password, is_blocked,is_active, authority_id)
-VALUES ('Nikola', 'Luburic', 'ffdfdfedf', '+3816563122', 'lubura@email.com', 'Pavla Papa 3', 'lubura' , false, false, 2);
+VALUES ('Nikola', 'Luburic', 'ffdfdfedf', '+3816563122', 'lubura@email.com', 'Pavla Papa 3', '$2a$12$ckc7Wu4C74twLpbouzDR7.TOtgPUtTP5AYxrOqgbG20DpchYILUEa' , false, false, 2); --lubura
 INSERT INTO driver (id) VALUES ( 4 );
 
 INSERT INTO ihor (name, surname, profile_picture, telephone_number, email, address, password, is_blocked,is_active, authority_id)
-VALUES ('Ognjen', 'Ognjenovic', 'ffdfdfedf', '+3816563122', 'ogi@email.com', 'Preradoviceva 3', 'ogiogi' , false, false, 2);
+VALUES ('Ognjen', 'Ognjenovic', 'ffdfdfedf', '+3816563122', 'ogi@email.com', 'Preradoviceva 3', '$2a$12$q7XhID2ACdawcTbvO/H6qejeiRv8u9zGfAw5xWAKCqrACBjXHV79W' , false, false, 2); --ogiogi
 INSERT INTO driver (id) VALUES ( 5 );
+
+INSERT INTO ihor (name, surname, profile_picture, telephone_number, email, address, password, is_blocked,is_active, authority_id) --ogiogi
+VALUES ('Roki', 'Rokvic', 'ffdfdfedf', '+3816563122', 'roki@email.com', 'Preradoviceva 3', '$2a$12$JpTYHr7H/68YlZWuNdQ41.CJCAyIg0xPfrjKMd3EuW6ipcy2sy83m' , false, false, 1); --rokiroki
+INSERT INTO administrator (id) VALUES ( 6 );
 
 INSERT INTO DRIVER_DOCUMENT (NAME, PICTURE, DRIVER_ID) VALUES ('Vozačka dozvola', 'U3dhZ2dlciByb2Nrcw=', 3);
 INSERT INTO WORK_HOURS (START_TIME, END_TIME, DRIVER_ID) VALUES ('2023-01-10T10:40:59.161', '2023-01-10T12:30:59.161', 3);

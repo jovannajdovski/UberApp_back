@@ -1,7 +1,5 @@
 package com.uberTim12.ihor.service.users.impl;
 
-import com.uberTim12.ihor.dto.users.UserCredentialsDTO;
-import com.uberTim12.ihor.dto.users.UserTokensDTO;
 import com.uberTim12.ihor.exception.EmailAlreadyExistsException;
 import com.uberTim12.ihor.exception.PasswordDoesNotMatchException;
 import com.uberTim12.ihor.exception.UserAlreadyBlockedException;
@@ -38,16 +36,6 @@ public class UserService extends JPAService<User> implements IUserService, UserD
     @Override
     protected JpaRepository<User, Integer> getEntityRepository() {
         return userRepository;
-    }
-
-    @Override
-    public UserTokensDTO getUserTokens(UserCredentialsDTO userCredentialDTO) {
-        User user=userRepository.findByEmailAndPassword(userCredentialDTO.getEmail(), encryptPassword(userCredentialDTO.getPassword()));
-        UserTokensDTO userTokensDTO=null;
-        //if(user!=null)
-            //TODO
-            userTokensDTO=new UserTokensDTO("accessToken","refreshToken");
-        return userTokensDTO;
     }
 
     @Override
@@ -101,15 +89,5 @@ public class UserService extends JPAService<User> implements IUserService, UserD
         Page<T> convert(Set<T> set){
             return new PageImpl<>(set.stream().toList());
         }
-
-    }
-
-    public static String encryptPassword(String password)
-    {
-        return password;
-    }
-    public static String decryptPassword(String hashCode)
-    {
-        return hashCode;
     }
 }
