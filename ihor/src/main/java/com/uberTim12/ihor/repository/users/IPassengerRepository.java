@@ -20,4 +20,6 @@ public interface IPassengerRepository extends JpaRepository<Passenger, Integer> 
 
     @Query("select p from Passenger p join p.favoriteRoutes f where p.email =?1")
     public Passenger findByEmailWithFavorites(String email);
+
+    Passenger findByEmail(String email);
 }

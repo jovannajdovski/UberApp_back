@@ -1,6 +1,9 @@
 package com.uberTim12.ihor.controller.users;
 
-import com.uberTim12.ihor.dto.communication.*;
+import com.uberTim12.ihor.dto.communication.MessageDTO;
+import com.uberTim12.ihor.dto.communication.ObjectListResponseDTO;
+import com.uberTim12.ihor.dto.communication.RequestNoteDTO;
+import com.uberTim12.ihor.dto.communication.SendingMessageDTO;
 import com.uberTim12.ihor.dto.ride.RideFullDTO;
 import com.uberTim12.ihor.dto.users.*;
 import com.uberTim12.ihor.exception.PasswordDoesNotMatchException;
@@ -8,15 +11,15 @@ import com.uberTim12.ihor.exception.UserAlreadyBlockedException;
 import com.uberTim12.ihor.exception.UserNotBlockedException;
 import com.uberTim12.ihor.model.communication.Message;
 import com.uberTim12.ihor.model.ride.Ride;
+import com.uberTim12.ihor.model.users.Note;
 import com.uberTim12.ihor.model.users.User;
 import com.uberTim12.ihor.security.JwtUtil;
 import com.uberTim12.ihor.service.communication.impl.MessageService;
-import com.uberTim12.ihor.service.communication.impl.ReviewService;
 import com.uberTim12.ihor.service.communication.interfaces.IMessageService;
-import com.uberTim12.ihor.service.communication.interfaces.IReviewService;
 import com.uberTim12.ihor.service.ride.impl.RideService;
 import com.uberTim12.ihor.service.ride.interfaces.IRideService;
 import com.uberTim12.ihor.service.users.impl.UserService;
+import com.uberTim12.ihor.service.users.interfaces.INoteService;
 import com.uberTim12.ihor.service.users.interfaces.IUserService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,17 +28,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,7 +46,7 @@ public class UserController {
     private final IRideService rideService;
     private final IUserService userService;
     private final IMessageService messageService;
-    private final IReviewService reviewService;
+    private final INoteService noteService;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
 
@@ -53,13 +54,12 @@ public class UserController {
     UserController(RideService rideService,
                    UserService userService,
                    MessageService messageService,
-                   ReviewService reviewService,
-                   AuthenticationManager authenticationManager,
+                   INoteService noteService, AuthenticationManager authenticationManager,
                    JwtUtil jwtUtil) {
         this.rideService = rideService;
         this.userService = userService;
         this.messageService = messageService;
-        this.reviewService = reviewService;
+        this.noteService = noteService;
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
     }
@@ -67,41 +67,45 @@ public class UserController {
     @GetMapping(value = "/{id}/ride",produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getUserRides(@PathVariable Integer id,
                                           Pageable page,
-                                          @RequestParam(required = false) String from,
-                                          @RequestParam(required = false) String to
+                                          @RequestParam(required = false) String fromStr,
+                                          @RequestParam(required = false) String toStr
                                           )
     {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-        //TODO resiti
-        LocalDateTime start = LocalDate.parse(from, formatter).atStartOfDay();
-        LocalDateTime end = LocalDate.parse(to, formatter).atStartOfDay();
-        Page<Ride> rides = rideService.getRides(id,start,end,page);
-        List<RideFullDTO> ridesDTO=new ArrayList<>();
-        if(rides==null) //TODO sve greske
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
-        else {
-            for (Ride r : rides)
-                ridesDTO.add(new RideFullDTO(r));
-
-            ObjectListResponseDTO<RideFullDTO> res = new ObjectListResponseDTO<>(ridesDTO.size(),ridesDTO);
-            return new ResponseEntity<>(res, HttpStatus.OK);
+        try {
+            userService.get(id);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User does not exist!");
         }
+
+        Page<Ride> rides;
+        if (fromStr == null || toStr == null)
+            rides = rideService.findFilteredRidesForUser(id, page);
+        else {
+            LocalDateTime from = LocalDateTime.parse(fromStr);
+            LocalDateTime to = LocalDateTime.parse(toStr);
+            rides = rideService.findFilteredRidesForUser(id, from, to, page);
+        }
+
+        List<RideFullDTO> rideDTOs = new ArrayList<>();
+        for (Ride r : rides)
+            rideDTOs.add(new RideFullDTO(r));
+
+        ObjectListResponseDTO<RideFullDTO> objectListResponse = new ObjectListResponseDTO<>((int) rides.getTotalElements(), rideDTOs);
+        return new ResponseEntity<>(objectListResponse, HttpStatus.OK);
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getUsers(Pageable page)
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ObjectListResponseDTO<UserDTO>> getUsers(Pageable page)
     {
         Page<User> users = userService.getAll(page);
-        List<UserDTO> usersDTO=new ArrayList<>();
-        if(users==null) //TODO sve greske
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
-        else {
-            for (User u : users)
-                usersDTO.add(new UserDTO(u));
-            ObjectListResponseDTO<UserDTO> res = new ObjectListResponseDTO<>(usersDTO.size(),usersDTO);
-            return new ResponseEntity<>(res, HttpStatus.OK);
-        }
+
+        List<UserDTO> usersDTO = new ArrayList<>();
+        for (User u : users)
+            usersDTO.add(new UserDTO(u));
+
+        ObjectListResponseDTO<UserDTO> res = new ObjectListResponseDTO<>(userService.getAll().size(), usersDTO);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
     @PostMapping(value = "/login",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -127,7 +131,7 @@ public class UserController {
         try {
             userService.get(id);
             List<MessageDTO> messages = messageService.getMessages(id);
-            ObjectListResponseDTO<MessageDTO> res = new ObjectListResponseDTO<>(messageService.getAll().size(),messages);
+            ObjectListResponseDTO<MessageDTO> res = new ObjectListResponseDTO<>(messageService.getAll().size(), messages);
             return new ResponseEntity<>(res, HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User does not exist!");
@@ -147,6 +151,7 @@ public class UserController {
     }
 
     @PutMapping(value = "/{id}/block")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> blockUser(@PathVariable("id") Integer id)
     {
         try {
@@ -160,6 +165,7 @@ public class UserController {
     }
 
     @PutMapping(value = "/{id}/unblock")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> unblockUser(@PathVariable("id") Integer id)
     {
         try {
@@ -172,34 +178,33 @@ public class UserController {
         }    }
 
     @PostMapping(value = "/{id}/note",consumes=MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> createNote(@PathVariable Integer id, @RequestBody RequestNoteDTO requestNoteDTO)
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<NoteDTO> createNote(@PathVariable Integer id, @RequestBody RequestNoteDTO requestNoteDTO)
     {
-        if(id==null) //TODO sve greske
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
-        else {
-            NoteDTO noteDTO = reviewService.createNote(id, requestNoteDTO);
-            if(noteDTO==null)
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            else
-                return new ResponseEntity<>(noteDTO, HttpStatus.OK);
+        try {
+            Note note = noteService.create(id, requestNoteDTO.getMessage());
+            return new ResponseEntity<>(new NoteDTO(note), HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User does not exist!");
         }
     }
     @GetMapping(value = "/{id}/note",produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getNotes(@PathVariable Integer id, Pageable page)
     {
-        if(id==null) //TODO sve greske
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong format of some field");
-        else {
-            Page<NoteDTO> notes = reviewService.getNotes(id, page);
-            if(notes==null)
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            else{
-                List<NoteDTO> noteDTOS = new ArrayList<>();
-                for (NoteDTO n : notes){
-                    noteDTOS.add(n);
-                }
-                ObjectListResponseDTO<NoteDTO> res = new ObjectListResponseDTO<>(noteDTOS.size(),noteDTOS);
-                return new ResponseEntity<>(res, HttpStatus.OK);}
+        try {
+            userService.get(id);
+            Page<Note> notes = noteService.getFor(id, page);
+
+            List<NoteDTO> noteDTOs = new ArrayList<>();
+            for (Note n : notes) {
+                noteDTOs.add(new NoteDTO(n));
+            }
+
+            ObjectListResponseDTO<NoteDTO> objectListResponse = new ObjectListResponseDTO<>((int) notes.getTotalElements(), noteDTOs);
+            return new ResponseEntity<>(objectListResponse, HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User does not exist!");
         }
     }
 

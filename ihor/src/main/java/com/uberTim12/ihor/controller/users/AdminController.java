@@ -11,6 +11,7 @@ import com.uberTim12.ihor.util.ImageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -26,6 +27,7 @@ public class AdminController {
     }
 
     @GetMapping(value = "/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserDTO> getAdmin(@PathVariable Integer id) {
         try {
             Administrator admin = adminService.get(id);
@@ -36,6 +38,7 @@ public class AdminController {
     }
 
     @PutMapping(value = "/{id}", consumes = "application/json")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserDTO> updateAdmin(@PathVariable Integer id, @RequestBody AdminRegistrationDTO adminDTO) {
         try {
             Administrator admin = adminService.update(id, adminDTO.getName(), adminDTO.getSurname(), adminDTO.getProfilePicture(),

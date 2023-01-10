@@ -54,12 +54,20 @@ public class RideService extends JPAService<Ride> implements IRideService {
         return rideRepository.findByDriverId(driverId, pageable);
     }
 
-
     @Override
     public Page<Ride> findFilteredRides(Integer driverId, LocalDateTime from, LocalDateTime to, Pageable pageable) {
         return rideRepository.findAllInRangeForDriver(driverId, from, to, pageable);
     }
 
+    @Override
+    public Page<Ride> findFilteredRidesForUser(Integer userId, LocalDateTime from, LocalDateTime to, Pageable pageable) {
+        return rideRepository.findAllInRangeForUser(userId, from, to, pageable);
+    }
+
+    @Override
+    public Page<Ride> findFilteredRidesForUser(Integer userId, Pageable pageable) {
+        return rideRepository.findAllInRangeForUser(userId, pageable);
+    }
 
     @Override
     public RideResponseDTO getEstimatedRoute(RideRequestDTO rideRequestDTO) {

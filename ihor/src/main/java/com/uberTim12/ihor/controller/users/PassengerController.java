@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -51,6 +52,7 @@ public class PassengerController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ObjectListResponseDTO<PassengerDTO>> getPassengersPage(Pageable page) {
         Page<Passenger> passengers = passengerService.getAll(page);
 
@@ -59,11 +61,12 @@ public class PassengerController {
             passengersDTO.add(new PassengerDTO(p));
         }
 
-        ObjectListResponseDTO<PassengerDTO> res = new ObjectListResponseDTO<>(passengersDTO.size(),passengersDTO);
+        ObjectListResponseDTO<PassengerDTO> res = new ObjectListResponseDTO<>((int) passengers.getTotalElements(),passengersDTO);
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
     @GetMapping(value = "/activate/{activationId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> activatePassenger(@PathVariable Integer activationId) {
         try {
             userActivationService.activate(activationId);
@@ -76,6 +79,7 @@ public class PassengerController {
     }
 
     @GetMapping(value = "/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PASSENGER')")
     public ResponseEntity<PassengerDTO> getPassenger(@PathVariable Integer id) {
         try {
             Passenger passenger = passengerService.get(id);
@@ -86,6 +90,7 @@ public class PassengerController {
     }
 
     @PutMapping(value = "/{id}", consumes = "application/json")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PASSENGER')")
     public ResponseEntity<PassengerDTO> updatePassenger(@PathVariable Integer id, @RequestBody PassengerRegistrationDTO passengerDTO) {
         try {
             Passenger passenger = passengerService.update(id, passengerDTO.getName(), passengerDTO.getSurname(),
@@ -98,6 +103,7 @@ public class PassengerController {
     }
 
     @GetMapping(value = "/{id}/ride")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PASSENGER')")
     public ResponseEntity<ObjectListResponseDTO<RideNoStatusDTO>> getPassengerRidesPage(@PathVariable Integer id, Pageable page,
                                                    @RequestParam(required = false) String from,
                                                    @RequestParam(required = false) String to) {
@@ -123,7 +129,7 @@ public class PassengerController {
         for (Ride r : rides)
             rideDTOs.add(new RideNoStatusDTO(r));
 
-        ObjectListResponseDTO<RideNoStatusDTO> res = new ObjectListResponseDTO<>(rideDTOs.size(),rideDTOs);
+        ObjectListResponseDTO<RideNoStatusDTO> res = new ObjectListResponseDTO<>((int) rides.getTotalElements(), rideDTOs);
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 }
