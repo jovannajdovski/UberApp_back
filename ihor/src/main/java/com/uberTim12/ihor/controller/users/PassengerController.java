@@ -61,7 +61,7 @@ public class PassengerController {
             passengersDTO.add(new PassengerDTO(p));
         }
 
-        ObjectListResponseDTO<PassengerDTO> res = new ObjectListResponseDTO<>(passengersDTO.size(),passengersDTO);
+        ObjectListResponseDTO<PassengerDTO> res = new ObjectListResponseDTO<>((int) passengers.getTotalElements(),passengersDTO);
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
@@ -129,7 +129,7 @@ public class PassengerController {
         for (Ride r : rides)
             rideDTOs.add(new RideNoStatusDTO(r));
 
-        ObjectListResponseDTO<RideNoStatusDTO> res = new ObjectListResponseDTO<>(rideDTOs.size(),rideDTOs);
+        ObjectListResponseDTO<RideNoStatusDTO> res = new ObjectListResponseDTO<>((int) rides.getTotalElements(), rideDTOs);
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 }

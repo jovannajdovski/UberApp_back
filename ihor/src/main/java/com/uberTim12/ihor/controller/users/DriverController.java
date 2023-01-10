@@ -98,7 +98,7 @@ public class DriverController {
             driverDTOs.add(new DriverDetailsDTO(d));
         }
 
-        ObjectListResponseDTO<DriverDetailsDTO> objectListResponse = new ObjectListResponseDTO<>(driverService.getAll().size(), driverDTOs);
+        ObjectListResponseDTO<DriverDetailsDTO> objectListResponse = new ObjectListResponseDTO<>((int) drivers.getTotalElements(), driverDTOs);
         return new ResponseEntity<>(objectListResponse, HttpStatus.OK);
     }
 
@@ -109,8 +109,7 @@ public class DriverController {
             Driver driver = driverService.get(id);
             return new ResponseEntity<>(new DriverDetailsDTO(driver), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
-//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Driver does not exist!");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Driver does not exist!");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Driver does not exist!");
         }
     }
 
@@ -253,7 +252,7 @@ public class DriverController {
         for (WorkHours w : workHours)
             workHoursDTO.add(new WorkHoursDTO(w));
 
-        ObjectListResponseDTO<WorkHoursDTO> objectListResponse = new ObjectListResponseDTO<>(workHoursDTO.size(), workHoursDTO);
+        ObjectListResponseDTO<WorkHoursDTO> objectListResponse = new ObjectListResponseDTO<>((int) workHours.getTotalElements(), workHoursDTO);
         return new ResponseEntity<>(objectListResponse, HttpStatus.OK);
     }
 
@@ -304,7 +303,7 @@ public class DriverController {
         for (Ride r : rides)
             rideDTOs.add(new RideFullDTO(r));
 
-        ObjectListResponseDTO<RideFullDTO> res = new ObjectListResponseDTO<>(rideDTOs.size(), rideDTOs);
+        ObjectListResponseDTO<RideFullDTO> res = new ObjectListResponseDTO<>((int) rides.getTotalElements(), rideDTOs);
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 

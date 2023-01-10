@@ -27,4 +27,10 @@ public class Note {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    public Note(LocalDateTime date, String message, User user) {
+        this.date = date;
+        this.message = message;
+        this.user = user;
+    }
 }

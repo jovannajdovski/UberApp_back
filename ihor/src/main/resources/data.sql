@@ -27,7 +27,7 @@ INSERT INTO ihor (name, surname, profile_picture, telephone_number, email, addre
 VALUES ('Ognjen', 'Ognjenovic', 'ffdfdfedf', '+3816563122', 'ogi@email.com', 'Preradoviceva 3', '$2a$12$q7XhID2ACdawcTbvO/H6qejeiRv8u9zGfAw5xWAKCqrACBjXHV79W' , false, false, 2); --ogiogi
 INSERT INTO driver (id) VALUES ( 5 );
 
-INSERT INTO ihor (name, surname, profile_picture, telephone_number, email, address, password, is_blocked,is_active, authority_id) --ogiogi
+INSERT INTO ihor (name, surname, profile_picture, telephone_number, email, address, password, is_blocked,is_active, authority_id)
 VALUES ('Roki', 'Rokvic', 'ffdfdfedf', '+3816563122', 'roki@email.com', 'Preradoviceva 3', '$2a$12$JpTYHr7H/68YlZWuNdQ41.CJCAyIg0xPfrjKMd3EuW6ipcy2sy83m' , false, false, 1); --rokiroki
 INSERT INTO administrator (id) VALUES ( 6 );
 
