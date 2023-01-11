@@ -60,13 +60,13 @@ public class MessageService extends JPAService<Message> implements IMessageServi
             return save(message);
         } catch (EntityNotFoundException e) {
             if (sender == null) {
-                throw new NotFoundException("User does not exist!");
+                throw new EntityNotFoundException("User does not exist!");
             }
             else if (receiver == null) {
-                throw new NotFoundException("Receiver does not exist!");
+                throw new EntityNotFoundException("Receiver does not exist!");
             }
             else if (ride == null) {
-                throw new NotFoundException("Ride does not exist!");
+                throw new EntityNotFoundException("Ride does not exist!");
             }
         }
         return null;

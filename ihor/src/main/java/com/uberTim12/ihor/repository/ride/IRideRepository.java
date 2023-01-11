@@ -22,10 +22,10 @@ public interface IRideRepository extends JpaRepository<Ride, Integer> {
     @Query("select r from Ride r where r.driver.id =?1 and r.startTime between ?2 and ?3")
     Page<Ride> findAllInRangeForDriver(Integer id, LocalDateTime start, LocalDateTime end, Pageable pageable);
 
-    @Query("select r from Ride r join Passenger p on p.id = ?1 and r.startTime between ?2 and ?3")
+    @Query("select r from Ride r join Passenger p on p.id = ?1 where r.startTime between ?2 and ?3") //or r.driver.id=?1 and
     Page<Ride> findAllInRangeForUser(Integer id, LocalDateTime start, LocalDateTime end, Pageable pageable);
 
-    @Query("select r from Ride r join Passenger p on p.id = ?1")
+    @Query("select r from Ride r join Passenger p on p.id = ?1")// or r.driver.id=?1
     Page<Ride> findAllInRangeForUser(Integer id, Pageable pageable);
 
     @Query("select r from Ride r where ?1 member of r.passengers and r.startTime between ?2 and ?3")
