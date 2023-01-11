@@ -65,7 +65,7 @@ public class UserController {
     }
 
     @GetMapping(value = "/{id}/ride",produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getUserRides(@PathVariable Integer id,
+    public ResponseEntity<ObjectListResponseDTO<RideFullDTO>> getUserRides(@PathVariable Integer id,
                                           Pageable page,
                                           @RequestParam(required = false) String fromStr,
                                           @RequestParam(required = false) String toStr
@@ -190,7 +190,7 @@ public class UserController {
     }
     @GetMapping(value = "/{id}/note",produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> getNotes(@PathVariable Integer id, Pageable page)
+    public ResponseEntity<ObjectListResponseDTO<NoteDTO>> getNotes(@PathVariable Integer id, Pageable page)
     {
         try {
             userService.get(id);

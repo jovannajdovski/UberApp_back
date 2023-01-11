@@ -30,7 +30,7 @@ public class ReviewController {
     private final IDriverService driverService;
     private final IVehicleService vehicleService;
     private final IRideService rideService;
-    
+
 
     @Autowired
     public ReviewController(ReviewService reviewService, IDriverService driverService, IVehicleService vehicleService, RideService rideService) {
