@@ -1,9 +1,6 @@
 package com.uberTim12.ihor.service.users.impl;
 
-import com.uberTim12.ihor.exception.EmailAlreadyExistsException;
-import com.uberTim12.ihor.exception.PasswordDoesNotMatchException;
-import com.uberTim12.ihor.exception.UserAlreadyBlockedException;
-import com.uberTim12.ihor.exception.UserNotBlockedException;
+import com.uberTim12.ihor.exception.*;
 import com.uberTim12.ihor.model.users.PasswordResetToken;
 import com.uberTim12.ihor.model.users.User;
 import com.uberTim12.ihor.repository.users.IPasswordResetTokenRepository;
@@ -18,7 +15,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -108,8 +104,8 @@ public class UserService extends JPAService<User> implements IUserService, UserD
         save(user);
     }
 
-    static class SetToPageConverter<T>{
-        Page<T> convert(Set<T> set){
+    static class SetToPageConverter<T> {
+        Page<T> convert(Set<T> set) {
             return new PageImpl<>(set.stream().toList());
         }
     }
@@ -122,7 +118,7 @@ public class UserService extends JPAService<User> implements IUserService, UserD
         mailSender.send(constructResetTokenEmail(token.getToken(), user));
     }
 
-    public PasswordResetToken updatePasswordResetToken(User user){
+    private PasswordResetToken updatePasswordResetToken(User user) {
         PasswordResetToken token = new PasswordResetToken();
         token.setUser(user);
         token.setToken(generateToken());
@@ -139,26 +135,18 @@ public class UserService extends JPAService<User> implements IUserService, UserD
                 .append(UUID.randomUUID().toString()).toString();
     }
 
-    public User getByToken(String token){
-        PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token).orElse(null);
-        if (resetToken != null){
-            return resetToken.getUser();
-        }
-        return null;
-    }
-
     private MimeMessage constructResetTokenEmail(String token, User user) throws MessagingException, UnsupportedEncodingException {
         String url = angularPath + "/reset-password?token=" + token;
-        String content = "<p>Hello,</p>"
+        String content = "<p>Hello " + user.getName() + ",</p>"
                 + "<p>You have requested to reset your password.</p>"
-                + "<p>CLick the link below to change your password:</p>"
+                + "<p>Click the link below to change your password:</p>"
                 + "<p><b><a href=\"" + url + "\">Change my password</a></b></p>"
-                + "<p>Or use reset code: "+token+"</p>";
+                + "<p>Or use reset code: <b>" + token + "</b></p>";
         return constructEmail("Reset Password", content, user);
     }
 
     private MimeMessage constructEmail(String subject, String body,
-                                             User user) throws MessagingException, UnsupportedEncodingException {
+                                       User user) throws MessagingException, UnsupportedEncodingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
 
@@ -171,33 +159,32 @@ public class UserService extends JPAService<User> implements IUserService, UserD
         return message;
     }
 
-//    public String resetPassword(String token, String password) {
-//
-//        Optional<User> userOptional = Optional
-//                .ofNullable(userRepository.findByToken(token));
-//
-//        if (!userOptional.isPresent()) {
-//            return "Invalid token.";
-//        }
-//
-//        LocalDateTime tokenCreationDate = userOptional.get().getTokenCreationDate();
-//
-//        if (isTokenExpired(tokenCreationDate)) {
-//            return "Token expired.";
-//
-//        }
-//
-//        User user = userOptional.get();
-//
-//        user.setPassword(password);
-//        user.setToken(null);
-//        user.setTokenCreationDate(null);
-//
-//        userRepository.save(user);
-//
-//        return "Your password successfully updated.";
-//    }
+    @Override
+    public void resetPassword(Integer userId, String token, String password) throws IncorrectCodeException, CodeExpiredException, EntityNotFoundException {
+        User userWithId = get(userId);
 
+        PasswordResetToken passwordResetToken = getByTokenString(token);
+        if (passwordResetToken == null) {
+            throw new IncorrectCodeException("Code is expired or not correct!");
+        }
+
+        User user = passwordResetToken.getUser();
+        if (user == null || user!=userWithId ) {
+            throw new IncorrectCodeException("Code is expired or not correct!");
+        }
+
+        LocalDateTime tokenCreationDate = passwordResetToken.getTokenCreationDate();
+        if (isTokenExpired(tokenCreationDate)) {
+            throw new CodeExpiredException("Code is expired or not correct!");
+
+        }
+
+        updatePassword(user, password);
+    }
+
+    private PasswordResetToken getByTokenString(String token) {
+        return passwordResetTokenRepository.findByToken(token).orElse(null);
+    }
 
     private boolean isTokenExpired(final LocalDateTime tokenCreationDate) {
 
@@ -207,7 +194,7 @@ public class UserService extends JPAService<User> implements IUserService, UserD
         return diff.toMinutes() >= EXPIRE_TOKEN_AFTER_MINUTES;
     }
 
-    public void updatePassword(User user, String newPassword){
+    private void updatePassword(User user, String newPassword) {
         user.setPassword(bCryptPasswordEncoder.encode(newPassword));
         save(user);
 

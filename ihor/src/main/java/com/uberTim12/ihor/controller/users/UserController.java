@@ -3,9 +3,7 @@ package com.uberTim12.ihor.controller.users;
 import com.uberTim12.ihor.dto.communication.*;
 import com.uberTim12.ihor.dto.ride.RideFullDTO;
 import com.uberTim12.ihor.dto.users.*;
-import com.uberTim12.ihor.exception.PasswordDoesNotMatchException;
-import com.uberTim12.ihor.exception.UserAlreadyBlockedException;
-import com.uberTim12.ihor.exception.UserNotBlockedException;
+import com.uberTim12.ihor.exception.*;
 import com.uberTim12.ihor.model.communication.Message;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.users.User;
@@ -223,6 +221,7 @@ public class UserController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Current password is not matching!");
         }
     }
+
     @GetMapping(value="/{id}/resetPassword")
     public ResponseEntity<String> sendResetCodeToEmail(@PathVariable Integer id)
     {
@@ -236,26 +235,17 @@ public class UserController {
         }
 
     }
+
     @PutMapping(value="/{id}/resetPassword", consumes = "application/json")
-    public ResponseEntity<?> changePasswordWithResetCode(@PathVariable Integer id, @RequestBody ResetPasswordDTO resetPasswordDTO)
+    public ResponseEntity<String> changePasswordWithResetCode(@PathVariable Integer id, @RequestBody ResetPasswordDTO resetPasswordDTO)
     {
-        User user = userService.get(id);
-
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist!");
+        try {
+            userService.resetPassword(id, resetPasswordDTO.getCode(), resetPasswordDTO.getNew_password());
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Password successfully changed!");
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User does not exist!");
+        } catch (IncorrectCodeException | CodeExpiredException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Code is expired or not correct!");
         }
-
-        if (!user.getPassword().equals(resetPasswordDTO.getCode())) // || is expired TODO
-        {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Code is expired or not correct!");
-        }
-
-        if (!resetPasswordDTO.getNew_password().equals("")){
-            user.setPassword(resetPasswordDTO.getNew_password());
-        }
-
-        userService.save(user);
-
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Password successfully changed!");
     }
 }
