@@ -2,6 +2,7 @@ package com.uberTim12.ihor.service.users.impl;
 
 import com.uberTim12.ihor.exception.EntityPropertyIsNullException;
 import com.uberTim12.ihor.exception.ShiftAlreadyStartedException;
+import com.uberTim12.ihor.exception.ShiftIsNotOngoingException;
 import com.uberTim12.ihor.exception.WorkTimeExceededException;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.users.Driver;
@@ -57,8 +58,14 @@ public class WorkHoursService extends JPAService<WorkHours> implements IWorkHour
     }
 
     @Override
-    public WorkHours endShift(Integer workHoursId, LocalDateTime endTime) throws EntityNotFoundException {
+    public WorkHours endShift(Integer workHoursId, LocalDateTime endTime) throws EntityNotFoundException,
+            EntityPropertyIsNullException, ShiftIsNotOngoingException {
         WorkHours workHours = get(workHoursId);
+
+        Driver driver=workHours.getDriver();
+        vehicleService.getVehicleOf(driver.getId());
+        if(workHours.getEndTime()==null)
+            throw new ShiftIsNotOngoingException("No shift is ongoing!");
         workHours.setEndTime(endTime);
         return save(workHours);
     }

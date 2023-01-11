@@ -66,7 +66,6 @@ public class PassengerController {
     }
 
     @GetMapping(value = "/activate/{activationId}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> activatePassenger(@PathVariable Integer activationId) {
         try {
             userActivationService.activate(activationId);
@@ -119,9 +118,10 @@ public class PassengerController {
         if (from == null || to == null)
             rides = passengerService.findAllById(passenger, page);
         else {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            LocalDateTime start =  LocalDate.parse(from, formatter).atStartOfDay();
-            LocalDateTime end =  LocalDate.parse(to, formatter).atStartOfDay();
+            //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'hh:mm:ss.SSS");
+
+            LocalDateTime start =  LocalDateTime.parse(from);
+            LocalDateTime end =  LocalDateTime.parse(to);
             rides = passengerService.findAllById(id, start, end, page);
         }
 

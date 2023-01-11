@@ -4,7 +4,6 @@ package com.uberTim12.ihor.service.ride.impl;
 import com.uberTim12.ihor.exception.NoActiveRideException;
 import com.uberTim12.ihor.exception.RideStatusException;
 import com.uberTim12.ihor.model.ride.Ride;
-import com.uberTim12.ihor.dto.ride.RideRequestDTO;
 import com.uberTim12.ihor.dto.ride.RideResponseDTO;
 import com.uberTim12.ihor.model.ride.RideRejection;
 import com.uberTim12.ihor.model.ride.RideStatus;
@@ -16,13 +15,16 @@ import com.uberTim12.ihor.repository.users.IDriverRepository;
 import com.uberTim12.ihor.repository.users.IPassengerRepository;
 import com.uberTim12.ihor.service.base.impl.JPAService;
 import com.uberTim12.ihor.service.ride.interfaces.IRideService;
+import com.uberTim12.ihor.service.route.interfaces.ILocationService;
 import jakarta.persistence.EntityNotFoundException;
+import net.minidev.json.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -36,12 +38,14 @@ public class RideService extends JPAService<Ride> implements IRideService {
     private final IRideRepository rideRepository;
     private final IDriverRepository driverRepository;
     private final IPassengerRepository passengerRepository;
+    private final ILocationService locationService;
 
     @Autowired
-    public RideService(IRideRepository rideRepository, IDriverRepository driverRepository, IPassengerRepository passengerRepository) {
+    public RideService(IRideRepository rideRepository, IDriverRepository driverRepository, IPassengerRepository passengerRepository, ILocationService locationService) {
         this.rideRepository = rideRepository;
         this.driverRepository = driverRepository;
         this.passengerRepository = passengerRepository;
+        this.locationService = locationService;
     }
 
     @Override
@@ -70,8 +74,23 @@ public class RideService extends JPAService<Ride> implements IRideService {
     }
 
     @Override
-    public RideResponseDTO getEstimatedRoute(RideRequestDTO rideRequestDTO) {
-        return new RideResponseDTO(20.0, 450.0);
+    public RideResponseDTO getEstimatedRoute(Ride ride) {
+        Double distance, estimatedTime;
+        try{
+            distance=locationService.calculateDistance(ride.getPaths().iterator().next().getStartPoint(), ride.getPaths().iterator().next().getEndPoint());
+        }
+        catch (ParseException | IOException e)
+        {
+            distance=Double.MAX_VALUE;
+        }
+        try{
+            estimatedTime=locationService.calculateEstimatedTime(ride.getPaths().iterator().next().getStartPoint(), ride.getPaths().iterator().next().getEndPoint());
+        }
+        catch (ParseException | IOException e)
+        {
+            estimatedTime=Double.MAX_VALUE;
+        }
+        return new RideResponseDTO(estimatedTime, ride.getVehicleType().getPricePerKM()+distance*120);
     }
 
 
@@ -95,18 +114,6 @@ public class RideService extends JPAService<Ride> implements IRideService {
     public Ride save(Ride ride) {
         return rideRepository.save(ride);
     }
-
-//    @Override
-//    public Ride get(Integer id){
-//        Ride ride = rideRepository.findById(id).orElse(null);
-//        if (ride==null){
-//            return null;
-//        } else {
-//            Set<Passenger> passengers = new HashSet<>(findPassengersForRide(ride.getId()));
-//            ride.setPassengers(passengers);
-//            return ride;
-//        }
-//    }
 
     @Override
     public Ride findActiveByDriver(Driver driver) throws NoActiveRideException {

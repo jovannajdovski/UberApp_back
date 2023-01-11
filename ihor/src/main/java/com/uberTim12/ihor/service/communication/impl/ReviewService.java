@@ -22,7 +22,7 @@ import java.util.List;
 public class ReviewService extends JPAService<Review> implements IReviewService {
     private final IReviewRepository reviewRepository;
     private final IRideService rideService;
-    private final IPassengerService passengerService
+    private final IPassengerService passengerService;
 
     @Autowired
     public ReviewService(IReviewRepository reviewRepository, IRideService rideService, IPassengerService passengerService) {

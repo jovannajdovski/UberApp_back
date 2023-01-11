@@ -1,6 +1,7 @@
 package com.uberTim12.ihor.model.ride;
 
 import com.uberTim12.ihor.dto.ride.CreateRideDTO;
+import com.uberTim12.ihor.dto.ride.RideRequestDTO;
 import com.uberTim12.ihor.model.communication.Review;
 import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.users.Driver;
@@ -86,6 +87,12 @@ public class Ride {
         this.babiesAllowed = rideDTO.isBabyTransport();
         this.petsAllowed = rideDTO.isPetTransport();
         this.startTime=rideDTO.getStartTime();
+        this.vehicleType=new VehicleType();
+        this.vehicleType.setVehicleCategory(rideDTO.getVehicleType());
+    }
+    public Ride(RideRequestDTO rideDTO) {
+        this.babiesAllowed = rideDTO.isBabyTransport();
+        this.petsAllowed = rideDTO.isPetTransport();
         this.vehicleType=new VehicleType();
         this.vehicleType.setVehicleCategory(rideDTO.getVehicleType());
     }

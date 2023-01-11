@@ -20,6 +20,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
+import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
 
 @Configuration
@@ -45,6 +46,7 @@ public class SecurityConfig {
             .authorizeHttpRequests()
             .requestMatchers(toH2Console()).permitAll()
             .requestMatchers(POST, "/api/passenger").permitAll()
+            .requestMatchers(GET,"/api/passenger/*").permitAll()
             .requestMatchers("/api/unregisteredUser/**").permitAll()
             .requestMatchers("/api/user/login").permitAll()
             .requestMatchers("/api/user/*/resetPassword").permitAll()

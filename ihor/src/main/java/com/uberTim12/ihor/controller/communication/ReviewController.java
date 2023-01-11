@@ -61,7 +61,7 @@ public class ReviewController {
 
             List<ReviewDTO> reviewDTOs = new ArrayList<>();
             for(Review r : reviews)
-                reviewDTOs.add(new ReviewDTO(r, false));
+                reviewDTOs.add(new ReviewDTO(r, true));
 
             ObjectListResponseDTO<ReviewDTO> res = new ObjectListResponseDTO<>(reviewDTOs.size(), reviewDTOs);
             return new ResponseEntity<>(res, HttpStatus.OK);
@@ -76,7 +76,7 @@ public class ReviewController {
     {
         try {
             Review review = reviewService.createDriverReview(rideId, reviewRequestDTO.getRating(), reviewRequestDTO.getComment());
-            return new ResponseEntity<>(new ReviewDTO(review, true), HttpStatus.OK);
+            return new ResponseEntity<>(new ReviewDTO(review, false), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Ride does not exist!");
         }

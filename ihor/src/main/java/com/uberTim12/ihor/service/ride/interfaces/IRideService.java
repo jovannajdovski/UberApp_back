@@ -27,7 +27,7 @@ public interface IRideService extends IJPAService<Ride> {
 
     Page<Ride> findFilteredRidesForUser(Integer userId, Pageable pageable);
 
-    RideResponseDTO getEstimatedRoute(RideRequestDTO rideRequestDTO);
+    RideResponseDTO getEstimatedRoute(Ride ride);
 
     Page<Ride> getRides(Integer userId, LocalDateTime start, LocalDateTime end, Pageable page);
 

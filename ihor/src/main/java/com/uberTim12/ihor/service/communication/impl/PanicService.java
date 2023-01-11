@@ -46,17 +46,7 @@ public class PanicService extends JPAService<Panic> implements IPanicService {
 
     @Override
     public List<Panic> findAll(){
-        List<Panic> panics = panicRepository.findAll();
-        for (Panic panic : panics){
-            Ride curRide = panic.getCurrentRide();
-            Set<Passenger> passengers = new HashSet<>(rideService.findPassengersForRide(curRide.getId()));
-            curRide.setPassengers(passengers);
-
-            Set<Path> paths = new HashSet<>(rideService.findPathsForRide(curRide.getId()));
-            curRide.setPaths(paths);
-        }
-
-        return panics;
+        return panicRepository.findAll();
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.uberTim12.ihor.dto.communication.PanicDTO;
 import com.uberTim12.ihor.dto.communication.ObjectListResponseDTO;
 import com.uberTim12.ihor.model.communication.Panic;
 import com.uberTim12.ihor.service.communication.impl.PanicService;
+import com.uberTim12.ihor.service.communication.interfaces.IPanicService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,10 +20,10 @@ import java.util.List;
 @RequestMapping(value = "api/panic")
 public class PanicController {
 
-    private final PanicService panicService;
+    private final IPanicService panicService;
 
     @Autowired
-    public PanicController(PanicService panicService) {
+    public PanicController(IPanicService panicService) {
         this.panicService = panicService;
     }
 

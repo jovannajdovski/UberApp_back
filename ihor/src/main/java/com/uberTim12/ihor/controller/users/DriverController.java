@@ -6,10 +6,7 @@ import com.uberTim12.ihor.dto.users.*;
 import com.uberTim12.ihor.dto.vehicle.VehicleAddDTO;
 import com.uberTim12.ihor.dto.vehicle.VehicleDTO;
 import com.uberTim12.ihor.dto.vehicle.VehicleDetailsDTO;
-import com.uberTim12.ihor.exception.EmailAlreadyExistsException;
-import com.uberTim12.ihor.exception.EntityPropertyIsNullException;
-import com.uberTim12.ihor.exception.ShiftAlreadyStartedException;
-import com.uberTim12.ihor.exception.WorkTimeExceededException;
+import com.uberTim12.ihor.exception.*;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.route.Location;
 import com.uberTim12.ihor.model.users.Driver;
@@ -329,6 +326,10 @@ public class DriverController {
             return new ResponseEntity<>(new WorkHoursDTO(workHours), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Working hour does not exist!");
+        } catch (ShiftIsNotOngoingException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        } catch (EntityPropertyIsNullException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot end shift because the vehicle is not defined!");
         }
     }
 }
