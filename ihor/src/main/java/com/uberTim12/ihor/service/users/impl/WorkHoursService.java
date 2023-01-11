@@ -64,7 +64,7 @@ public class WorkHoursService extends JPAService<WorkHours> implements IWorkHour
 
         Driver driver=workHours.getDriver();
         vehicleService.getVehicleOf(driver.getId());
-        if(workHours.getEndTime()==null)
+        if(workHours.getEndTime()!=null)
             throw new ShiftIsNotOngoingException("No shift is ongoing!");
         workHours.setEndTime(endTime);
         return save(workHours);
