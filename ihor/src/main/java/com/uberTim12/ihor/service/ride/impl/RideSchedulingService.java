@@ -66,7 +66,7 @@ public class RideSchedulingService implements IRideSchedulingService {
         Double minDistance=Double.MAX_VALUE, distance;
         for(ActiveDriver attainableDriver: attainableDrivers)
         {
-            if(driverService.isDriverFreeForRide(attainableDriver.getDriver(),ride))
+            if(driverService.isDriverFreeForRide(attainableDriver.getDriver(),ride) && attainableDriver.getDriver().getVehicle().getSeats()>ride.getPassengers().size())
             {
                 freeDriver=true;
                 try{
@@ -94,7 +94,7 @@ public class RideSchedulingService implements IRideSchedulingService {
                 Ride criticalRide=attainableDriver.getCriticalRide();
                 ride.setStartTime(criticalRide.getStartTime().plusMinutes(criticalRide.getEstimatedTime().longValue()));
 
-                if (driverService.isDriverFreeForRide(attainableDriver.getDriver(), ride)) {
+                if (driverService.isDriverFreeForRide(attainableDriver.getDriver(), ride) && attainableDriver.getDriver().getVehicle().getSeats()>ride.getPassengers().size()) {
                     freeDriver=true;
                     ride.setDriver(attainableDriver.getDriver());
                     ride.setRideStatus(RideStatus.PENDING);
