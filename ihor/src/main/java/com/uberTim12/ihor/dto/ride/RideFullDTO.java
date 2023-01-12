@@ -48,10 +48,11 @@ public class RideFullDTO {
     private Set<PathDTO> locations = new HashSet<>();
 
     private RideStatus status;
+    private LocalDateTime scheduledTime;
 
     public RideFullDTO(Ride ride){
         this(ride.getId(), ride.getStartTime(), ride.getEndTime(), ride.getTotalPrice(), ride.getEstimatedTime(),
-                ride.getVehicleType().getVehicleCategory(), ride.isBabiesAllowed(), ride.isPetsAllowed(), ride.getRideStatus());
+                ride.getVehicleType().getVehicleCategory(), ride.isBabiesAllowed(), ride.isPetsAllowed(), ride.getRideStatus(),ride.getScheduledTime());
 
         this.driver = new UserRideDTO(ride.getDriver());
 
@@ -73,7 +74,7 @@ public class RideFullDTO {
     }
 
     public RideFullDTO(Integer id, LocalDateTime startTime, LocalDateTime endTime, Double totalPrice, Double estimatedTime,
-                       VehicleCategory vehicleCategory, boolean babiesAllowed, boolean petsAllowed, RideStatus rideStatus) {
+                       VehicleCategory vehicleCategory, boolean babiesAllowed, boolean petsAllowed, RideStatus rideStatus, LocalDateTime scheduledTime) {
         this.id = id;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -83,5 +84,6 @@ public class RideFullDTO {
         this.babyTransport = babiesAllowed;
         this.petTransport = petsAllowed;
         this.status = rideStatus;
+        this.scheduledTime=scheduledTime;
     }
 }

@@ -2,6 +2,7 @@ package com.uberTim12.ihor.service.communication.impl;
 
 import com.uberTim12.ihor.dto.communication.MessageDTO;
 import com.uberTim12.ihor.exception.NotFoundException;
+import com.uberTim12.ihor.exception.UnauthorizedException;
 import com.uberTim12.ihor.model.communication.Message;
 import com.uberTim12.ihor.model.communication.MessageType;
 import com.uberTim12.ihor.model.ride.Ride;
@@ -12,7 +13,11 @@ import com.uberTim12.ihor.service.communication.interfaces.IMessageService;
 import com.uberTim12.ihor.service.ride.interfaces.IRideService;
 import com.uberTim12.ihor.service.users.interfaces.IUserService;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.boot.autoconfigure.neo4j.Neo4jProperties;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -46,8 +51,10 @@ public class MessageService extends JPAService<Message> implements IMessageServi
         return messages.stream().map(MessageDTO::new).collect(Collectors.toList());
     }
     @Override
-    public Message sendMessage(Integer senderId, Integer receiverId, Integer rideId, String content,
+    public Message sendMessage(Integer receiverId, Integer rideId, String content,
                                MessageType type) throws EntityNotFoundException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Integer senderId=userService.findByEmail(authentication.getName()).getId();
         User sender = null;
         User receiver = null;
         Ride ride = null;

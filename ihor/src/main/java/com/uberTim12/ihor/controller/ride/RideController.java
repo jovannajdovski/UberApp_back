@@ -207,7 +207,7 @@ public class RideController {
         } catch (EntityNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Ride does not exist!");
         } catch (RideStatusException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot end a ride that is not in status ACTIVE!");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot end a ride that is not in status STARTED!");
         }
     }
 
@@ -221,7 +221,7 @@ public class RideController {
         } catch (EntityNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Ride does not exist!");
         } catch (RideStatusException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot cancel a ride that is not in status PENDING!");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot cancel a ride that is not in status PENDING or ACCEPTED!");
         }
     }
 

@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Setter
 public class NewPasswordDTO {
 
-    private String old_password;
-    private String new_password;
+    private String oldPassword;
+    private String newPassword;
 
 }

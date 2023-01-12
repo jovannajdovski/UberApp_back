@@ -22,15 +22,11 @@ import java.util.Set;
 public class CreateRideDTO {
 
     private Set<PathDTO> locations = new HashSet<>();
-
     private Set<UserRideDTO> passengers = new HashSet<>();
-
     private VehicleCategory vehicleType;
     private boolean babyTransport;
-
     private boolean petTransport;
-
-    private LocalDateTime startTime;
+    private LocalDateTime scehduledTime;
 
 
     public CreateRideDTO(Ride ride){
@@ -53,6 +49,6 @@ public class CreateRideDTO {
         this.vehicleType = vehicleCategory;
         this.babyTransport = babiesAllowed;
         this.petTransport = petsAllowed;
-        this.startTime=startTime;
+        this.scehduledTime =startTime;
     }
 }

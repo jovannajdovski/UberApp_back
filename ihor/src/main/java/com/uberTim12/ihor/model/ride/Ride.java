@@ -34,6 +34,9 @@ public class Ride {
     @Column(name = "end_time")
     private LocalDateTime endTime;
 
+    @Column(name="scheduled_time", nullable = false)
+    private LocalDateTime scheduledTime;
+
     @Column(name = "total_price", nullable = false)
     private Double totalPrice;
 
@@ -86,9 +89,10 @@ public class Ride {
     public Ride(CreateRideDTO rideDTO) {
         this.babiesAllowed = rideDTO.isBabyTransport();
         this.petsAllowed = rideDTO.isPetTransport();
-        this.startTime=rideDTO.getStartTime();
+        this.startTime=rideDTO.getScehduledTime();
         this.vehicleType=new VehicleType();
         this.vehicleType.setVehicleCategory(rideDTO.getVehicleType());
+        this.scheduledTime=rideDTO.getScehduledTime();
     }
     public Ride(RideRequestDTO rideDTO) {
         this.babiesAllowed = rideDTO.isBabyTransport();

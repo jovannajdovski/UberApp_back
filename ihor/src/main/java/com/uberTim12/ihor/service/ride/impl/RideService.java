@@ -235,8 +235,8 @@ public class RideService extends JPAService<Ride> implements IRideService {
     public Ride reject(Integer id, String reason) throws EntityNotFoundException, RideStatusException {
         Ride ride = this.get(id);
 
-        if (ride.getRideStatus() != RideStatus.PENDING) {
-            throw new RideStatusException("Cannot cancel a ride that is not in status PENDING!");
+        if (ride.getRideStatus() != RideStatus.PENDING && ride.getRideStatus()!=RideStatus.ACCEPTED) {
+            throw new RideStatusException("Cannot cancel a ride that is not in status PENDING or ACCEPTED!");
         }
 
         if (ride.getRideRejection() == null) {

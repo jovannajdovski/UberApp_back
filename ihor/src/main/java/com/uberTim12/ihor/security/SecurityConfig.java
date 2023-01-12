@@ -57,9 +57,9 @@ public class SecurityConfig {
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .authenticationProvider(authenticationProvider())
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-//            .exceptionHandling()
-//            .authenticationEntryPoint(restAuthenticationEntryPoint);
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+             .exceptionHandling()
+            .authenticationEntryPoint(restAuthenticationEntryPoint);
 
         http.headers().frameOptions().sameOrigin();
         return http.build();

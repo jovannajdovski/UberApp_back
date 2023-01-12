@@ -139,10 +139,10 @@ public class UserController {
     }
 
     @PostMapping(value = "/{id}/message",consumes=MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<MessageDTO> sendMessage(@PathVariable("id") Integer senderId, @RequestBody SendingMessageDTO sendingMessageDTO)
+    public ResponseEntity<MessageDTO> sendMessage(@PathVariable("id") Integer receiverId, @RequestBody SendingMessageDTO sendingMessageDTO)
     {
         try {
-            Message message = messageService.sendMessage(senderId, sendingMessageDTO.getReceiverId(),
+            Message message = messageService.sendMessage(receiverId,
                     sendingMessageDTO.getRideId(), sendingMessageDTO.getMessage(), sendingMessageDTO.getType());
             return new ResponseEntity<>(new MessageDTO(message), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
@@ -212,7 +212,7 @@ public class UserController {
     public ResponseEntity<String> changePassword(@PathVariable Integer id, @RequestBody NewPasswordDTO newPasswordDTO)
     {
         try {
-            userService.changePassword(id, newPasswordDTO.getNew_password(), newPasswordDTO.getNew_password());
+            userService.changePassword(id, newPasswordDTO.getOldPassword(), newPasswordDTO.getNewPassword());
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Password successfully changed!");
         } catch (EntityNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User does not exist!");
@@ -246,8 +246,8 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Code is expired or not correct!");
         }
 
-        if (!resetPasswordDTO.getNew_password().equals("")){
-            user.setPassword(resetPasswordDTO.getNew_password());
+        if (!resetPasswordDTO.getNewPassword().equals("")){
+            user.setPassword(resetPasswordDTO.getNewPassword());
         }
 
         userService.save(user);

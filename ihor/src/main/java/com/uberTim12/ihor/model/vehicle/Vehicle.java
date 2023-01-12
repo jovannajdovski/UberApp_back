@@ -30,7 +30,7 @@ public class Vehicle {
     @JoinColumn(name = "vehicle_Type_id")
     private VehicleType vehicleType;  // da li enum?
 
-    @Column(name = "registration_plate", nullable = false) //unique=true
+    @Column(name = "registration_plate", nullable = false, unique=true)
     private String registrationPlate;
 
     @Column(name = "seats", nullable = false)
