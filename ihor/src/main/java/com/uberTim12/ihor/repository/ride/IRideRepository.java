@@ -1,6 +1,7 @@
 package com.uberTim12.ihor.repository.ride;
 
 import com.uberTim12.ihor.model.ride.Ride;
+import com.uberTim12.ihor.model.ride.RideStatus;
 import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.users.Passenger;
@@ -19,6 +20,7 @@ public interface IRideRepository extends JpaRepository<Ride, Integer> {
     @Query("select r from Ride r where r.driver.id =?1")
     Page<Ride> findByDriverId(Integer driverId, Pageable pageable);
 
+    List<Ride> findAllByDriverIdAndRideStatus(Integer driver_id, RideStatus rideStatus);
     @Query("select r from Ride r where r.driver.id =?1 and r.startTime between ?2 and ?3")
     Page<Ride> findAllInRangeForDriver(Integer id, LocalDateTime start, LocalDateTime end, Pageable pageable);
 

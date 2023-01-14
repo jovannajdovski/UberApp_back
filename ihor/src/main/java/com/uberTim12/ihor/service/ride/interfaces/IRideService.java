@@ -54,4 +54,6 @@ public interface IRideService extends IJPAService<Ride> {
     Ride end(Integer id) throws EntityNotFoundException, RideStatusException;
 
     Ride reject(Integer id, String reason) throws EntityNotFoundException, RideStatusException;
+
+    List<Ride> findPendingRides(Integer driverId);
 }

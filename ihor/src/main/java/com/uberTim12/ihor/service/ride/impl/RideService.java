@@ -248,4 +248,9 @@ public class RideService extends JPAService<Ride> implements IRideService {
         ride.setRideStatus(RideStatus.REJECTED);
         return this.save(ride);
     }
+
+    @Override
+    public List<Ride> findPendingRides(Integer driverId) {
+        return rideRepository.findAllByDriverIdAndRideStatus(driverId, RideStatus.PENDING);
+    }
 }

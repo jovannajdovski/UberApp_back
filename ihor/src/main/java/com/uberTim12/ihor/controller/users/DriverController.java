@@ -332,4 +332,22 @@ public class DriverController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot end shift because the vehicle is not defined!");
         }
     }
+
+    @GetMapping(value = "/{driverId}/ride/pending")
+    @PreAuthorize("hasRole('DRIVER')")
+    public ResponseEntity<ObjectListResponseDTO<RideFullDTO>> getPendingRidesForDriver(@PathVariable Integer driverId) {
+        try {
+            driverService.get(driverId);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Driver does not exist!");
+        }
+
+        List<Ride> rides = rideService.findPendingRides(driverId);
+        List<RideFullDTO> rideDTOs = new ArrayList<>();
+        for (Ride r : rides)
+            rideDTOs.add(new RideFullDTO(r));
+
+        ObjectListResponseDTO<RideFullDTO> res = new ObjectListResponseDTO<>(rides.size(), rideDTOs);
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    }
 }
