@@ -42,12 +42,12 @@ public class RideFullDTO {
 
     private boolean petTransport;
 
-
     private RideRejectionDTO rejection;
 
     private Set<PathDTO> locations = new HashSet<>();
 
     private RideStatus status;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private LocalDateTime scheduledTime;
 
     public RideFullDTO(Ride ride){
