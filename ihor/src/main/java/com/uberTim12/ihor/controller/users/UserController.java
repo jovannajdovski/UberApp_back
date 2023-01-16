@@ -12,6 +12,7 @@ import com.uberTim12.ihor.model.communication.Message;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.users.Note;
 import com.uberTim12.ihor.model.users.User;
+import com.uberTim12.ihor.security.AuthUtil;
 import com.uberTim12.ihor.security.JwtUtil;
 import com.uberTim12.ihor.service.communication.impl.MessageService;
 import com.uberTim12.ihor.service.communication.interfaces.IMessageService;
@@ -34,10 +35,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.io.UnsupportedEncodingException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,28 +50,34 @@ public class UserController {
     private final INoteService noteService;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
+    private final AuthUtil authUtil;
 
     @Autowired
     UserController(RideService rideService,
                    UserService userService,
                    MessageService messageService,
                    INoteService noteService, AuthenticationManager authenticationManager,
-                   JwtUtil jwtUtil) {
+                   JwtUtil jwtUtil, AuthUtil authUtil) {
         this.rideService = rideService;
         this.userService = userService;
         this.messageService = messageService;
         this.noteService = noteService;
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
+        this.authUtil = authUtil;
     }
 
     @GetMapping(value = "/{id}/ride",produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getUserRides(@PathVariable Integer id,
                                           Pageable page,
                                           @RequestParam(required = false) String fromStr,
-                                          @RequestParam(required = false) String toStr
+                                          @RequestParam(required = false) String toStr,
+                                          @RequestHeader("Authorization") String authHeader
                                           )
     {
+        if(Integer.parseInt(jwtUtil.extractId(authHeader.substring(7)))!=id && (jwtUtil.extractRole(authHeader.substring(7)).equals("ROLE_PASSENGER")|| jwtUtil.extractRole(authHeader.substring(7)).equals("ROLE_DRIVER")))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist!");
+
         try {
             userService.get(id);
         } catch (EntityNotFoundException e) {
@@ -128,8 +133,10 @@ public class UserController {
     }
 
     @GetMapping(value = "/{id}/message",produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getUserMessages(@PathVariable Integer id)
+    public ResponseEntity<?> getUserMessages(@PathVariable Integer id, @RequestHeader("Authorization") String authHeader)
     {
+        if(Integer.parseInt(jwtUtil.extractId(authHeader.substring(7)))!=id)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist!");
         try {
             userService.get(id);
             List<MessageDTO> messages = messageService.getMessages(id);
@@ -141,10 +148,10 @@ public class UserController {
     }
 
     @PostMapping(value = "/{id}/message",consumes=MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> sendMessage(@PathVariable("id") Integer receiverId, @RequestBody SendingMessageDTO sendingMessageDTO)
+    public ResponseEntity<?> sendMessage(@PathVariable("id") Integer receiverId, @RequestBody SendingMessageDTO sendingMessageDTO, @RequestHeader("Authorization") String authHeader)
     {
         try {
-            Message message = messageService.sendMessage(receiverId,
+            Message message = messageService.sendMessage(Integer.parseInt(jwtUtil.extractId(authHeader.substring(7))), receiverId,
                     sendingMessageDTO.getRideId(), sendingMessageDTO.getMessage(), sendingMessageDTO.getType());
             return new ResponseEntity<>(new MessageDTO(message), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
@@ -212,8 +219,10 @@ public class UserController {
     }
 
     @PutMapping(value="/{id}/changePassword", consumes = "application/json")
-    public ResponseEntity<?> changePassword(@PathVariable Integer id, @RequestBody NewPasswordDTO newPasswordDTO)
+    public ResponseEntity<?> changePassword(@PathVariable Integer id, @RequestBody NewPasswordDTO newPasswordDTO, @RequestHeader("Authorization") String authHeader)
     {
+        if(Integer.parseInt(jwtUtil.extractId(authHeader.substring(7)))!=id && (jwtUtil.extractRole(authHeader.substring(7)).equals("ROLE_PASSENGER")|| jwtUtil.extractRole(authHeader.substring(7)).equals("ROLE_DRIVER")))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist!");
         try {
             userService.changePassword(id, newPasswordDTO.getOldPassword(), newPasswordDTO.getNewPassword());
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Password successfully changed!");
@@ -225,8 +234,11 @@ public class UserController {
     }
 
     @GetMapping(value="/{id}/resetPassword")
-    public ResponseEntity<?> sendResetCodeToEmail(@PathVariable Integer id)
+    public ResponseEntity<?> sendResetCodeToEmail(@PathVariable Integer id, @RequestHeader("Authorization") String authHeader)
     {
+        if(Integer.parseInt(jwtUtil.extractId(authHeader.substring(7)))!=id && (jwtUtil.extractRole(authHeader.substring(7)).equals("ROLE_PASSENGER")|| jwtUtil.extractRole(authHeader.substring(7)).equals("ROLE_DRIVER")))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist!");
+
         try {
             userService.forgotPassword(id);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Email with reset code has been sent!");
@@ -239,8 +251,11 @@ public class UserController {
     }
 
     @PutMapping(value="/{id}/resetPassword", consumes = "application/json")
-    public ResponseEntity<?> changePasswordWithResetCode(@PathVariable Integer id, @RequestBody ResetPasswordDTO resetPasswordDTO)
+    public ResponseEntity<?> changePasswordWithResetCode(@PathVariable Integer id, @RequestBody ResetPasswordDTO resetPasswordDTO, @RequestHeader("Authorization") String authHeader)
     {
+        if(Integer.parseInt(jwtUtil.extractId(authHeader.substring(7)))!=id && (jwtUtil.extractRole(authHeader.substring(7)).equals("ROLE_PASSENGER")|| jwtUtil.extractRole(authHeader.substring(7)).equals("ROLE_DRIVER")))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist!");
+
         try {
             userService.resetPassword(id, resetPasswordDTO.getCode(), resetPasswordDTO.getNewPassword());
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Password successfully changed!");

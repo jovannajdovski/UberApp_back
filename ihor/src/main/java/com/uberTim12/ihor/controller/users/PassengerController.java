@@ -5,15 +5,15 @@ import com.uberTim12.ihor.dto.communication.ObjectListResponseDTO;
 import com.uberTim12.ihor.dto.ride.RideNoStatusDTO;
 import com.uberTim12.ihor.dto.users.PassengerDTO;
 import com.uberTim12.ihor.dto.users.PassengerRegistrationDTO;
-import com.uberTim12.ihor.dto.users.UserEmailDTO;
 import com.uberTim12.ihor.exception.EmailAlreadyExistsException;
 import com.uberTim12.ihor.exception.UserActivationExpiredException;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.users.Passenger;
+import com.uberTim12.ihor.security.AuthUtil;
+import com.uberTim12.ihor.security.JwtUtil;
 import com.uberTim12.ihor.service.users.impl.PassengerService;
 import com.uberTim12.ihor.service.users.interfaces.IPassengerService;
 import com.uberTim12.ihor.service.users.interfaces.IUserActivationService;
-import com.uberTim12.ihor.util.ImageConverter;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,11 +22,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,11 +32,13 @@ import java.util.List;
 public class PassengerController {
     private final IPassengerService passengerService;
     private final IUserActivationService userActivationService;
+    private final JwtUtil jwtUtil;
 
     @Autowired
-    public PassengerController(PassengerService passengerService, IUserActivationService userActivationService) {
+    public PassengerController(PassengerService passengerService, IUserActivationService userActivationService, JwtUtil jwtUtil) {
         this.passengerService = passengerService;
         this.userActivationService = userActivationService;
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping(consumes = "application/json")
@@ -80,7 +79,12 @@ public class PassengerController {
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<?> getPassenger(@PathVariable Integer id) {
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PASSENGER')")
+    public ResponseEntity<?> getPassenger(@PathVariable Integer id, @RequestHeader("Authorization") String authHeader) {
+
+        if(Integer.parseInt(jwtUtil.extractId(authHeader.substring(7)))!=id && (jwtUtil.extractRole(authHeader.substring(7)).equals("ROLE_PASSENGER")))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Passenger does not exist!");
+
         try {
             Passenger passenger = passengerService.get(id);
             return new ResponseEntity<>(new PassengerDTO(passenger), HttpStatus.OK);
@@ -90,7 +94,6 @@ public class PassengerController {
     }
 
     @GetMapping(value = "/email/{email}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('PASSENGER')")
     public ResponseEntity<?> getPassengerByEmail(@PathVariable String email) {
         try {
             Passenger passenger = passengerService.findByEmail(email);
@@ -103,8 +106,11 @@ public class PassengerController {
     }
 
     @PutMapping(value = "/{id}", consumes = "application/json")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('PASSENGER')")
-    public ResponseEntity<?> updatePassenger(@PathVariable Integer id, @RequestBody PassengerRegistrationDTO passengerDTO) {
+    @PreAuthorize("hasRole('PASSENGER')")
+    public ResponseEntity<?> updatePassenger(@PathVariable Integer id, @RequestBody PassengerRegistrationDTO passengerDTO, @RequestHeader("Authorization") String authHeader) {
+        if(Integer.parseInt(jwtUtil.extractId(authHeader.substring(7)))!=id)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Passenger does not exist!");
+
         try {
             Passenger passenger = passengerService.update(id, passengerDTO.getName(), passengerDTO.getSurname(),
                     passengerDTO.getProfilePicture(), passengerDTO.getTelephoneNumber(), passengerDTO.getEmail(),
@@ -119,7 +125,10 @@ public class PassengerController {
     @PreAuthorize("hasRole('ADMIN') or hasRole('PASSENGER')")
     public ResponseEntity<?> getPassengerRidesPage(@PathVariable Integer id, Pageable page,
                                                    @RequestParam(required = false) String from,
-                                                   @RequestParam(required = false) String to) {
+                                                   @RequestParam(required = false) String to, @RequestHeader("Authorization") String authHeader) {
+
+        if(Integer.parseInt(jwtUtil.extractId(authHeader.substring(7)))!=id && (jwtUtil.extractRole(authHeader.substring(7)).equals("ROLE_PASSENGER")))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Passenger does not exist!");
 
         Passenger passenger = passengerService.findByIdWithRides(id);
 

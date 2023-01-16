@@ -51,10 +51,8 @@ public class MessageService extends JPAService<Message> implements IMessageServi
         return messages.stream().map(MessageDTO::new).collect(Collectors.toList());
     }
     @Override
-    public Message sendMessage(Integer receiverId, Integer rideId, String content,
+    public Message sendMessage(Integer senderId, Integer receiverId, Integer rideId, String content,
                                MessageType type) throws EntityNotFoundException {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Integer senderId=userService.findByEmail(authentication.getName()).getId();
         User sender = null;
         User receiver = null;
         Ride ride = null;
