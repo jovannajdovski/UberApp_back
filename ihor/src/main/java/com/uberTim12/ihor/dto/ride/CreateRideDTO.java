@@ -26,7 +26,7 @@ public class CreateRideDTO {
     private VehicleCategory vehicleType;
     private boolean babyTransport;
     private boolean petTransport;
-    private LocalDateTime scehduledTime;
+    private LocalDateTime scheduledTime;
 
 
     public CreateRideDTO(Ride ride){
@@ -49,6 +49,6 @@ public class CreateRideDTO {
         this.vehicleType = vehicleCategory;
         this.babyTransport = babiesAllowed;
         this.petTransport = petsAllowed;
-        this.scehduledTime =startTime;
+        this.scheduledTime =startTime;
     }
 }

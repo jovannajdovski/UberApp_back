@@ -1,6 +1,7 @@
 package com.uberTim12.ihor.service.users.impl;
 
 import com.uberTim12.ihor.exception.EmailAlreadyExistsException;
+import com.uberTim12.ihor.exception.NotFoundException;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.ride.RideStatus;
 import com.uberTim12.ihor.model.users.Passenger;

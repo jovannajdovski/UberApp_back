@@ -68,7 +68,6 @@ public class RideController {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('PASSENGER')")
     public ResponseEntity<RideFullDTO> createRide(@RequestBody CreateRideDTO rideDTO) {
-
         Ride ride = new Ride(rideDTO);
 
         Set<Path> paths = new HashSet<>();

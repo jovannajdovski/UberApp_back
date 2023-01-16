@@ -4,6 +4,7 @@ import com.uberTim12.ihor.dto.communication.ObjectListResponseDTO;
 import com.uberTim12.ihor.dto.ride.RideNoStatusDTO;
 import com.uberTim12.ihor.dto.users.PassengerDTO;
 import com.uberTim12.ihor.dto.users.PassengerRegistrationDTO;
+import com.uberTim12.ihor.dto.users.UserEmailDTO;
 import com.uberTim12.ihor.exception.EmailAlreadyExistsException;
 import com.uberTim12.ihor.exception.UserActivationExpiredException;
 import com.uberTim12.ihor.model.ride.Ride;
@@ -82,6 +83,19 @@ public class PassengerController {
     public ResponseEntity<PassengerDTO> getPassenger(@PathVariable Integer id) {
         try {
             Passenger passenger = passengerService.get(id);
+            return new ResponseEntity<>(new PassengerDTO(passenger), HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Passenger does not exist!");
+        }
+    }
+
+    @GetMapping(value = "/email/{email}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PASSENGER')")
+    public ResponseEntity<PassengerDTO> getPassengerByEmail(@PathVariable String email) {
+        try {
+            Passenger passenger = passengerService.findByEmail(email);
+            if(passenger==null)
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Passenger does not exist!");
             return new ResponseEntity<>(new PassengerDTO(passenger), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Passenger does not exist!");

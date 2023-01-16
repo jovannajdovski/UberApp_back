@@ -28,7 +28,7 @@ public class Ride {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "start_time", nullable = false)
+    @Column(name = "start_time")
     private LocalDateTime startTime;
 
     @Column(name = "end_time")
@@ -89,10 +89,10 @@ public class Ride {
     public Ride(CreateRideDTO rideDTO) {
         this.babiesAllowed = rideDTO.isBabyTransport();
         this.petsAllowed = rideDTO.isPetTransport();
-        this.startTime=rideDTO.getScehduledTime();
+        this.startTime=rideDTO.getScheduledTime();
         this.vehicleType=new VehicleType();
         this.vehicleType.setVehicleCategory(rideDTO.getVehicleType());
-        this.scheduledTime=rideDTO.getScehduledTime();
+        this.scheduledTime=rideDTO.getScheduledTime();
     }
     public Ride(RideRequestDTO rideDTO) {
         this.babiesAllowed = rideDTO.isBabyTransport();
