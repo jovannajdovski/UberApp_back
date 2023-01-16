@@ -1,5 +1,6 @@
 package com.uberTim12.ihor.controller.users;
 
+import com.uberTim12.ihor.dto.ResponseMessageDTO;
 import com.uberTim12.ihor.dto.communication.ObjectListResponseDTO;
 import com.uberTim12.ihor.dto.ride.RideFullDTO;
 import com.uberTim12.ihor.dto.users.*;
@@ -15,6 +16,7 @@ import com.uberTim12.ihor.model.users.WorkHours;
 import com.uberTim12.ihor.model.vehicle.Vehicle;
 import com.uberTim12.ihor.model.vehicle.VehicleType;
 import com.uberTim12.ihor.security.AuthUtil;
+import com.uberTim12.ihor.security.JwtUtil;
 import com.uberTim12.ihor.service.ride.impl.RideService;
 import com.uberTim12.ihor.service.ride.interfaces.IRideService;
 import com.uberTim12.ihor.service.users.impl.DriverDocumentService;
@@ -25,7 +27,9 @@ import com.uberTim12.ihor.service.users.interfaces.IDriverService;
 import com.uberTim12.ihor.service.users.interfaces.IWorkHoursService;
 import com.uberTim12.ihor.service.vehicle.impl.VehicleService;
 import com.uberTim12.ihor.service.vehicle.interfaces.IVehicleService;
+import com.uberTim12.ihor.util.DTOFormatValidator;
 import com.uberTim12.ihor.util.ImageConverter;
+import com.uberTim12.ihor.util.SimpleFormatValidator;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -41,6 +45,8 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.zip.DataFormatException;
 
 @RestController
 @RequestMapping(value = "api/driver")
@@ -51,24 +57,27 @@ public class DriverController {
     private final IWorkHoursService workHoursService;
     private final IRideService rideService;
     private final AuthUtil authUtil;
+    private final JwtUtil jwtUtil;
 
     @Autowired
     DriverController(DriverService driverService,
                      DriverDocumentService driverDocumentService,
                      VehicleService vehicleService,
                      WorkHoursService workHoursService,
-                     RideService rideService, AuthUtil authUtil) {
+                     RideService rideService, AuthUtil authUtil, JwtUtil jwtUtil) {
         this.driverService = driverService;
         this.driverDocumentService = driverDocumentService;
         this.vehicleService = vehicleService;
         this.workHoursService = workHoursService;
         this.rideService = rideService;
         this.authUtil = authUtil;
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<DriverDetailsDTO> createDriver(@RequestBody DriverRegistrationDTO driverDTO) {
+    public ResponseEntity<?> createDriver(@RequestBody DriverRegistrationDTO driverDTO) {
+
         Driver driver = new Driver(driverDTO.getName(),
                 driverDTO.getSurname(),
                 ImageConverter.decodeToImage(driverDTO.getProfilePicture()),
@@ -81,13 +90,19 @@ public class DriverController {
             driver = driverService.register(driver);
             return new ResponseEntity<>(new DriverDetailsDTO(driver), HttpStatus.OK);
         } catch (EmailAlreadyExistsException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+            return new ResponseEntity<>(new ResponseMessageDTO(e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ObjectListResponseDTO<DriverDetailsDTO>> getDriversPage(Pageable page) {
+    public ResponseEntity<?> getDriversPage(Pageable page) {
+        try {
+            SimpleFormatValidator.checkPageableValidity(page);
+        } catch (DataFormatException e) {
+            return new ResponseEntity<>(new ResponseMessageDTO(e.getMessage()), HttpStatus.BAD_REQUEST);
+        }
+
         Page<Driver> drivers = driverService.getAll(page);
 
         List<DriverDetailsDTO> driverDTOs = new ArrayList<>();
@@ -100,33 +115,55 @@ public class DriverController {
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<?> getDriverDetails(@PathVariable Integer id) {
+    public ResponseEntity<?> getDriverDetails(@PathVariable Integer id, @RequestHeader("Authorization") String authHeader) {
+        String jwtToken = authHeader.substring(7);
+        if (!jwtUtil.extractRole(jwtToken).equals("ROLE_ADMIN")) {
+            Integer loggedId = Integer.parseInt(jwtUtil.extractId(jwtToken));
+            if (!loggedId.equals(id)) {
+                return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
+            }
+        }
+
         try {
             Driver driver = driverService.get(id);
             return new ResponseEntity<>(new DriverDetailsDTO(driver), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Driver does not exist!");
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Driver does not exist!");
-
+            return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
         }
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
-    public ResponseEntity<DriverDTO> updateDriver(@RequestBody DriverRegistrationDTO driverDTO, @PathVariable Integer id) {
+    public ResponseEntity<?> updateDriver(@RequestBody DriverRegistrationDTO driverDTO, @PathVariable Integer id, @RequestHeader("Authorization") String authHeader) {
+        String jwtToken = authHeader.substring(7);
+        if (!jwtUtil.extractRole(jwtToken).equals("ROLE_ADMIN")) {
+            Integer loggedId = Integer.parseInt(jwtUtil.extractId(jwtToken));
+            if (!loggedId.equals(id)) {
+                return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
+            }
+        }
+
         try {
             Driver driver = driverService.update(id, driverDTO.getName(), driverDTO.getSurname(),
                     driverDTO.getProfilePicture(), driverDTO.getTelephoneNumber(), driverDTO.getEmail(),
                     driverDTO.getAddress(), driverDTO.getPassword());
             return new ResponseEntity<>(new DriverDTO(driver), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Driver does not exist!");
+            return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
         }
     }
 
     @GetMapping(value = "/{driverId}/documents")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
-    public ResponseEntity<List<DriverDocumentDTO>> getDriverDocuments(@PathVariable Integer driverId) {
+    public ResponseEntity<?> getDriverDocuments(@PathVariable Integer driverId, @RequestHeader("Authorization") String authHeader) {
+        String jwtToken = authHeader.substring(7);
+        if (!jwtUtil.extractRole(jwtToken).equals("ROLE_ADMIN")) {
+            Integer loggedId = Integer.parseInt(jwtUtil.extractId(jwtToken));
+            if (!loggedId.equals(driverId)) {
+                return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
+            }
+        }
+
         try {
             List<DriverDocument> documents = driverDocumentService.getDocumentsFor(driverId);
             List<DriverDocumentDTO> documentsDTO = new ArrayList<>();
@@ -136,14 +173,24 @@ public class DriverController {
 
             return new ResponseEntity<>(documentsDTO, HttpStatus.OK);
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Driver does not exist!");
+            return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
         }
     }
 
     @PostMapping(value = "/{driverId}/documents")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
-    public ResponseEntity<DriverDocumentDTO> addDocumentToDriver(@PathVariable Integer driverId,
-                                                                 @RequestBody DriverDocumentDetailsDTO driverDocumentDTO) {
+    public ResponseEntity<?> addDocumentToDriver(@PathVariable Integer driverId,
+                                                 @RequestBody DriverDocumentDetailsDTO driverDocumentDTO,
+                                                 @RequestHeader("Authorization") String authHeader) {
+
+        String jwtToken = authHeader.substring(7);
+        if (!jwtUtil.extractRole(jwtToken).equals("ROLE_ADMIN")) {
+            Integer loggedId = Integer.parseInt(jwtUtil.extractId(jwtToken));
+            if (!loggedId.equals(driverId)) {
+                return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
+            }
+        }
+
         DriverDocument driverDocument = new DriverDocument(driverDocumentDTO.getName(),
                 driverDocumentDTO.getDocumentImage(), null);
 
@@ -151,39 +198,68 @@ public class DriverController {
             driverDocumentService.addDocumentTo(driverId, driverDocument);
             return new ResponseEntity<>(new DriverDocumentDTO(driverDocument), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Driver does not exist!");
+            return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
         }
     }
 
 
     @DeleteMapping(value = "/document/{documentId}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
-    public ResponseEntity<String> deleteDocument(@PathVariable Integer documentId) {
+    public ResponseEntity<?> deleteDocument(@PathVariable Integer documentId, @RequestHeader("Authorization") String authHeader) {
+        String jwtToken = authHeader.substring(7);
+        if (!jwtUtil.extractRole(jwtToken).equals("ROLE_ADMIN")) {
+            Integer loggedId = Integer.parseInt(jwtUtil.extractId(jwtToken));
+            try {
+                DriverDocument document = driverDocumentService.get(documentId);
+                if (!Objects.equals(document.getDriver().getId(), loggedId)) {
+                    return new ResponseEntity<>("Document does not exist!", HttpStatus.NOT_FOUND);
+                }
+            } catch (EntityNotFoundException e) {
+                return new ResponseEntity<>("Document does not exist!", HttpStatus.NOT_FOUND);
+            }
+        }
+
         try {
             driverDocumentService.delete(documentId);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Driver document deleted successfully");
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Document does not exist!");
+            return new ResponseEntity<>("Document does not exist!", HttpStatus.NOT_FOUND);
         }
     }
 
     @GetMapping(value = "/{driverId}/vehicle")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
-    public ResponseEntity<VehicleDetailsDTO> getDriverVehicle(@PathVariable Integer driverId) {
+    public ResponseEntity<?> getDriverVehicle(@PathVariable Integer driverId, @RequestHeader("Authorization") String authHeader) {
+        String jwtToken = authHeader.substring(7);
+        if (!jwtUtil.extractRole(jwtToken).equals("ROLE_ADMIN")) {
+            Integer loggedId = Integer.parseInt(jwtUtil.extractId(jwtToken));
+            if (!loggedId.equals(driverId)) {
+                return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
+            }
+        }
+
         try {
             Vehicle vehicle = vehicleService.getVehicleOf(driverId);
             return new ResponseEntity<>(new VehicleDetailsDTO(vehicle), HttpStatus.OK);
         } catch (EntityPropertyIsNullException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Vehicle is not assigned!");
+            return new ResponseEntity<>(new ResponseMessageDTO("Vehicle is not assigned!"), HttpStatus.BAD_REQUEST);
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Driver does not exist!");
+            return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
         }
     }
 
     @PostMapping(value = "/{driverId}/vehicle", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
-    public ResponseEntity<VehicleDetailsDTO> addVehicleToDriver(@PathVariable Integer driverId,
-                                                @RequestBody VehicleAddDTO vehicleDTO) {
+    public ResponseEntity<?> addVehicleToDriver(@PathVariable Integer driverId,
+                                                                @RequestBody VehicleAddDTO vehicleDTO, @RequestHeader("Authorization") String authHeader) {
+        String jwtToken = authHeader.substring(7);
+        if (!jwtUtil.extractRole(jwtToken).equals("ROLE_ADMIN")) {
+            Integer loggedId = Integer.parseInt(jwtUtil.extractId(jwtToken));
+            if (!loggedId.equals(driverId)) {
+                return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
+            }
+        }
+
         VehicleType vehicleType = new VehicleType(vehicleDTO.getVehicleType(), 10.0);
         Location location = new Location(vehicleDTO.getCurrentLocation().getAddress(),
                 vehicleDTO.getCurrentLocation().getLatitude(), vehicleDTO.getCurrentLocation().getLongitude());
@@ -196,14 +272,23 @@ public class DriverController {
             vehicleService.addVehicleToDriver(driverId, vehicle);
             return new ResponseEntity<>(new VehicleDetailsDTO(vehicle), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Driver does not exist!");
+            return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
         }
     }
 
     @PutMapping(value = "/{driverId}/vehicle", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
-    public ResponseEntity<VehicleDetailsDTO> updateDriverVehicle(@PathVariable Integer driverId,
-                                                 @RequestBody VehicleDTO vehicleDTO) {
+    public ResponseEntity<?> updateDriverVehicle(@PathVariable Integer driverId,
+                                                                 @RequestBody VehicleDTO vehicleDTO,
+                                                                 @RequestHeader("Authorization") String authHeader) {
+        String jwtToken = authHeader.substring(7);
+        if (!jwtUtil.extractRole(jwtToken).equals("ROLE_ADMIN")) {
+            Integer loggedId = Integer.parseInt(jwtUtil.extractId(jwtToken));
+            if (!loggedId.equals(driverId)) {
+                return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
+            }
+        }
+
         Location location = new Location(vehicleDTO.getCurrentLocation().getAddress(),
                 vehicleDTO.getCurrentLocation().getLatitude(), vehicleDTO.getCurrentLocation().getLongitude());
 
@@ -213,26 +298,35 @@ public class DriverController {
                     vehicleDTO.isPetTransport());
             return new ResponseEntity<>(new VehicleDetailsDTO(vehicle), HttpStatus.OK);
         } catch (EntityPropertyIsNullException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Driver does not have vehicle assigned!");
+            return new ResponseEntity<>(new ResponseMessageDTO("Driver does not have vehicle assigned!"),HttpStatus.BAD_REQUEST);
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Driver does not exist!");
+            return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
         }
 
     }
 
     @GetMapping(value = "/{driverId}/working-hour")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
-    public ResponseEntity<ObjectListResponseDTO<WorkHoursDTO>> getDriverWorkingHours(@PathVariable Integer driverId,
-                                                   @RequestParam int page,
-                                                   @RequestParam int size,
-                                                   @RequestParam(required = false)
-                                                   String fromStr,
-                                                   @RequestParam(required = false)
-                                                   String toStr) {
+    public ResponseEntity<?> getDriverWorkingHours(@PathVariable Integer driverId,
+                                                                                     @RequestParam int page,
+                                                                                     @RequestParam int size,
+                                                                                     @RequestParam(required = false)
+                                                                                     String fromStr,
+                                                                                     @RequestParam(required = false)
+                                                                                     String toStr,
+                                                                                     @RequestHeader("Authorization") String authHeader) {
+        String jwtToken = authHeader.substring(7);
+        if (!jwtUtil.extractRole(jwtToken).equals("ROLE_ADMIN")) {
+            Integer loggedId = Integer.parseInt(jwtUtil.extractId(jwtToken));
+            if (!loggedId.equals(driverId)) {
+                return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
+            }
+        }
+
         try {
             driverService.get(driverId);
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Driver does not exist!");
+            return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
         }
 
         Pageable paging = PageRequest.of(page, size);
@@ -256,34 +350,53 @@ public class DriverController {
 
     @PostMapping(value = "/{driverId}/working-hour", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DRIVER')")
-    public ResponseEntity<WorkHoursDTO> addWorkingHours(@PathVariable Integer driverId,
-                                                        @RequestBody WorkHoursStartDTO workHoursDTO) {
+    public ResponseEntity<?> addWorkingHours(@PathVariable Integer driverId,
+                                                        @RequestBody WorkHoursStartDTO workHoursDTO,
+                                                        @RequestHeader("Authorization") String authHeader) {
+
+        String jwtToken = authHeader.substring(7);
+        if (!jwtUtil.extractRole(jwtToken).equals("ROLE_ADMIN")) {
+            Integer loggedId = Integer.parseInt(jwtUtil.extractId(jwtToken));
+            if (!loggedId.equals(driverId)) {
+                return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
+            }
+        }
+
         WorkHours workHours = new WorkHours(workHoursDTO.getStart());
 
         try {
             workHoursService.startShift(driverId, workHours);
             return new ResponseEntity<>(new WorkHoursDTO(workHours), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Driver does not exist!");
+            return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
         } catch (EntityPropertyIsNullException | ShiftAlreadyStartedException | WorkTimeExceededException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+            return new ResponseEntity<>(new ResponseMessageDTO(e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
 
 
     @GetMapping(value = "/{driverId}/ride")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
-    public ResponseEntity<ObjectListResponseDTO<RideFullDTO>> getRidesForDriver(@PathVariable Integer driverId,
-                                               @RequestParam int page,
-                                               @RequestParam int size,
-                                               @RequestParam(required = false)
-                                               String fromStr,
-                                               @RequestParam(required = false)
-                                               String toStr) {
+    public ResponseEntity<?> getRidesForDriver(@PathVariable Integer driverId,
+                                                                                @RequestParam int page,
+                                                                                @RequestParam int size,
+                                                                                @RequestParam(required = false)
+                                                                                String fromStr,
+                                                                                @RequestParam(required = false)
+                                                                                String toStr,
+                                                                                @RequestHeader("Authorization") String authHeader) {
+        String jwtToken = authHeader.substring(7);
+        if (!jwtUtil.extractRole(jwtToken).equals("ROLE_ADMIN")) {
+            Integer loggedId = Integer.parseInt(jwtUtil.extractId(jwtToken));
+            if (!loggedId.equals(driverId)) {
+                return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
+            }
+        }
+
         try {
             driverService.get(driverId);
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Driver does not exist!");
+            return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
         }
 
         Pageable paging = PageRequest.of(page, size);
@@ -307,38 +420,65 @@ public class DriverController {
 
     @GetMapping(value = "/working-hour/{workingHourId}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
-    public ResponseEntity<WorkHoursDTO> getWorkingHours(@PathVariable Integer workingHourId) {
+    public ResponseEntity<?> getWorkingHours(@PathVariable Integer workingHourId, @RequestHeader("Authorization") String authHeader) {
+
+        String jwtToken = authHeader.substring(7);
+
         try {
             WorkHours workHours = workHoursService.get(workingHourId);
+
+            if (!jwtUtil.extractRole(jwtToken).equals("ROLE_ADMIN")) {
+                Integer loggedId = Integer.parseInt(jwtUtil.extractId(jwtToken));
+                if (!loggedId.equals(workHours.getDriver().getId())) {
+                    return new ResponseEntity<>("Working hour does not exist!", HttpStatus.NOT_FOUND);
+                }
+            }
+
             return new ResponseEntity<>(new WorkHoursDTO(workHours), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Working hour does not exist!");
+            return new ResponseEntity<>("Working hour does not exist!", HttpStatus.NOT_FOUND);
         }
     }
 
     @PutMapping(value = "/working-hour/{workingHourId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DRIVER')")
-    public ResponseEntity<WorkHoursDTO> changeDriverWorkingHours(@PathVariable Integer workingHourId,
-                                                                 @RequestBody WorkHoursEndDTO workHoursDTO) {
+    public ResponseEntity<?> changeDriverWorkingHours(@PathVariable Integer workingHourId,
+                                                                 @RequestBody WorkHoursEndDTO workHoursDTO,
+                                                                 @RequestHeader("Authorization") String authHeader) {
+        String jwtToken = authHeader.substring(7);
+        Integer loggedId = Integer.parseInt(jwtUtil.extractId(jwtToken));
+
         try {
             WorkHours workHours = workHoursService.endShift(workingHourId, workHoursDTO.getEnd());
+            if (!loggedId.equals(workHours.getDriver().getId())) {
+                return new ResponseEntity<>("Working hour does not exist!", HttpStatus.NOT_FOUND);
+            }
+
             return new ResponseEntity<>(new WorkHoursDTO(workHours), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Working hour does not exist!");
+            return new ResponseEntity<>("Working hour does not exist!", HttpStatus.NOT_FOUND);
         } catch (ShiftIsNotOngoingException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-        } catch (EntityPropertyIsNullException e){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot end shift because the vehicle is not defined!");
+            return new ResponseEntity<>(new ResponseMessageDTO(e.getMessage()),HttpStatus.BAD_REQUEST);
+        } catch (EntityPropertyIsNullException e) {
+            return new ResponseEntity<>(new ResponseMessageDTO("Cannot end shift because the vehicle is not defined!"),HttpStatus.BAD_REQUEST);
         }
     }
 
     @GetMapping(value = "/{driverId}/ride/pending")
     @PreAuthorize("hasRole('DRIVER')")
-    public ResponseEntity<ObjectListResponseDTO<RideFullDTO>> getPendingRidesForDriver(@PathVariable Integer driverId) {
+    public ResponseEntity<?> getPendingRidesForDriver(@PathVariable Integer driverId,
+                                                      @RequestHeader("Authorization") String authHeader) {
+        String jwtToken = authHeader.substring(7);
+        if (!jwtUtil.extractRole(jwtToken).equals("ROLE_ADMIN")) {
+            Integer loggedId = Integer.parseInt(jwtUtil.extractId(jwtToken));
+            if (!loggedId.equals(driverId)) {
+                return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
+            }
+        }
         try {
             driverService.get(driverId);
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Driver does not exist!");
+            return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
         }
 
         List<Ride> rides = rideService.findPendingRides(driverId);
