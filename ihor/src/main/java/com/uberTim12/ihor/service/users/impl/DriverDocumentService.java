@@ -44,4 +44,5 @@ public class DriverDocumentService extends JPAService<DriverDocument> implements
         driverDocument.setDriver(driver);
         return save(driverDocument);
     }
+
 }
