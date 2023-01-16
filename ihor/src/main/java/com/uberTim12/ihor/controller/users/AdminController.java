@@ -8,6 +8,7 @@ import com.uberTim12.ihor.service.users.interfaces.IAdministratorService;
 import jakarta.persistence.EntityNotFoundException;
 import com.uberTim12.ihor.service.users.impl.PassengerService;
 import com.uberTim12.ihor.util.ImageConverter;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +40,7 @@ public class AdminController {
 
     @PutMapping(value = "/{id}", consumes = "application/json")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UserDTO> updateAdmin(@PathVariable Integer id, @RequestBody AdminRegistrationDTO adminDTO) {
+    public ResponseEntity<UserDTO> updateAdmin(@PathVariable Integer id, @Valid @RequestBody AdminRegistrationDTO adminDTO) {
         try {
             Administrator admin = adminService.update(id, adminDTO.getName(), adminDTO.getSurname(), adminDTO.getProfilePicture(),
                     adminDTO.getTelephoneNumber(), adminDTO.getEmail(), adminDTO.getAddress(), adminDTO.getPassword());

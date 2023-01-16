@@ -16,6 +16,8 @@ import com.uberTim12.ihor.service.ride.interfaces.IRideService;
 import com.uberTim12.ihor.service.users.interfaces.IDriverService;
 import com.uberTim12.ihor.service.vehicle.interfaces.IVehicleService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -48,8 +50,8 @@ public class ReviewController {
 
     @PostMapping(value = "/{rideId}/vehicle",consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('PASSENGER')")
-    public ResponseEntity<?> leaveReviewForVehicle(@PathVariable Integer rideId,
-                                                   @RequestBody ReviewRequestDTO reviewRequestDTO,
+    public ResponseEntity<?> leaveReviewForVehicle(@Min(value = 1) @PathVariable Integer rideId,
+                                                   @Valid @RequestBody ReviewRequestDTO reviewRequestDTO,
                                                    @RequestHeader("Authorization") String authHeader)
     {
         String token = authHeader.substring(7);
@@ -66,7 +68,7 @@ public class ReviewController {
     }
 
     @GetMapping(value = "/vehicle/{id}",produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getReviewsForVehicle(@PathVariable("id") Integer vehicleId)
+    public ResponseEntity<?> getReviewsForVehicle(@Min(value = 1) @PathVariable("id") Integer vehicleId)
     {
         try {
             vehicleService.get(vehicleId);
@@ -85,8 +87,8 @@ public class ReviewController {
 
     @PostMapping(value = "/{rideId}/driver",consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('PASSENGER')")
-    public ResponseEntity<?> leaveReviewForDriver(@PathVariable Integer rideId,
-                                                          @RequestBody ReviewRequestDTO reviewRequestDTO,
+    public ResponseEntity<?> leaveReviewForDriver(@Min(value = 1) @PathVariable Integer rideId,
+                                                            @Valid @RequestBody ReviewRequestDTO reviewRequestDTO,
                                                           @RequestHeader("Authorization") String authHeader)
     {
         String token = authHeader.substring(7);
@@ -103,7 +105,7 @@ public class ReviewController {
     }
 
     @GetMapping(value = "/driver/{id}",produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getReviewsForDriver(@PathVariable("id") Integer driverId)
+    public ResponseEntity<?> getReviewsForDriver(@Min(value = 1) @PathVariable("id") Integer driverId)
     {
         try {
             driverService.get(driverId);
@@ -122,7 +124,7 @@ public class ReviewController {
     }
 
     @GetMapping(value = "/{rideId}",produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getReviewsForRide(@PathVariable Integer rideId)
+    public ResponseEntity<?> getReviewsForRide(@Min(value = 1) @PathVariable Integer rideId)
     {
         try {
             rideService.get(rideId);

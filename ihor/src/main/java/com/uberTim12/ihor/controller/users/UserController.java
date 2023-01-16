@@ -23,6 +23,8 @@ import com.uberTim12.ihor.service.users.interfaces.INoteService;
 import com.uberTim12.ihor.service.users.interfaces.IUserService;
 import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -68,7 +70,7 @@ public class UserController {
     }
 
     @GetMapping(value = "/{id}/ride",produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getUserRides(@PathVariable Integer id,
+    public ResponseEntity<?> getUserRides(@Min(value = 1) @PathVariable Integer id,
                                           Pageable page,
                                           @RequestParam(required = false) String fromStr,
                                           @RequestParam(required = false) String toStr,
@@ -116,7 +118,7 @@ public class UserController {
     }
 
     @PostMapping(value = "/login",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> loginUser(@RequestBody UserCredentialsDTO userCredentialDTO)
+    public ResponseEntity<?> loginUser(@Valid @RequestBody UserCredentialsDTO userCredentialDTO)
     {
         try {
             var authentication = authenticationManager.authenticate (
@@ -133,7 +135,7 @@ public class UserController {
     }
 
     @GetMapping(value = "/{id}/message",produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getUserMessages(@PathVariable Integer id, @RequestHeader("Authorization") String authHeader)
+    public ResponseEntity<?> getUserMessages(@Min(value = 1) @PathVariable Integer id, @RequestHeader("Authorization") String authHeader)
     {
         if(Integer.parseInt(jwtUtil.extractId(authHeader.substring(7)))!=id)
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist!");
@@ -148,7 +150,7 @@ public class UserController {
     }
 
     @PostMapping(value = "/{id}/message",consumes=MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> sendMessage(@PathVariable("id") Integer receiverId, @RequestBody SendingMessageDTO sendingMessageDTO, @RequestHeader("Authorization") String authHeader)
+    public ResponseEntity<?> sendMessage(@Min(value = 1) @PathVariable("id") Integer receiverId, @Valid @RequestBody SendingMessageDTO sendingMessageDTO, @RequestHeader("Authorization") String authHeader)
     {
         try {
             Message message = messageService.sendMessage(Integer.parseInt(jwtUtil.extractId(authHeader.substring(7))), receiverId,
@@ -161,7 +163,7 @@ public class UserController {
 
     @PutMapping(value = "/{id}/block")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> blockUser(@PathVariable("id") Integer id)
+    public ResponseEntity<?> blockUser(@Min(value = 1) @PathVariable("id") Integer id)
     {
         try {
             userService.blockUser(id);
@@ -175,7 +177,7 @@ public class UserController {
 
     @PutMapping(value = "/{id}/unblock")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> unblockUser(@PathVariable("id") Integer id)
+    public ResponseEntity<?> unblockUser(@Min(value = 1) @PathVariable("id") Integer id)
     {
         try {
             userService.unblockUser(id);
@@ -189,7 +191,7 @@ public class UserController {
 
     @PostMapping(value = "/{id}/note",consumes=MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> createNote(@PathVariable Integer id, @RequestBody RequestNoteDTO requestNoteDTO)
+    public ResponseEntity<?> createNote(@Min(value = 1) @PathVariable Integer id, @Valid @RequestBody RequestNoteDTO requestNoteDTO)
     {
         try {
             Note note = noteService.create(id, requestNoteDTO.getMessage());
@@ -200,7 +202,7 @@ public class UserController {
     }
     @GetMapping(value = "/{id}/note",produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> getNotes(@PathVariable Integer id, Pageable page)
+    public ResponseEntity<?> getNotes(@Min(value = 1) @PathVariable Integer id, Pageable page)
     {
         try {
             userService.get(id);
@@ -219,7 +221,7 @@ public class UserController {
     }
 
     @PutMapping(value="/{id}/changePassword", consumes = "application/json")
-    public ResponseEntity<?> changePassword(@PathVariable Integer id, @RequestBody NewPasswordDTO newPasswordDTO, @RequestHeader("Authorization") String authHeader)
+    public ResponseEntity<?> changePassword(@Min(value = 1) @PathVariable Integer id, @Valid @RequestBody NewPasswordDTO newPasswordDTO, @RequestHeader("Authorization") String authHeader)
     {
         if(Integer.parseInt(jwtUtil.extractId(authHeader.substring(7)))!=id && (jwtUtil.extractRole(authHeader.substring(7)).equals("ROLE_PASSENGER")|| jwtUtil.extractRole(authHeader.substring(7)).equals("ROLE_DRIVER")))
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist!");
@@ -234,7 +236,7 @@ public class UserController {
     }
 
     @GetMapping(value="/{id}/resetPassword")
-    public ResponseEntity<?> sendResetCodeToEmail(@PathVariable Integer id, @RequestHeader("Authorization") String authHeader)
+    public ResponseEntity<?> sendResetCodeToEmail(@Min(value = 1) @PathVariable Integer id, @RequestHeader("Authorization") String authHeader)
     {
         if(Integer.parseInt(jwtUtil.extractId(authHeader.substring(7)))!=id && (jwtUtil.extractRole(authHeader.substring(7)).equals("ROLE_PASSENGER")|| jwtUtil.extractRole(authHeader.substring(7)).equals("ROLE_DRIVER")))
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist!");
@@ -251,7 +253,7 @@ public class UserController {
     }
 
     @PutMapping(value="/{id}/resetPassword", consumes = "application/json")
-    public ResponseEntity<?> changePasswordWithResetCode(@PathVariable Integer id, @RequestBody ResetPasswordDTO resetPasswordDTO, @RequestHeader("Authorization") String authHeader)
+    public ResponseEntity<?> changePasswordWithResetCode(@Min(value = 1) @PathVariable Integer id, @Valid @RequestBody ResetPasswordDTO resetPasswordDTO, @RequestHeader("Authorization") String authHeader)
     {
         if(Integer.parseInt(jwtUtil.extractId(authHeader.substring(7)))!=id && (jwtUtil.extractRole(authHeader.substring(7)).equals("ROLE_PASSENGER")|| jwtUtil.extractRole(authHeader.substring(7)).equals("ROLE_DRIVER")))
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist!");

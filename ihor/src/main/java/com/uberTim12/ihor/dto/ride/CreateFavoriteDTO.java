@@ -7,10 +7,14 @@ import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.users.User;
 import com.uberTim12.ihor.model.vehicle.VehicleCategory;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -21,15 +25,21 @@ import java.util.Set;
 @Setter
 public class CreateFavoriteDTO {
 
+    @NotEmpty
     private String favoriteName;
 
+    @Valid
+    @Length(min = 1,max = 1)
     private Set<PathDTO> locations = new HashSet<>();
 
+    @Valid
+    @Length(min = 1)
     private Set<UserRideDTO> passengers = new HashSet<>();
 
     private VehicleCategory vehicleType;
+    @NotNull
     private boolean babyTransport;
-
+    @NotNull
     private boolean petTransport;
 
 

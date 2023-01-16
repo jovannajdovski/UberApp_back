@@ -117,7 +117,7 @@ public class RideService extends JPAService<Ride> implements IRideService {
 
     @Override
     public Ride findActiveByDriver(Driver driver) throws NoActiveRideException {
-        List<Ride> rides = rideRepository.findActiveByDriver(driver, RideStatus.STARTED, LocalDateTime.now());
+        List<Ride> rides = rideRepository.findActiveByDriver(driver, RideStatus.STARTED);
         if (rides.isEmpty()) {
             throw new NoActiveRideException("Active ride does not exist!");
         } else {
@@ -130,7 +130,7 @@ public class RideService extends JPAService<Ride> implements IRideService {
 
     @Override
     public Ride findActiveByPassenger(Passenger passenger) throws NoActiveRideException {
-        List<Ride> rides = rideRepository.findActiveByPassenger(passenger, LocalDateTime.now());
+        List<Ride> rides = rideRepository.findActiveByPassenger(passenger, RideStatus.STARTED);
         if (rides.isEmpty()) {
             throw new NoActiveRideException("Active ride does not exist!");
         } else {

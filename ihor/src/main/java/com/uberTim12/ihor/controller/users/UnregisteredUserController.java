@@ -29,7 +29,7 @@ public class UnregisteredUserController {
     }
 
     @PostMapping(value = "api/unregisteredUser/",consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getEstimatedRoute(@RequestBody RideRequestDTO rideRequestDTO)
+    public ResponseEntity<?> getEstimatedRoute(@Valid @RequestBody RideRequestDTO rideRequestDTO)
     {
         Ride ride=new Ride(rideRequestDTO);
 

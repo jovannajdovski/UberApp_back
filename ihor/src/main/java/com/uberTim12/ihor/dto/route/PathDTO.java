@@ -2,10 +2,9 @@ package com.uberTim12.ihor.dto.route;
 
 import com.uberTim12.ihor.model.route.Location;
 import com.uberTim12.ihor.model.route.Path;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.NoArgsConstructor;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -13,8 +12,11 @@ import lombok.NoArgsConstructor;
 @Setter
 public class PathDTO {
 
+    @Valid
+    @NotNull
     private LocationDTO departure;
-
+    @Valid
+    @NotNull
     private LocationDTO destination;
 
     public PathDTO(Path path){

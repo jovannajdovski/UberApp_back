@@ -37,10 +37,10 @@ public interface IRideRepository extends JpaRepository<Ride, Integer> {
     Page<Ride> findAllForPassenger(Passenger passenger, Pageable pageable);
 
     @Query("select r from Ride r join fetch r.passengers p join fetch r.paths l where r.driver =?1 and r.rideStatus = ?2")
-    List<Ride> findActiveByDriver(Driver driver, RideStatus rideStatus, LocalDateTime now);
+    List<Ride> findActiveByDriver(Driver driver, RideStatus rideStatus);
 
-    @Query("select r from Ride r join fetch r.passengers p join fetch r.paths l where ?1 member of r.passengers")
-    List<Ride> findActiveByPassenger(Passenger passenger, LocalDateTime now);
+    @Query("select r from Ride r join fetch r.passengers p join fetch r.paths l where ?1 member of r.passengers and r.rideStatus = ?2")
+    List<Ride> findActiveByPassenger(Passenger passenger, RideStatus rideStatus);
 
     @Query("select r.passengers from Ride as r join r.passengers as p where r.id =?1")
     List<Passenger> findPassengersForRide(Integer id);

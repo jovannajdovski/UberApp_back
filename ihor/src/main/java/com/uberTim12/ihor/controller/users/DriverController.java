@@ -31,6 +31,8 @@ import com.uberTim12.ihor.util.DTOFormatValidator;
 import com.uberTim12.ihor.util.ImageConverter;
 import com.uberTim12.ihor.util.SimpleFormatValidator;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -76,7 +78,7 @@ public class DriverController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> createDriver(@RequestBody DriverRegistrationDTO driverDTO) {
+    public ResponseEntity<?> createDriver(@Valid @RequestBody DriverRegistrationDTO driverDTO) {
 
         Driver driver = new Driver(driverDTO.getName(),
                 driverDTO.getSurname(),
@@ -115,7 +117,7 @@ public class DriverController {
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<?> getDriverDetails(@PathVariable Integer id, @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<?> getDriverDetails(@Min(value = 1) @PathVariable Integer id, @RequestHeader("Authorization") String authHeader) {
         String jwtToken = authHeader.substring(7);
         if (!jwtUtil.extractRole(jwtToken).equals("ROLE_ADMIN")) {
             Integer loggedId = Integer.parseInt(jwtUtil.extractId(jwtToken));
@@ -134,7 +136,7 @@ public class DriverController {
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
-    public ResponseEntity<?> updateDriver(@RequestBody DriverRegistrationDTO driverDTO, @PathVariable Integer id, @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<?> updateDriver(@Valid @RequestBody DriverRegistrationDTO driverDTO, @Min(value = 1) @PathVariable Integer id, @RequestHeader("Authorization") String authHeader) {
         String jwtToken = authHeader.substring(7);
         if (!jwtUtil.extractRole(jwtToken).equals("ROLE_ADMIN")) {
             Integer loggedId = Integer.parseInt(jwtUtil.extractId(jwtToken));
@@ -155,7 +157,7 @@ public class DriverController {
 
     @GetMapping(value = "/{driverId}/documents")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
-    public ResponseEntity<?> getDriverDocuments(@PathVariable Integer driverId, @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<?> getDriverDocuments(@Min(value = 1) @PathVariable Integer driverId, @RequestHeader("Authorization") String authHeader) {
         String jwtToken = authHeader.substring(7);
         if (!jwtUtil.extractRole(jwtToken).equals("ROLE_ADMIN")) {
             Integer loggedId = Integer.parseInt(jwtUtil.extractId(jwtToken));
@@ -179,8 +181,8 @@ public class DriverController {
 
     @PostMapping(value = "/{driverId}/documents")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
-    public ResponseEntity<?> addDocumentToDriver(@PathVariable Integer driverId,
-                                                 @RequestBody DriverDocumentDetailsDTO driverDocumentDTO,
+    public ResponseEntity<?> addDocumentToDriver(@Min(value = 1) @PathVariable Integer driverId,
+                                                 @Valid @RequestBody DriverDocumentDetailsDTO driverDocumentDTO,
                                                  @RequestHeader("Authorization") String authHeader) {
 
         String jwtToken = authHeader.substring(7);
@@ -205,7 +207,7 @@ public class DriverController {
 
     @DeleteMapping(value = "/document/{documentId}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
-    public ResponseEntity<?> deleteDocument(@PathVariable Integer documentId, @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<?> deleteDocument(@Min(value = 1) @PathVariable Integer documentId, @RequestHeader("Authorization") String authHeader) {
         String jwtToken = authHeader.substring(7);
         if (!jwtUtil.extractRole(jwtToken).equals("ROLE_ADMIN")) {
             Integer loggedId = Integer.parseInt(jwtUtil.extractId(jwtToken));
@@ -229,7 +231,7 @@ public class DriverController {
 
     @GetMapping(value = "/{driverId}/vehicle")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
-    public ResponseEntity<?> getDriverVehicle(@PathVariable Integer driverId, @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<?> getDriverVehicle(@Min(value = 1) @PathVariable Integer driverId, @RequestHeader("Authorization") String authHeader) {
         String jwtToken = authHeader.substring(7);
         if (!jwtUtil.extractRole(jwtToken).equals("ROLE_ADMIN")) {
             Integer loggedId = Integer.parseInt(jwtUtil.extractId(jwtToken));
@@ -250,8 +252,8 @@ public class DriverController {
 
     @PostMapping(value = "/{driverId}/vehicle", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
-    public ResponseEntity<?> addVehicleToDriver(@PathVariable Integer driverId,
-                                                                @RequestBody VehicleAddDTO vehicleDTO, @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<?> addVehicleToDriver(@Min(value = 1) @PathVariable Integer driverId,
+                                                                @Valid @RequestBody VehicleAddDTO vehicleDTO, @RequestHeader("Authorization") String authHeader) {
         String jwtToken = authHeader.substring(7);
         if (!jwtUtil.extractRole(jwtToken).equals("ROLE_ADMIN")) {
             Integer loggedId = Integer.parseInt(jwtUtil.extractId(jwtToken));
@@ -278,8 +280,8 @@ public class DriverController {
 
     @PutMapping(value = "/{driverId}/vehicle", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
-    public ResponseEntity<?> updateDriverVehicle(@PathVariable Integer driverId,
-                                                                 @RequestBody VehicleDTO vehicleDTO,
+    public ResponseEntity<?> updateDriverVehicle(@Min(value = 1) @PathVariable Integer driverId,
+                                                                 @Valid @RequestBody VehicleDTO vehicleDTO,
                                                                  @RequestHeader("Authorization") String authHeader) {
         String jwtToken = authHeader.substring(7);
         if (!jwtUtil.extractRole(jwtToken).equals("ROLE_ADMIN")) {
@@ -307,9 +309,9 @@ public class DriverController {
 
     @GetMapping(value = "/{driverId}/working-hour")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
-    public ResponseEntity<?> getDriverWorkingHours(@PathVariable Integer driverId,
-                                                                                     @RequestParam int page,
-                                                                                     @RequestParam int size,
+    public ResponseEntity<?> getDriverWorkingHours(@Min(value = 1) @PathVariable Integer driverId,
+                                                   @Min(value = 0) @RequestParam int page,
+                                                   @Min(value = 1) @RequestParam int size,
                                                                                      @RequestParam(required = false)
                                                                                      String fromStr,
                                                                                      @RequestParam(required = false)
@@ -350,8 +352,8 @@ public class DriverController {
 
     @PostMapping(value = "/{driverId}/working-hour", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DRIVER')")
-    public ResponseEntity<?> addWorkingHours(@PathVariable Integer driverId,
-                                                        @RequestBody WorkHoursStartDTO workHoursDTO,
+    public ResponseEntity<?> addWorkingHours(@Min(value = 1) @PathVariable Integer driverId,
+                                                        @Valid @RequestBody WorkHoursStartDTO workHoursDTO,
                                                         @RequestHeader("Authorization") String authHeader) {
 
         String jwtToken = authHeader.substring(7);
@@ -377,9 +379,9 @@ public class DriverController {
 
     @GetMapping(value = "/{driverId}/ride")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
-    public ResponseEntity<?> getRidesForDriver(@PathVariable Integer driverId,
-                                                                                @RequestParam int page,
-                                                                                @RequestParam int size,
+    public ResponseEntity<?> getRidesForDriver(@Min(value = 1) @PathVariable Integer driverId,
+                                               @Min(value = 0) @RequestParam int page,
+                                               @Min(value = 1) @RequestParam int size,
                                                                                 @RequestParam(required = false)
                                                                                 String fromStr,
                                                                                 @RequestParam(required = false)
@@ -420,7 +422,7 @@ public class DriverController {
 
     @GetMapping(value = "/working-hour/{workingHourId}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
-    public ResponseEntity<?> getWorkingHours(@PathVariable Integer workingHourId, @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<?> getWorkingHours(@Min(value = 1) @PathVariable Integer workingHourId, @RequestHeader("Authorization") String authHeader) {
 
         String jwtToken = authHeader.substring(7);
 
@@ -442,8 +444,8 @@ public class DriverController {
 
     @PutMapping(value = "/working-hour/{workingHourId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DRIVER')")
-    public ResponseEntity<?> changeDriverWorkingHours(@PathVariable Integer workingHourId,
-                                                                 @RequestBody WorkHoursEndDTO workHoursDTO,
+    public ResponseEntity<?> changeDriverWorkingHours(@Min(value = 1) @PathVariable Integer workingHourId,
+                                                                 @Valid @RequestBody WorkHoursEndDTO workHoursDTO,
                                                                  @RequestHeader("Authorization") String authHeader) {
         String jwtToken = authHeader.substring(7);
         Integer loggedId = Integer.parseInt(jwtUtil.extractId(jwtToken));
@@ -466,7 +468,7 @@ public class DriverController {
 
     @GetMapping(value = "/{driverId}/ride/pending")
     @PreAuthorize("hasRole('DRIVER')")
-    public ResponseEntity<?> getPendingRidesForDriver(@PathVariable Integer driverId,
+    public ResponseEntity<?> getPendingRidesForDriver(@Min(value = 1) @PathVariable Integer driverId,
                                                       @RequestHeader("Authorization") String authHeader) {
         String jwtToken = authHeader.substring(7);
         if (!jwtUtil.extractRole(jwtToken).equals("ROLE_ADMIN")) {

@@ -5,14 +5,16 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Length;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 public class NewPasswordDTO {
-
+    @Length(min = 6)
     private String oldPassword;
+    @Length(min = 6)
     private String newPassword;
 
 }

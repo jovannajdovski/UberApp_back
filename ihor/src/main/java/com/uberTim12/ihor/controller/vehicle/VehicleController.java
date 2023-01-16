@@ -9,6 +9,8 @@ import com.uberTim12.ihor.security.JwtUtil;
 import com.uberTim12.ihor.service.vehicle.impl.VehicleService;
 import com.uberTim12.ihor.service.vehicle.interfaces.IVehicleService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -34,8 +36,8 @@ public class VehicleController {
 
     @PreAuthorize("hasRole('DRIVER')")
     @PutMapping(value = "/{vehicleId}/location", consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> changeVehicleLocation(@PathVariable Integer vehicleId,
-                                                        @RequestBody LocationDTO locationDTO,
+    public ResponseEntity<?> changeVehicleLocation(@Min(value = 1) @PathVariable Integer vehicleId,
+                                                        @Valid @RequestBody LocationDTO locationDTO,
                                                         @RequestHeader("Authorization") String authHeader) {
 
         String jwtToken = authHeader.substring(7);

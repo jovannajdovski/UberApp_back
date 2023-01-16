@@ -15,6 +15,8 @@ import com.uberTim12.ihor.service.users.impl.PassengerService;
 import com.uberTim12.ihor.service.users.interfaces.IPassengerService;
 import com.uberTim12.ihor.service.users.interfaces.IUserActivationService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -42,7 +44,7 @@ public class PassengerController {
     }
 
     @PostMapping(consumes = "application/json")
-    public ResponseEntity<?> createPassenger(@RequestBody PassengerRegistrationDTO passengerDTO) {
+    public ResponseEntity<?> createPassenger(@Valid @RequestBody PassengerRegistrationDTO passengerDTO) {
         Passenger passenger = passengerDTO.generatePassenger();
         try {
             passenger = passengerService.register(passenger);
@@ -67,7 +69,7 @@ public class PassengerController {
     }
 
     @GetMapping(value = "/activate/{activationId}")
-    public ResponseEntity<?> activatePassenger(@PathVariable Integer activationId) {
+    public ResponseEntity<?> activatePassenger(@Min(value = 1) @PathVariable Integer activationId) {
         try {
             userActivationService.activate(activationId);
             return ResponseEntity.status(HttpStatus.OK).body("Successful account activation!");
@@ -80,7 +82,7 @@ public class PassengerController {
 
     @GetMapping(value = "/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('PASSENGER')")
-    public ResponseEntity<?> getPassenger(@PathVariable Integer id, @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<?> getPassenger(@Min(value = 1) @PathVariable Integer id, @RequestHeader("Authorization") String authHeader) {
 
         if(Integer.parseInt(jwtUtil.extractId(authHeader.substring(7)))!=id && (jwtUtil.extractRole(authHeader.substring(7)).equals("ROLE_PASSENGER")))
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Passenger does not exist!");
@@ -94,7 +96,7 @@ public class PassengerController {
     }
 
     @GetMapping(value = "/email/{email}")
-    public ResponseEntity<?> getPassengerByEmail(@PathVariable String email) {
+    public ResponseEntity<?> getPassengerByEmail(@Email(regexp = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$") @PathVariable String email) {
         try {
             Passenger passenger = passengerService.findByEmail(email);
             if(passenger==null)
@@ -107,7 +109,7 @@ public class PassengerController {
 
     @PutMapping(value = "/{id}", consumes = "application/json")
     @PreAuthorize("hasRole('PASSENGER')")
-    public ResponseEntity<?> updatePassenger(@PathVariable Integer id, @RequestBody PassengerRegistrationDTO passengerDTO, @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<?> updatePassenger(@Min(value = 1) @PathVariable Integer id, @Valid @RequestBody PassengerRegistrationDTO passengerDTO, @RequestHeader("Authorization") String authHeader) {
         if(Integer.parseInt(jwtUtil.extractId(authHeader.substring(7)))!=id)
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Passenger does not exist!");
 
@@ -123,7 +125,7 @@ public class PassengerController {
 
     @GetMapping(value = "/{id}/ride")
     @PreAuthorize("hasRole('ADMIN') or hasRole('PASSENGER')")
-    public ResponseEntity<?> getPassengerRidesPage(@PathVariable Integer id, Pageable page,
+    public ResponseEntity<?> getPassengerRidesPage(@Min(value = 1) @PathVariable Integer id, Pageable page,
                                                    @RequestParam(required = false) String from,
                                                    @RequestParam(required = false) String to, @RequestHeader("Authorization") String authHeader) {
 

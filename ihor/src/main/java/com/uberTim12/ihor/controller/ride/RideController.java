@@ -31,6 +31,8 @@ import com.uberTim12.ihor.service.users.impl.PassengerService;
 import com.uberTim12.ihor.service.users.interfaces.IDriverService;
 import com.uberTim12.ihor.service.users.interfaces.IPassengerService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -69,7 +71,7 @@ public class RideController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('PASSENGER')")
-    public ResponseEntity<?> createRide(@RequestBody CreateRideDTO rideDTO) {
+    public ResponseEntity<?> createRide(@Valid @RequestBody CreateRideDTO rideDTO) {
         Ride ride = new Ride(rideDTO);
 
         Set<Path> paths = new HashSet<>();
@@ -106,7 +108,7 @@ public class RideController {
 
     @GetMapping(value = "/driver/{driverId}/active")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
-    public ResponseEntity<?> getActiveRideForDriver(@PathVariable Integer driverId,
+    public ResponseEntity<?> getActiveRideForDriver(@Min(value = 1) @PathVariable Integer driverId,
                                                     @RequestHeader("Authorization") String authHeader) {
         String token = authHeader.substring(7);
 
@@ -129,7 +131,7 @@ public class RideController {
 
     @GetMapping(value = "/passenger/{passengerId}/active")
     @PreAuthorize("hasRole('ADMIN') or hasRole('PASSENGER')")
-    public ResponseEntity<?> getActiveRideForPassenger(@PathVariable Integer passengerId,
+    public ResponseEntity<?> getActiveRideForPassenger(@Min(value = 1) @PathVariable Integer passengerId,
                                                        @RequestHeader("Authorization") String authHeader) {
         String token = authHeader.substring(7);
 
@@ -151,7 +153,7 @@ public class RideController {
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<?> getRideById(@PathVariable Integer id,
+    public ResponseEntity<?> getRideById(@Min(value = 1) @PathVariable Integer id,
                                          @RequestHeader("Authorization") String authHeader) {
         String token = authHeader.substring(7);
 
@@ -172,7 +174,7 @@ public class RideController {
 
     @PutMapping(value = "/{id}/withdraw")
     @PreAuthorize("hasRole('DRIVER') or hasRole('PASSENGER')")
-    public ResponseEntity<?> cancelRide(@PathVariable Integer id,
+    public ResponseEntity<?> cancelRide(@Min(value = 1) @PathVariable Integer id,
                                         @RequestHeader("Authorization") String authHeader) {
         String token = authHeader.substring(7);
 
@@ -196,8 +198,8 @@ public class RideController {
     }
 
     @PutMapping(value = "/{id}/panic")
-    public ResponseEntity<?> panicRide(@PathVariable Integer id,
-                                       @RequestBody ReasonDTO reason,
+    public ResponseEntity<?> panicRide(@Min(value = 1) @PathVariable Integer id,
+                                       @Valid @RequestBody ReasonDTO reason,
                                        @RequestHeader("Authorization") String authHeader) {
         String token = authHeader.substring(7);
 
@@ -222,7 +224,7 @@ public class RideController {
 
     @PutMapping(value = "/{id}/start")
     @PreAuthorize("hasRole('DRIVER')")
-    public ResponseEntity<?> startRide(@PathVariable Integer id,
+    public ResponseEntity<?> startRide(@Min(value = 1) @PathVariable Integer id,
                                        @RequestHeader("Authorization") String authHeader) {
         String token = authHeader.substring(7);
 
@@ -241,7 +243,7 @@ public class RideController {
 
     @PutMapping(value = "/{id}/accept")
     @PreAuthorize("hasRole('DRIVER')")
-    public ResponseEntity<?> acceptRide(@PathVariable Integer id,
+    public ResponseEntity<?> acceptRide(@Min(value = 1) @PathVariable Integer id,
                                         @RequestHeader("Authorization") String authHeader) {
         String token = authHeader.substring(7);
 
@@ -261,7 +263,7 @@ public class RideController {
 
     @PutMapping(value = "/{id}/end")
     @PreAuthorize("hasRole('DRIVER')")
-    public ResponseEntity<?> endRide(@PathVariable Integer id,
+    public ResponseEntity<?> endRide(@Min(value = 1) @PathVariable Integer id,
                                      @RequestHeader("Authorization") String authHeader) {
         String token = authHeader.substring(7);
 
@@ -281,7 +283,7 @@ public class RideController {
 
     @PutMapping(value = "/{id}/cancel")
     @PreAuthorize("hasRole('DRIVER')")
-    public ResponseEntity<?> rejectRide(@PathVariable Integer id, @RequestBody ReasonDTO reason,
+    public ResponseEntity<?> rejectRide(@Min(value = 1) @PathVariable Integer id, @Valid @RequestBody ReasonDTO reason,
                                         @RequestHeader("Authorization") String authHeader) {
         String token = authHeader.substring(7);
 
@@ -301,7 +303,7 @@ public class RideController {
 
     @PostMapping(value = "/favorites", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('ADMIN') or hasRole('PASSENGER')")
-    public ResponseEntity<?> createFavorite(@RequestBody CreateFavoriteDTO favoriteDTO,
+    public ResponseEntity<?> createFavorite(@Min(value = 1) @Valid @RequestBody CreateFavoriteDTO favoriteDTO,
                                             @RequestHeader("Authorization") String authHeader) {
         String token = authHeader.substring(7);
 
@@ -350,7 +352,7 @@ public class RideController {
 
     @DeleteMapping(value = "/favorites/{id}")
     @PreAuthorize("hasRole('PASSENGER')")
-    public ResponseEntity<String> deleteFavorite(@PathVariable Integer id,
+    public ResponseEntity<String> deleteFavorite(@Min(value = 1) @PathVariable Integer id,
                                                  @RequestHeader("Authorization") String authHeader) {
         String token = authHeader.substring(7);
 
