@@ -79,7 +79,6 @@ public class PassengerController {
     }
 
     @GetMapping(value = "/{id}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('PASSENGER')")
     public ResponseEntity<PassengerDTO> getPassenger(@PathVariable Integer id) {
         try {
             Passenger passenger = passengerService.get(id);

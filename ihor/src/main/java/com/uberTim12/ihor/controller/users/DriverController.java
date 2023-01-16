@@ -100,7 +100,6 @@ public class DriverController {
     }
 
     @GetMapping(value = "/{id}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
     public ResponseEntity<?> getDriverDetails(@PathVariable Integer id) {
         try {
             Driver driver = driverService.get(id);
