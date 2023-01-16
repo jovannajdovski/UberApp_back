@@ -1,5 +1,6 @@
 package com.uberTim12.ihor.controller.ride;
 
+import com.uberTim12.ihor.dto.ResponseMessageDTO;
 import com.uberTim12.ihor.dto.communication.PanicDTO;
 import com.uberTim12.ihor.dto.communication.ReasonDTO;
 import com.uberTim12.ihor.dto.ride.CreateFavoriteDTO;
@@ -16,6 +17,7 @@ import com.uberTim12.ihor.model.route.Location;
 import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.users.Passenger;
+import com.uberTim12.ihor.security.JwtUtil;
 import com.uberTim12.ihor.service.communication.impl.PanicService;
 import com.uberTim12.ihor.service.communication.interfaces.IPanicService;
 import com.uberTim12.ihor.service.ride.impl.RideService;
@@ -37,9 +39,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @RestController
 @RequestMapping(value = "api/ride")
@@ -51,11 +51,12 @@ public class RideController {
     private final IPanicService panicService;
     private final IRideSchedulingService rideSchedulingService;
     private final IFavoriteService favoriteService;
+    private final JwtUtil jwtUtil;
 
     @Autowired
     public RideController(RideService rideService, PathService pathService, PassengerService passengerService,
                           DriverService driverService, PanicService panicService,
-                          IRideSchedulingService rideSchedulingService, IFavoriteService favoriteService) {
+                          IRideSchedulingService rideSchedulingService, IFavoriteService favoriteService, JwtUtil jwtUtil) {
         this.rideService = rideService;
         this.pathService = pathService;
         this.passengerService = passengerService;
@@ -63,11 +64,12 @@ public class RideController {
         this.panicService = panicService;
         this.rideSchedulingService = rideSchedulingService;
         this.favoriteService = favoriteService;
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('PASSENGER')")
-    public ResponseEntity<RideFullDTO> createRide(@RequestBody CreateRideDTO rideDTO) {
+    public ResponseEntity<?> createRide(@RequestBody CreateRideDTO rideDTO) {
         Ride ride = new Ride(rideDTO);
 
         Set<Path> paths = new HashSet<>();
@@ -96,7 +98,7 @@ public class RideController {
         try {
             ride=rideSchedulingService.findFreeVehicle(ride);
         } catch (CannotScheduleDriveException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
 
         return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
@@ -104,7 +106,14 @@ public class RideController {
 
     @GetMapping(value = "/driver/{driverId}/active")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
-    public ResponseEntity<RideFullDTO> getActiveRideForDriver(@PathVariable Integer driverId) {
+    public ResponseEntity<?> getActiveRideForDriver(@PathVariable Integer driverId,
+                                                    @RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.substring(7);
+
+        if (jwtUtil.extractRole(token).equals("ROLE_DRIVER") &&
+                !jwtUtil.extractId(token).equals(driverId.toString()))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Active ride does not exist!");
+
         try {
             Driver driver;
             driver = driverService.get(driverId);
@@ -112,15 +121,22 @@ public class RideController {
             Ride ride = rideService.findActiveByDriver(driver);
             return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Driver does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Driver does not exist!");
         } catch (NoActiveRideException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Active ride does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Active ride does not exist!");
         }
     }
 
     @GetMapping(value = "/passenger/{passengerId}/active")
     @PreAuthorize("hasRole('ADMIN') or hasRole('PASSENGER')")
-    public ResponseEntity<RideFullDTO> getActiveRideForPassenger(@PathVariable Integer passengerId) {
+    public ResponseEntity<?> getActiveRideForPassenger(@PathVariable Integer passengerId,
+                                                       @RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.substring(7);
+
+        if (jwtUtil.extractRole(token).equals("ROLE_PASSENGER") &&
+                !jwtUtil.extractId(token).equals(passengerId.toString()))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Active ride does not exist!");
+
         try {
             Passenger passenger;
             passenger = passengerService.get(passengerId);
@@ -128,112 +144,178 @@ public class RideController {
             Ride ride = rideService.findActiveByPassenger(passenger);
             return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Passenger does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Passenger does not exist!");
         } catch (NoActiveRideException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Active ride does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Active ride does not exist!");
         }
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<RideFullDTO> getRideById(@PathVariable Integer id) {
+    public ResponseEntity<?> getRideById(@PathVariable Integer id,
+                                         @RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.substring(7);
+
         try {
             Ride ride = rideService.get(id);
+            if (jwtUtil.extractRole(token).equals("ROLE_DRIVER") &&
+                    !jwtUtil.extractId(token).equals(ride.getDriver().getId().toString()))
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Active ride does not exist!");
+            else if (jwtUtil.extractRole(token).equals("ROLE_PASSENGER") &&
+                    !passengerInPassengers(jwtUtil.extractId(token), new ArrayList<>(ride.getPassengers())))
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Active ride does not exist!");
+
             return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Ride does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
         }
     }
 
     @PutMapping(value = "/{id}/withdraw")
     @PreAuthorize("hasRole('DRIVER') or hasRole('PASSENGER')")
-    public ResponseEntity<RideFullDTO> cancelRide(@PathVariable Integer id) {
+    public ResponseEntity<?> cancelRide(@PathVariable Integer id,
+                                        @RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.substring(7);
+
         try {
-            Ride ride = rideService.cancel(id);
+            Ride ride = rideService.get(id);
+            if (jwtUtil.extractRole(token).equals("ROLE_DRIVER") &&
+                    !jwtUtil.extractId(token).equals(ride.getDriver().getId().toString()))
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
+            else if (jwtUtil.extractRole(token).equals("ROLE_PASSENGER") &&
+                    !passengerInPassengers(jwtUtil.extractId(token), new ArrayList<>(ride.getPassengers())))
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
+
+            ride = rideService.cancel(id);
             return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Ride does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
         } catch (RideStatusException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot cancel a ride that is not in status PENDING or STARTED!");
+            return new ResponseEntity<>(new ResponseMessageDTO("Cannot cancel a ride that is not in status PENDING or STARTED!"),
+                    HttpStatus.BAD_REQUEST);
         }
     }
 
     @PutMapping(value = "/{id}/panic")
-    public ResponseEntity<PanicDTO> panicRide(@PathVariable Integer id, @RequestBody ReasonDTO reason) {
+    public ResponseEntity<?> panicRide(@PathVariable Integer id,
+                                       @RequestBody ReasonDTO reason,
+                                       @RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.substring(7);
 
         try {
             Ride ride = rideService.get(id);
+            if (jwtUtil.extractRole(token).equals("ROLE_DRIVER") &&
+                    !jwtUtil.extractId(token).equals(ride.getDriver().getId().toString()))
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
+            else if (jwtUtil.extractRole(token).equals("ROLE_PASSENGER") &&
+                    !passengerInPassengers(jwtUtil.extractId(token), new ArrayList<>(ride.getPassengers())))
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
+
+
             Panic panic = panicService.createForRide(ride, reason.getReason());
             return new ResponseEntity<>(new PanicDTO(panic), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Ride does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
         } catch (UnauthorizedException e) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized!");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
         }
     }
 
     @PutMapping(value = "/{id}/start")
     @PreAuthorize("hasRole('DRIVER')")
-    public ResponseEntity<RideFullDTO> startRide(@PathVariable Integer id) {
+    public ResponseEntity<?> startRide(@PathVariable Integer id,
+                                       @RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.substring(7);
+
         try {
             Ride ride = rideService.start(id);
+            if (!jwtUtil.extractId(token).equals(ride.getDriver().getId().toString()))
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
+
             return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Ride does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
         } catch (RideStatusException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot start a ride that is not in status ACCEPTED!");
+            return new ResponseEntity<>(new ResponseMessageDTO("Cannot start a ride that is not in status ACCEPTED!"), HttpStatus.BAD_REQUEST);
         }
     }
 
     @PutMapping(value = "/{id}/accept")
     @PreAuthorize("hasRole('DRIVER')")
-    public ResponseEntity<RideFullDTO> acceptRide(@PathVariable Integer id) {
+    public ResponseEntity<?> acceptRide(@PathVariable Integer id,
+                                        @RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.substring(7);
+
         try {
-            Ride ride = rideService.accept(id);
+            Ride ride = rideService.start(id);
+            if (!jwtUtil.extractId(token).equals(ride.getDriver().getId().toString()))
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
+
             return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Ride does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
         } catch (RideStatusException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot accept a ride that is not in status PENDING!");
+            return new ResponseEntity<>(new ResponseMessageDTO("Cannot accept a ride that is not in status PENDING!"),
+                    HttpStatus.BAD_REQUEST);
         }
     }
 
     @PutMapping(value = "/{id}/end")
     @PreAuthorize("hasRole('DRIVER')")
-    public ResponseEntity<RideFullDTO> endRide(@PathVariable Integer id) {
+    public ResponseEntity<?> endRide(@PathVariable Integer id,
+                                     @RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.substring(7);
+
         try {
-            Ride ride = rideService.end(id);
+            Ride ride = rideService.start(id);
+            if (!jwtUtil.extractId(token).equals(ride.getDriver().getId().toString()))
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
+
             return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Ride does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
         } catch (RideStatusException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot end a ride that is not in status STARTED!");
+            return new ResponseEntity<>(new ResponseMessageDTO("Cannot end a ride that is not in status STARTED!"),
+                    HttpStatus.BAD_REQUEST);
         }
     }
 
     @PutMapping(value = "/{id}/cancel")
     @PreAuthorize("hasRole('DRIVER')")
-    public ResponseEntity<RideFullDTO> rejectRide(@PathVariable Integer id, @RequestBody ReasonDTO reason) {
+    public ResponseEntity<?> rejectRide(@PathVariable Integer id, @RequestBody ReasonDTO reason,
+                                        @RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.substring(7);
 
         try {
-            Ride ride = rideService.reject(id, reason.getReason());
+            Ride ride = rideService.start(id);
+            if (!jwtUtil.extractId(token).equals(ride.getDriver().getId().toString()))
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
+
             return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Ride does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
         } catch (RideStatusException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot cancel a ride that is not in status PENDING or ACCEPTED!");
+            return new ResponseEntity<>(new ResponseMessageDTO("Cannot cancel a ride that is not in status PENDING or ACCEPTED!"),
+                    HttpStatus.BAD_REQUEST);
         }
     }
 
     @PostMapping(value = "/favorites", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('ADMIN') or hasRole('PASSENGER')")
-    public ResponseEntity<FavoriteFullDTO> createFavorite(@RequestBody CreateFavoriteDTO favoriteDTO) {
+    public ResponseEntity<?> createFavorite(@RequestBody CreateFavoriteDTO favoriteDTO,
+                                            @RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.substring(7);
+
         try {
             Favorite favorite = favoriteService.create(favoriteDTO);
+            if (jwtUtil.extractRole(token).equals("ROLE_PASSENGER") &&
+                    !passengerInDTOs(jwtUtil.extractId(token), new ArrayList<>(favoriteDTO.getPassengers())))
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
+
             return new ResponseEntity<>(new FavoriteFullDTO(favorite), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Passenger does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Passenger does not exist!");
         } catch (FavoriteRideExceedException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+            return new ResponseEntity<>(new ResponseMessageDTO(e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -268,12 +350,32 @@ public class RideController {
 
     @DeleteMapping(value = "/favorites/{id}")
     @PreAuthorize("hasRole('PASSENGER')")
-    public ResponseEntity<String> deleteFavorite(@PathVariable Integer id) {
+    public ResponseEntity<String> deleteFavorite(@PathVariable Integer id,
+                                                 @RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.substring(7);
+
         try {
+            Favorite favorite = favoriteService.get(id);
+            if (!passengerInPassengers(jwtUtil.extractId(token), new ArrayList<>(favorite.getPassengers())))
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Favorite location does not exist!");
             favoriteService.delete(id);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Successful deletion of favorite location!");
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Favorite location does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Favorite location does not exist!");
         }
+    }
+
+    private boolean passengerInPassengers(String passengerId, ArrayList<Passenger> passengers) {
+        for (Passenger p : passengers)
+            if (passengerId.equals(p.getId().toString()))
+                return true;
+        return false;
+    }
+
+    private boolean passengerInDTOs(String passengerId, ArrayList<UserRideDTO> passengers) {
+        for (UserRideDTO p : passengers)
+            if (passengerId.equals(p.getId().toString()))
+                return true;
+        return false;
     }
 }
