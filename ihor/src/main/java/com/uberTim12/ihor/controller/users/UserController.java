@@ -1,5 +1,6 @@
 package com.uberTim12.ihor.controller.users;
 
+import com.uberTim12.ihor.dto.ResponseMessageDTO;
 import com.uberTim12.ihor.dto.communication.MessageDTO;
 import com.uberTim12.ihor.dto.communication.ObjectListResponseDTO;
 import com.uberTim12.ihor.dto.communication.RequestNoteDTO;
@@ -74,7 +75,7 @@ public class UserController {
         try {
             userService.get(id);
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist!");
         }
 
         Page<Ride> rides;
@@ -109,7 +110,7 @@ public class UserController {
     }
 
     @PostMapping(value = "/login",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AuthTokenDTO> loginUser(@RequestBody UserCredentialsDTO userCredentialDTO)
+    public ResponseEntity<?> loginUser(@RequestBody UserCredentialsDTO userCredentialDTO)
     {
         try {
             var authentication = authenticationManager.authenticate (
@@ -121,12 +122,12 @@ public class UserController {
             AuthTokenDTO tokenDTO = new AuthTokenDTO(token, token);
             return new ResponseEntity<>(tokenDTO, HttpStatus.OK);
         } catch (AuthenticationException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong username or password!");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessageDTO( "Wrong username or password!"));
         }
     }
 
     @GetMapping(value = "/{id}/message",produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ObjectListResponseDTO<MessageDTO>> getUserMessages(@PathVariable Integer id)
+    public ResponseEntity<?> getUserMessages(@PathVariable Integer id)
     {
         try {
             userService.get(id);
@@ -134,58 +135,59 @@ public class UserController {
             ObjectListResponseDTO<MessageDTO> res = new ObjectListResponseDTO<>(messageService.getAll().size(), messages);
             return new ResponseEntity<>(res, HttpStatus.OK);
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body( "User does not exist!");
         }
     }
 
     @PostMapping(value = "/{id}/message",consumes=MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<MessageDTO> sendMessage(@PathVariable("id") Integer receiverId, @RequestBody SendingMessageDTO sendingMessageDTO)
+    public ResponseEntity<?> sendMessage(@PathVariable("id") Integer receiverId, @RequestBody SendingMessageDTO sendingMessageDTO)
     {
         try {
             Message message = messageService.sendMessage(receiverId,
                     sendingMessageDTO.getRideId(), sendingMessageDTO.getMessage(), sendingMessageDTO.getType());
             return new ResponseEntity<>(new MessageDTO(message), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body( e.getMessage());
         }
     }
 
     @PutMapping(value = "/{id}/block")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> blockUser(@PathVariable("id") Integer id)
+    public ResponseEntity<?> blockUser(@PathVariable("id") Integer id)
     {
         try {
             userService.blockUser(id);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("User is successfully blocked");
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body( "User does not exist!");
         } catch (UserAlreadyBlockedException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User already blocked!");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessageDTO( "User already blocked!"));
         }
     }
 
     @PutMapping(value = "/{id}/unblock")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> unblockUser(@PathVariable("id") Integer id)
+    public ResponseEntity<?> unblockUser(@PathVariable("id") Integer id)
     {
         try {
             userService.unblockUser(id);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("User is successfully unblocked");
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body( "User does not exist!");
         } catch (UserNotBlockedException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User is not blocked!");
-        }    }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessageDTO( "User is not blocked!"));
+        }
+    }
 
     @PostMapping(value = "/{id}/note",consumes=MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<NoteDTO> createNote(@PathVariable Integer id, @RequestBody RequestNoteDTO requestNoteDTO)
+    public ResponseEntity<?> createNote(@PathVariable Integer id, @RequestBody RequestNoteDTO requestNoteDTO)
     {
         try {
             Note note = noteService.create(id, requestNoteDTO.getMessage());
             return new ResponseEntity<>(new NoteDTO(note), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body( "User does not exist!");
         }
     }
     @GetMapping(value = "/{id}/note",produces = MediaType.APPLICATION_JSON_VALUE)
@@ -204,20 +206,20 @@ public class UserController {
             ObjectListResponseDTO<NoteDTO> objectListResponse = new ObjectListResponseDTO<>((int) notes.getTotalElements(), noteDTOs);
             return new ResponseEntity<>(objectListResponse, HttpStatus.OK);
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body( "User does not exist!");
         }
     }
 
     @PutMapping(value="/{id}/changePassword", consumes = "application/json")
-    public ResponseEntity<String> changePassword(@PathVariable Integer id, @RequestBody NewPasswordDTO newPasswordDTO)
+    public ResponseEntity<?> changePassword(@PathVariable Integer id, @RequestBody NewPasswordDTO newPasswordDTO)
     {
         try {
             userService.changePassword(id, newPasswordDTO.getOldPassword(), newPasswordDTO.getNewPassword());
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Password successfully changed!");
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body( "User does not exist!");
         } catch (PasswordDoesNotMatchException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Current password is not matching!");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessageDTO("Current password is not matching!"));
         }
     }
     @GetMapping(value="/{id}/resetPassword")
@@ -243,7 +245,7 @@ public class UserController {
 
         if (!user.getPassword().equals(resetPasswordDTO.getCode())) // || is expired TODO
         {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Code is expired or not correct!");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessageDTO("Code is expired or not correct!"));
         }
 
         if (!resetPasswordDTO.getNewPassword().equals("")){

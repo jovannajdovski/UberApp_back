@@ -1,5 +1,6 @@
 package com.uberTim12.ihor.controller.users;
 
+import com.uberTim12.ihor.dto.ResponseMessageDTO;
 import com.uberTim12.ihor.dto.communication.ObjectListResponseDTO;
 import com.uberTim12.ihor.dto.ride.RideNoStatusDTO;
 import com.uberTim12.ihor.dto.users.PassengerDTO;
@@ -42,13 +43,13 @@ public class PassengerController {
     }
 
     @PostMapping(consumes = "application/json")
-    public ResponseEntity<PassengerDTO> createPassenger(@RequestBody PassengerRegistrationDTO passengerDTO) {
+    public ResponseEntity<?> createPassenger(@RequestBody PassengerRegistrationDTO passengerDTO) {
         Passenger passenger = passengerDTO.generatePassenger();
         try {
             passenger = passengerService.register(passenger);
             return new ResponseEntity<>(new PassengerDTO(passenger), HttpStatus.OK);
         } catch (EmailAlreadyExistsException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User with that email already exist!");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessageDTO("User with that email already exist!"));
         }
     }
 
@@ -67,63 +68,63 @@ public class PassengerController {
     }
 
     @GetMapping(value = "/activate/{activationId}")
-    public ResponseEntity<String> activatePassenger(@PathVariable Integer activationId) {
+    public ResponseEntity<?> activatePassenger(@PathVariable Integer activationId) {
         try {
             userActivationService.activate(activationId);
             return ResponseEntity.status(HttpStatus.OK).body("Successful account activation!");
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Activation with entered id does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Activation with entered id does not exist!");
         } catch (UserActivationExpiredException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Activation expired. Register again!");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessageDTO("Activation expired. Register again!"));
         }
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<PassengerDTO> getPassenger(@PathVariable Integer id) {
+    public ResponseEntity<?> getPassenger(@PathVariable Integer id) {
         try {
             Passenger passenger = passengerService.get(id);
             return new ResponseEntity<>(new PassengerDTO(passenger), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Passenger does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Passenger does not exist!");
         }
     }
 
     @GetMapping(value = "/email/{email}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('PASSENGER')")
-    public ResponseEntity<PassengerDTO> getPassengerByEmail(@PathVariable String email) {
+    public ResponseEntity<?> getPassengerByEmail(@PathVariable String email) {
         try {
             Passenger passenger = passengerService.findByEmail(email);
             if(passenger==null)
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Passenger does not exist!");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Passenger does not exist!");
             return new ResponseEntity<>(new PassengerDTO(passenger), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Passenger does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Passenger does not exist!");
         }
     }
 
     @PutMapping(value = "/{id}", consumes = "application/json")
     @PreAuthorize("hasRole('ADMIN') or hasRole('PASSENGER')")
-    public ResponseEntity<PassengerDTO> updatePassenger(@PathVariable Integer id, @RequestBody PassengerRegistrationDTO passengerDTO) {
+    public ResponseEntity<?> updatePassenger(@PathVariable Integer id, @RequestBody PassengerRegistrationDTO passengerDTO) {
         try {
             Passenger passenger = passengerService.update(id, passengerDTO.getName(), passengerDTO.getSurname(),
                     passengerDTO.getProfilePicture(), passengerDTO.getTelephoneNumber(), passengerDTO.getEmail(),
                     passengerDTO.getAddress(), passengerDTO.getPassword());
             return new ResponseEntity<>(new PassengerDTO(passenger), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Passenger does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Passenger does not exist!");
         }
     }
 
     @GetMapping(value = "/{id}/ride")
     @PreAuthorize("hasRole('ADMIN') or hasRole('PASSENGER')")
-    public ResponseEntity<ObjectListResponseDTO<RideNoStatusDTO>> getPassengerRidesPage(@PathVariable Integer id, Pageable page,
+    public ResponseEntity<?> getPassengerRidesPage(@PathVariable Integer id, Pageable page,
                                                    @RequestParam(required = false) String from,
                                                    @RequestParam(required = false) String to) {
 
         Passenger passenger = passengerService.findByIdWithRides(id);
 
         if (passenger == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Passenger does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Passenger does not exist!");
         }
 
         Page<Ride> rides;
@@ -131,8 +132,6 @@ public class PassengerController {
         if (from == null || to == null)
             rides = passengerService.findAllById(passenger, page);
         else {
-            //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'hh:mm:ss.SSS");
-
             LocalDateTime start =  LocalDateTime.parse(from);
             LocalDateTime end =  LocalDateTime.parse(to);
             rides = passengerService.findAllById(id, start, end, page);
