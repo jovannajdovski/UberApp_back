@@ -26,6 +26,7 @@ public class CreateRideDTO {
     private VehicleCategory vehicleType;
     private boolean babyTransport;
     private boolean petTransport;
+
     private LocalDateTime scheduledTime;
 
 

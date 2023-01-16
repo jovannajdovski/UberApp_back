@@ -32,7 +32,7 @@ public class UserActivationService extends JPAService<UserActivation> implements
 
     @Override
     public UserActivation create(User user) {
-        UserActivation userActivation = new UserActivation(user, LocalDateTime.now(), LocalDateTime.now().plusYears(1));
+        UserActivation userActivation = new UserActivation(user, LocalDateTime.now(), LocalDateTime.now().plusYears(1)); //TODO novo polje, slanje mejla
         return save(userActivation);
     }
 
