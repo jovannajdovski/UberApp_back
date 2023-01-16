@@ -12,7 +12,7 @@ VALUES ('Miki', 'Mikic', null, '+3816563122', 'miki@email.com', 'Gogoljeva 3', '
 INSERT INTO passenger (id) values ( 1 );
 
 INSERT INTO ihor (name, surname, profile_picture, telephone_number, email, address, password, is_blocked,is_active, authority_id)
-VALUES ('User', 'Usser', 'ffdfdfedf', '+3816563122', 'user@example.com', 'Gogoljeva 3', '$2a$12$54NuKbL1rlXtwBClcpte8eOPgisxCI4crc0yZTjavUfy5NaJm5KWC' , false, false, 3); --user
+VALUES ('User', 'Usser', 'ffdfdfedf', '+3816563122', 'j.najdovski@gmail.com', 'Gogoljeva 3', '$2a$12$54NuKbL1rlXtwBClcpte8eOPgisxCI4crc0yZTjavUfy5NaJm5KWC' , false, false, 3); --user
 INSERT INTO passenger (id) values ( 2 );
 
 INSERT INTO ihor (name, surname, profile_picture, telephone_number, email, address, password, is_blocked,is_active, authority_id)

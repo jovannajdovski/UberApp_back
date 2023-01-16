@@ -7,9 +7,7 @@ import com.uberTim12.ihor.dto.communication.RequestNoteDTO;
 import com.uberTim12.ihor.dto.communication.SendingMessageDTO;
 import com.uberTim12.ihor.dto.ride.RideFullDTO;
 import com.uberTim12.ihor.dto.users.*;
-import com.uberTim12.ihor.exception.PasswordDoesNotMatchException;
-import com.uberTim12.ihor.exception.UserAlreadyBlockedException;
-import com.uberTim12.ihor.exception.UserNotBlockedException;
+import com.uberTim12.ihor.exception.*;
 import com.uberTim12.ihor.model.communication.Message;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.users.Note;
@@ -22,6 +20,7 @@ import com.uberTim12.ihor.service.ride.interfaces.IRideService;
 import com.uberTim12.ihor.service.users.impl.UserService;
 import com.uberTim12.ihor.service.users.interfaces.INoteService;
 import com.uberTim12.ihor.service.users.interfaces.IUserService;
+import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -37,6 +36,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.UnsupportedEncodingException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -222,38 +223,31 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessageDTO("Current password is not matching!"));
         }
     }
+
     @GetMapping(value="/{id}/resetPassword")
     public ResponseEntity<?> sendResetCodeToEmail(@PathVariable Integer id)
     {
-        User user = userService.get(id);
-
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist!");
+        try {
+            userService.forgotPassword(id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Email with reset code has been sent!");
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body( "User does not exist!");
+        } catch (MessagingException | UnsupportedEncodingException e) {
+            return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).body("Error while sending mail!");
         }
-        //TODO
 
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Email with reset code has been sent!");
     }
+
     @PutMapping(value="/{id}/resetPassword", consumes = "application/json")
     public ResponseEntity<?> changePasswordWithResetCode(@PathVariable Integer id, @RequestBody ResetPasswordDTO resetPasswordDTO)
     {
-        User user = userService.get(id);
-
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist!");
-        }
-
-        if (!user.getPassword().equals(resetPasswordDTO.getCode())) // || is expired TODO
-        {
+        try {
+            userService.resetPassword(id, resetPasswordDTO.getCode(), resetPasswordDTO.getNewPassword());
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Password successfully changed!");
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body( "User does not exist!");
+        } catch (IncorrectCodeException | CodeExpiredException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessageDTO("Code is expired or not correct!"));
         }
-
-        if (!resetPasswordDTO.getNewPassword().equals("")){
-            user.setPassword(resetPasswordDTO.getNewPassword());
-        }
-
-        userService.save(user);
-
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Password successfully changed!");
     }
 }
