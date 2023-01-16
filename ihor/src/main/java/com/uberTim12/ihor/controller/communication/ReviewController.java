@@ -4,7 +4,11 @@ import com.uberTim12.ihor.dto.communication.FullReviewDTO;
 import com.uberTim12.ihor.dto.communication.ObjectListResponseDTO;
 import com.uberTim12.ihor.dto.communication.ReviewDTO;
 import com.uberTim12.ihor.dto.communication.ReviewRequestDTO;
+import com.uberTim12.ihor.dto.users.UserRideDTO;
 import com.uberTim12.ihor.model.communication.Review;
+import com.uberTim12.ihor.model.ride.Ride;
+import com.uberTim12.ihor.model.users.Passenger;
+import com.uberTim12.ihor.security.JwtUtil;
 import com.uberTim12.ihor.service.communication.impl.ReviewService;
 import com.uberTim12.ihor.service.communication.interfaces.IReviewService;
 import com.uberTim12.ihor.service.ride.impl.RideService;
@@ -30,30 +34,39 @@ public class ReviewController {
     private final IDriverService driverService;
     private final IVehicleService vehicleService;
     private final IRideService rideService;
+    private final JwtUtil jwtUtil;
     
 
     @Autowired
-    public ReviewController(ReviewService reviewService, IDriverService driverService, IVehicleService vehicleService, RideService rideService) {
+    public ReviewController(ReviewService reviewService, IDriverService driverService, IVehicleService vehicleService, RideService rideService, JwtUtil jwtUtil) {
         this.reviewService = reviewService;
         this.driverService = driverService;
         this.vehicleService = vehicleService;
         this.rideService = rideService;
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping(value = "/{rideId}/vehicle",consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('PASSENGER')")
-    public ResponseEntity<ReviewDTO> leaveReviewForVehicle(@PathVariable Integer rideId, @RequestBody ReviewRequestDTO reviewRequestDTO)
+    public ResponseEntity<?> leaveReviewForVehicle(@PathVariable Integer rideId,
+                                                   @RequestBody ReviewRequestDTO reviewRequestDTO,
+                                                   @RequestHeader("Authorization") String authHeader)
     {
+        String token = authHeader.substring(7);
         try {
+            Ride ride = rideService.get(rideId);
+            if (!passengerInPassengers(jwtUtil.extractId(token), new ArrayList<>(ride.getPassengers())))
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
+
             Review review = reviewService.createVehicleReview(rideId, reviewRequestDTO.getRating(), reviewRequestDTO.getComment());
             return new ResponseEntity<>(new ReviewDTO(review, true), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Ride does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
         }
     }
 
     @GetMapping(value = "/vehicle/{id}",produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ObjectListResponseDTO<ReviewDTO>> getReviewsForVehicle(@PathVariable("id") Integer vehicleId)
+    public ResponseEntity<?> getReviewsForVehicle(@PathVariable("id") Integer vehicleId)
     {
         try {
             vehicleService.get(vehicleId);
@@ -66,24 +79,31 @@ public class ReviewController {
             ObjectListResponseDTO<ReviewDTO> res = new ObjectListResponseDTO<>(reviewDTOs.size(), reviewDTOs);
             return new ResponseEntity<>(res, HttpStatus.OK);
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Vehicle does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Vehicle does not exist!");
         }
     }
 
     @PostMapping(value = "/{rideId}/driver",consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('PASSENGER')")
-    public ResponseEntity<ReviewDTO> leaveReviewForDriver(@PathVariable Integer rideId, @RequestBody ReviewRequestDTO reviewRequestDTO)
+    public ResponseEntity<?> leaveReviewForDriver(@PathVariable Integer rideId,
+                                                          @RequestBody ReviewRequestDTO reviewRequestDTO,
+                                                          @RequestHeader("Authorization") String authHeader)
     {
+        String token = authHeader.substring(7);
         try {
+            Ride ride = rideService.get(rideId);
+            if (!passengerInPassengers(jwtUtil.extractId(token), new ArrayList<>(ride.getPassengers())))
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
+
             Review review = reviewService.createDriverReview(rideId, reviewRequestDTO.getRating(), reviewRequestDTO.getComment());
             return new ResponseEntity<>(new ReviewDTO(review, false), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Ride does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
         }
     }
 
     @GetMapping(value = "/driver/{id}",produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ObjectListResponseDTO<ReviewDTO>> getReviewsForDriver(@PathVariable("id") Integer driverId)
+    public ResponseEntity<?> getReviewsForDriver(@PathVariable("id") Integer driverId)
     {
         try {
             driverService.get(driverId);
@@ -96,13 +116,13 @@ public class ReviewController {
             ObjectListResponseDTO<ReviewDTO> res = new ObjectListResponseDTO<>(reviewDTOs.size(), reviewDTOs);
             return new ResponseEntity<>(res, HttpStatus.OK);
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Driver does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Driver does not exist!");
         }
 
     }
 
     @GetMapping(value = "/{rideId}",produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<FullReviewDTO>> getReviewsForRide(@PathVariable Integer rideId)
+    public ResponseEntity<?> getReviewsForRide(@PathVariable Integer rideId)
     {
         try {
             rideService.get(rideId);
@@ -114,8 +134,21 @@ public class ReviewController {
 
             return new ResponseEntity<>(reviewDTOs, HttpStatus.OK);
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Ride does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
         }
     }
 
+    private boolean passengerInPassengers(String passengerId, ArrayList<Passenger> passengers) {
+        for (Passenger p : passengers)
+            if (passengerId.equals(p.getId().toString()))
+                return true;
+        return false;
+    }
+
+    private boolean passengerInDTOs(String passengerId, ArrayList<UserRideDTO> passengers) {
+        for (UserRideDTO p : passengers)
+            if (passengerId.equals(p.getId().toString()))
+                return true;
+        return false;
+    }
 }
