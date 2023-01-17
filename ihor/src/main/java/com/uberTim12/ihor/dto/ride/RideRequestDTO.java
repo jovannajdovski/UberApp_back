@@ -6,6 +6,7 @@ import com.uberTim12.ihor.model.vehicle.VehicleCategory;
 import com.uberTim12.ihor.model.vehicle.VehicleType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,7 +22,7 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 public class RideRequestDTO {
-    @Length(min = 1, max = 1)
+    @Size(min = 1, max = 2)
     @Valid
     private Set<PathDTO> locations;
     private VehicleCategory vehicleType;

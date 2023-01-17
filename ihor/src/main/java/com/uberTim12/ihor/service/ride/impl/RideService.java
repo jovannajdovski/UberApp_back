@@ -90,7 +90,9 @@ public class RideService extends JPAService<Ride> implements IRideService {
         {
             estimatedTime=Double.MAX_VALUE;
         }
-        return new RideResponseDTO(estimatedTime, ride.getVehicleType().getPricePerKM()+distance*120);
+//        return new RideResponseDTO(estimatedTime, ride.getVehicleType().getPricePerKM()+distance*120);
+        return new RideResponseDTO(estimatedTime, 500+distance*120);
+
     }
 
 
