@@ -8,26 +8,26 @@ INSERT INTO authority(name)
 VALUES ('ROLE_PASSENGER');
 
 INSERT INTO ihor (name, surname, profile_picture, telephone_number, email, address, password, is_blocked, is_active, authority_id)
-VALUES ('Miki', 'Mikic', null, '+3816563122', 'miki@email.com', 'Gogoljeva 3', '$2a$12$wwQ9iYllQax/wUT99HgAUeeHCdBk7tOT/oqo7usLtFLbMn9lpiL.S' , false, false, 3); --mikimilane
+VALUES ('Miki', 'Mikic', null, '+3816563122', 'miki@email.com', 'Gogoljeva 3', '$2a$12$wwQ9iYllQax/wUT99HgAUeeHCdBk7tOT/oqo7usLtFLbMn9lpiL.S' , true, false, 3); --mikimilane
 INSERT INTO passenger (id) values ( 1 );
 
 INSERT INTO ihor (name, surname, profile_picture, telephone_number, email, address, password, is_blocked,is_active, authority_id)
-VALUES ('User', 'Usser', 'ffdfdfedf', '+3816563122', 'j.najdovski@gmail.com', 'Gogoljeva 3', '$2a$12$54NuKbL1rlXtwBClcpte8eOPgisxCI4crc0yZTjavUfy5NaJm5KWC' , false, false, 3); --user
+VALUES ('User', 'Usser', 'ffdfdfedf', '+3816563122', 'user@gmail.com', 'Gogoljeva 3', '$2a$12$54NuKbL1rlXtwBClcpte8eOPgisxCI4crc0yZTjavUfy5NaJm5KWC' , true, false, 3); --user
 INSERT INTO passenger (id) values ( 2 );
 
 INSERT INTO ihor (name, surname, profile_picture, telephone_number, email, address, password, is_blocked,is_active, authority_id)
-VALUES ('Zoki', 'Zokic', 'ffdfdfedf', '+3816563122', 'zoki@email.com', 'Gogoljeva 3', '$2a$12$k0VBF/xbK6qti0euHe/abeIsKILktIi3YIGjoj6.P1nFBEs99GwJS' , false, false, 2); --zokizoki
+VALUES ('Zoki', 'Zokic', 'ffdfdfedf', '+3816563122', 'zoki@email.com', 'Gogoljeva 3', '$2a$12$k0VBF/xbK6qti0euHe/abeIsKILktIi3YIGjoj6.P1nFBEs99GwJS' , true, false, 2); --zokizoki
 INSERT INTO driver (id) VALUES ( 3 );
 INSERT INTO ihor (name, surname, profile_picture, telephone_number, email, address, password, is_blocked,is_active, authority_id)
-VALUES ('Nikola', 'Luburic', 'ffdfdfedf', '+3816563122', 'lubura@email.com', 'Pavla Papa 3', '$2a$12$ckc7Wu4C74twLpbouzDR7.TOtgPUtTP5AYxrOqgbG20DpchYILUEa' , false, false, 2); --lubura
+VALUES ('Nikola', 'Luburic', 'ffdfdfedf', '+3816563122', 'lubura@email.com', 'Pavla Papa 3', '$2a$12$ckc7Wu4C74twLpbouzDR7.TOtgPUtTP5AYxrOqgbG20DpchYILUEa' , true, false, 2); --lubura
 INSERT INTO driver (id) VALUES ( 4 );
 
 INSERT INTO ihor (name, surname, profile_picture, telephone_number, email, address, password, is_blocked,is_active, authority_id)
-VALUES ('Ognjen', 'Ognjenovic', 'ffdfdfedf', '+3816563122', 'ogi@email.com', 'Preradoviceva 3', '$2a$12$q7XhID2ACdawcTbvO/H6qejeiRv8u9zGfAw5xWAKCqrACBjXHV79W' , false, false, 2); --ogiogi
+VALUES ('Ognjen', 'Ognjenovic', 'ffdfdfedf', '+3816563122', 'ogi@email.com', 'Preradoviceva 3', '$2a$12$q7XhID2ACdawcTbvO/H6qejeiRv8u9zGfAw5xWAKCqrACBjXHV79W' , true, false, 2); --ogiogi
 INSERT INTO driver (id) VALUES ( 5 );
 
 INSERT INTO ihor (name, surname, profile_picture, telephone_number, email, address, password, is_blocked,is_active, authority_id)
-VALUES ('Roki', 'Rokvic', 'ffdfdfedf', '+3816563122', 'roki@email.com', 'Preradoviceva 3', '$2a$12$JpTYHr7H/68YlZWuNdQ41.CJCAyIg0xPfrjKMd3EuW6ipcy2sy83m' , false, false, 1); --rokiroki
+VALUES ('Roki', 'Rokvic', 'ffdfdfedf', '+3816563122', 'roki@email.com', 'Preradoviceva 3', '$2a$12$JpTYHr7H/68YlZWuNdQ41.CJCAyIg0xPfrjKMd3EuW6ipcy2sy83m' , true, false, 1); --rokiroki
 INSERT INTO administrator (id) VALUES ( 6 );
 
 INSERT INTO DRIVER_DOCUMENT (NAME, PICTURE, DRIVER_ID) VALUES ('Vozačka dozvola', 'U3dhZ2dlciByb2Nrcw=', 3);
@@ -99,7 +99,6 @@ values ('Volkswagen pas', 1, 'NS157AJ', 5,2,TRUE,TRUE,4);
 INSERT INTO VEHICLE (vehicle_model, vehicle_Type_id, registration_plate, seats, location_id, babies_allowed, pets_allowed, driver_id)
 values ('TOYOTA', 2, 'BG157AJ', 4,2,TRUE,FALSE,5);
 
-INSERT INTO USER_ACTIVATION (USER_ID, CREATION_DATE, EXPIRY_DATE) VALUES (1, '2022-12-10T22:40:59.161', '2023-12-10T22:40:59.161')
 
 
 -- INSERT INTO location (id, address, latitude, longitude)

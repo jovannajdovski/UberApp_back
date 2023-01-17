@@ -5,6 +5,8 @@ import com.uberTim12.ihor.exception.NotFoundException;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.ride.RideStatus;
 import com.uberTim12.ihor.model.users.Passenger;
+import com.uberTim12.ihor.model.users.PasswordResetToken;
+import com.uberTim12.ihor.model.users.User;
 import com.uberTim12.ihor.repository.ride.IRideRepository;
 import com.uberTim12.ihor.repository.users.IPassengerRepository;
 import com.uberTim12.ihor.service.base.impl.JPAService;
@@ -13,16 +15,21 @@ import com.uberTim12.ihor.service.users.interfaces.IPassengerService;
 import com.uberTim12.ihor.service.users.interfaces.IUserActivationService;
 import com.uberTim12.ihor.service.users.interfaces.IUserService;
 import com.uberTim12.ihor.util.ImageConverter;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class PassengerService extends JPAService<Passenger> implements IPassengerService {
@@ -47,10 +54,11 @@ public class PassengerService extends JPAService<Passenger> implements IPassenge
     }
 
     @Override
-    public Passenger register(Passenger passenger) throws EmailAlreadyExistsException {
+    public Passenger register(Passenger passenger) throws EmailAlreadyExistsException, MessagingException, UnsupportedEncodingException {
         userService.emailTaken(passenger.getEmail());
         passenger.setActive(false);
         passenger = save(passenger);
+
         userActivationService.create(passenger);
         return passenger;
     }

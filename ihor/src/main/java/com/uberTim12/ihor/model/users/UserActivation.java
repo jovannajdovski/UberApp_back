@@ -21,15 +21,19 @@ public class UserActivation {
     @OneToOne
     private User user;
 
+    @Column(name = "token", nullable = false)
+    private Integer token;
+
     @Column(name = "creation_date", nullable = false)
     private LocalDateTime creationDate;
 
     @Column(name = "expiry_date", nullable = false)
     private LocalDateTime expiryDate;
 
-    public UserActivation(User user, LocalDateTime creationDate, LocalDateTime expiryDate) {
+    public UserActivation(User user, LocalDateTime creationDate, LocalDateTime expiryDate, Integer token) {
         this.user = user;
         this.creationDate = creationDate;
         this.expiryDate = expiryDate;
+        this.token = token;
     }
 }

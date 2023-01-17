@@ -49,6 +49,7 @@ public class SecurityConfig {
             .requestMatchers(toH2Console()).permitAll()
             .requestMatchers(POST, "/api/passenger").permitAll()
             .requestMatchers(GET,"/api/passenger/*").permitAll()
+                .requestMatchers(GET,"/api/passenger/activate/*").permitAll()
             .requestMatchers("/api/unregisteredUser/**").permitAll()
             .requestMatchers("/api/user/login").permitAll()
             .requestMatchers("/api/user/*/resetPassword").permitAll()
