@@ -31,15 +31,15 @@ VALUES ('ROLE_PASSENGER');
 -- INSERT INTO administrator (id) VALUES ( 6 );
 --
 INSERT INTO ihor (name, surname, profile_picture, telephone_number, email, address, password, is_blocked,is_active, authority_id)
-VALUES ('User', 'Usser', 'ffdfdfedf', '+3816563122', 'passenger@gmail.com', 'Gogoljeva 3', '$2a$12$j7iYyVb8oUctjiiiHN42eOkPFXPatyKNxuqeuEKpENA6F.RFTqJhy' , false, false, 3); --NekaSifra123
+VALUES ('User', 'Usser', 'ffdfdfedf', '+3816563122', 'passenger@gmail.com', 'Gogoljeva 3', '$2a$12$j7iYyVb8oUctjiiiHN42eOkPFXPatyKNxuqeuEKpENA6F.RFTqJhy' , false, true, 3); --NekaSifra123
 INSERT INTO passenger (id) values ( 1 );
 
 INSERT INTO ihor (name, surname, profile_picture, telephone_number, email, address, password, is_blocked,is_active, authority_id)
-VALUES ('User', 'Usser', 'ffdfdfedf', '+3816563122', 'driver@gmail.com', 'Gogoljeva 3', '$2a$12$j7iYyVb8oUctjiiiHN42eOkPFXPatyKNxuqeuEKpENA6F.RFTqJhy' , false, false, 2); --NekaSifra123
+VALUES ('User', 'Usser', 'ffdfdfedf', '+3816563122', 'driver@gmail.com', 'Gogoljeva 3', '$2a$12$j7iYyVb8oUctjiiiHN42eOkPFXPatyKNxuqeuEKpENA6F.RFTqJhy' , false, true, 2); --NekaSifra123
 INSERT INTO Driver (id) values ( 2 );
 
 INSERT INTO ihor (name, surname, profile_picture, telephone_number, email, address, password, is_blocked,is_active, authority_id)
-VALUES ('User', 'Usser', 'ffdfdfedf', '+3816563122', 'admin@gmail.com', 'Gogoljeva 3', '$2a$12$j7iYyVb8oUctjiiiHN42eOkPFXPatyKNxuqeuEKpENA6F.RFTqJhy' , false, false, 1); --NekaSifra123
+VALUES ('User', 'Usser', 'ffdfdfedf', '+3816563122', 'admin@gmail.com', 'Gogoljeva 3', '$2a$12$j7iYyVb8oUctjiiiHN42eOkPFXPatyKNxuqeuEKpENA6F.RFTqJhy' , false, true, 1); --NekaSifra123
 INSERT INTO Administrator (id) values ( 3 );
 --
 -- INSERT INTO DRIVER_DOCUMENT (NAME, PICTURE, DRIVER_ID) VALUES ('Vozačka dozvola', 'U3dhZ2dlciByb2Nrcw=', 3);
