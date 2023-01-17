@@ -80,7 +80,9 @@ public class UserController {
                                           @RequestHeader("Authorization") String authHeader
                                           )
     {
-        if(Integer.parseInt(jwtUtil.extractId(authHeader.substring(7)))!=id && (jwtUtil.extractRole(authHeader.substring(7)).equals("ROLE_PASSENGER")|| jwtUtil.extractRole(authHeader.substring(7)).equals("ROLE_DRIVER")))
+        if(Integer.parseInt(jwtUtil.extractId(authHeader.substring(7)))!=id &&
+                (jwtUtil.extractRole(authHeader.substring(7)).equals("ROLE_PASSENGER") ||
+                        jwtUtil.extractRole(authHeader.substring(7)).equals("ROLE_DRIVER")))
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist!");
 
         try {
@@ -240,16 +242,13 @@ public class UserController {
     }
 
     @GetMapping(value="/{id}/resetPassword")
-    public ResponseEntity<?> sendResetCodeToEmail(@Min(value = 1) @PathVariable Integer id, @RequestHeader("Authorization") String authHeader)
+    public ResponseEntity<?> sendResetCodeToEmail(@Min(value = 1) @PathVariable Integer id)
     {
-        if(Integer.parseInt(jwtUtil.extractId(authHeader.substring(7)))!=id && (jwtUtil.extractRole(authHeader.substring(7)).equals("ROLE_PASSENGER")|| jwtUtil.extractRole(authHeader.substring(7)).equals("ROLE_DRIVER")))
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist!");
-
         try {
             userService.forgotPassword(id);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Email with reset code has been sent!");
         } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body( "User does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist!");
         } catch (MessagingException | UnsupportedEncodingException e) {
             return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).body("Error while sending mail!");
         }
@@ -257,11 +256,8 @@ public class UserController {
     }
 
     @PutMapping(value="/{id}/resetPassword", consumes = "application/json")
-    public ResponseEntity<?> changePasswordWithResetCode(@Min(value = 1) @PathVariable Integer id, @Valid @RequestBody ResetPasswordDTO resetPasswordDTO, @RequestHeader("Authorization") String authHeader)
+    public ResponseEntity<?> changePasswordWithResetCode(@Min(value = 1) @PathVariable Integer id, @Valid @RequestBody ResetPasswordDTO resetPasswordDTO)
     {
-        if(Integer.parseInt(jwtUtil.extractId(authHeader.substring(7)))!=id && (jwtUtil.extractRole(authHeader.substring(7)).equals("ROLE_PASSENGER")|| jwtUtil.extractRole(authHeader.substring(7)).equals("ROLE_DRIVER")))
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist!");
-
         try {
             userService.resetPassword(id, resetPasswordDTO.getCode(), resetPasswordDTO.getNewPassword());
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Password successfully changed!");

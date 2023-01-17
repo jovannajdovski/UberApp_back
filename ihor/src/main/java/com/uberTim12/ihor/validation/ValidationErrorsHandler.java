@@ -1,5 +1,6 @@
 package com.uberTim12.ihor.validation;
 
+import ch.qos.logback.core.encoder.EchoEncoder;
 import com.uberTim12.ihor.dto.ResponseMessageDTO;
 import org.hibernate.TypeMismatchException;
 import org.springframework.http.HttpHeaders;
