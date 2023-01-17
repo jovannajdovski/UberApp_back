@@ -1,35 +1,30 @@
 package com.uberTim12.ihor.service.users.impl;
 
 import com.uberTim12.ihor.exception.EmailAlreadyExistsException;
-import com.uberTim12.ihor.exception.NotFoundException;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.ride.RideStatus;
 import com.uberTim12.ihor.model.users.Passenger;
-import com.uberTim12.ihor.model.users.PasswordResetToken;
-import com.uberTim12.ihor.model.users.User;
 import com.uberTim12.ihor.repository.ride.IRideRepository;
 import com.uberTim12.ihor.repository.users.IPassengerRepository;
 import com.uberTim12.ihor.service.base.impl.JPAService;
 import com.uberTim12.ihor.service.ride.interfaces.IRideService;
+import com.uberTim12.ihor.repository.users.IAuthorityRepository;
 import com.uberTim12.ihor.service.users.interfaces.IPassengerService;
 import com.uberTim12.ihor.service.users.interfaces.IUserActivationService;
 import com.uberTim12.ihor.service.users.interfaces.IUserService;
 import com.uberTim12.ihor.util.ImageConverter;
 import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class PassengerService extends JPAService<Passenger> implements IPassengerService {
@@ -38,14 +33,18 @@ public class PassengerService extends JPAService<Passenger> implements IPassenge
     private final IUserService userService;
     private final IUserActivationService userActivationService;
     private final IRideService rideService;
+    private final PasswordEncoder passwordEncoder;
+    private final IAuthorityRepository authorityRepository;
 
     @Autowired
-    public PassengerService(IPassengerRepository passengerRepository, IRideRepository rideRepository, IUserService userService, IUserActivationService userActivationService, IRideService rideService) {
+    public PassengerService(IPassengerRepository passengerRepository, IRideRepository rideRepository, IUserService userService, IUserActivationService userActivationService, IRideService rideService, PasswordEncoder passwordEncoder, IAuthorityRepository authorityRepository) {
         this.passengerRepository = passengerRepository;
         this.rideRepository = rideRepository;
         this.userService = userService;
         this.userActivationService = userActivationService;
         this.rideService = rideService;
+        this.passwordEncoder = passwordEncoder;
+        this.authorityRepository = authorityRepository;
     }
 
     @Override
@@ -57,6 +56,8 @@ public class PassengerService extends JPAService<Passenger> implements IPassenge
     public Passenger register(Passenger passenger) throws EmailAlreadyExistsException, MessagingException, UnsupportedEncodingException {
         userService.emailTaken(passenger.getEmail());
         passenger.setActive(false);
+        passenger.setAuthority(authorityRepository.findById(3).get());
+        passenger.setPassword(passwordEncoder.encode(passenger.getPassword()));
         passenger = save(passenger);
 
         userActivationService.create(passenger);

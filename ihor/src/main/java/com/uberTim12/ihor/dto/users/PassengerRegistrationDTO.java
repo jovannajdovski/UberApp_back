@@ -19,11 +19,9 @@ public class PassengerRegistrationDTO {
     private String name;
     @NotEmpty
     private String surname;
-
     private String profilePicture;
-    @Pattern(regexp = "[0-9]+[0-9 \\-]+")
+    @Pattern(regexp = "[0-9 +]?[0-9]+[0-9 \\-]+")
     private String telephoneNumber;
-
     @Email(regexp = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")
     private String email;
     @NotEmpty

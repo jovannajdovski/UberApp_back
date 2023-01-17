@@ -41,6 +41,14 @@ INSERT INTO Driver (id) values ( 2 );
 INSERT INTO ihor (name, surname, profile_picture, telephone_number, email, address, password, is_blocked,is_active, authority_id)
 VALUES ('User', 'Usser', 'ffdfdfedf', '+3816563122', 'admin@gmail.com', 'Gogoljeva 3', '$2a$12$j7iYyVb8oUctjiiiHN42eOkPFXPatyKNxuqeuEKpENA6F.RFTqJhy' , false, true, 1); --NekaSifra123
 INSERT INTO Administrator (id) values ( 3 );
+
+INSERT INTO ihor (name, surname, profile_picture, telephone_number, email, address, password, is_blocked,is_active, authority_id)
+VALUES ('User', 'Usser', 'ffdfdfedf', '+3816563122', 'perapera@gmail.com', 'Gogoljeva 3', '$2a$12$SAb4HMfSjGuDnXdHEgUztu6Tnoema1khOgq7F1yEM1hDntSJbX1x6' , false, true, 1); --NekaSifra123
+INSERT INTO Passenger (id) values ( 4 );
+
+INSERT INTO ihor (ID, name, surname, profile_picture, telephone_number, email, address, password, is_blocked,is_active, authority_id)
+VALUES (72, 'User', 'Usser', 'ffdfdfedf', '+3816563122', 'passenger.attached.to.ride@gmail.com', 'Gogoljeva 3', '$2a$12$SAb4HMfSjGuDnXdHEgUztu6Tnoema1khOgq7F1yEM1hDntSJbX1x6' , false, true, 1); --NekaSifra123
+INSERT INTO Passenger (id) values ( 72 );
 --
 -- INSERT INTO DRIVER_DOCUMENT (NAME, PICTURE, DRIVER_ID) VALUES ('Vozačka dozvola', 'U3dhZ2dlciByb2Nrcw=', 3);
 INSERT INTO WORK_HOURS (START_TIME, DRIVER_ID) VALUES ('2023-01-17T10:40:59.161', 2);
@@ -111,7 +119,8 @@ values ('Seat', 1, 'SA157AJ', 5, 1, TRUE,TRUE, 2);
 -- INSERT INTO VEHICLE (vehicle_model, vehicle_Type_id, registration_plate, seats, location_id, babies_allowed, pets_allowed, driver_id)
 -- values ('TOYOTA', 2, 'BG157AJ', 4,2,TRUE,FALSE,5);
 --
--- INSERT INTO USER_ACTIVATION (USER_ID, CREATION_DATE, EXPIRY_DATE) VALUES (1, '2022-12-10T22:40:59.161', '2023-12-10T22:40:59.161')
+INSERT INTO USER_ACTIVATION (USER_ID, TOKEN, CREATION_DATE, EXPIRY_DATE) VALUES (1, 123456, '2022-12-10T22:40:59.161', '2023-12-10T22:40:59.161');
+INSERT INTO USER_ACTIVATION (USER_ID, TOKEN, CREATION_DATE, EXPIRY_DATE) VALUES (2, 654321, '2022-12-10T22:40:59.161', '2022-12-10T22:40:59.161');
 --
 --
 -- -- INSERT INTO location (id, address, latitude, longitude)

@@ -36,6 +36,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.UnsupportedEncodingException;
@@ -53,13 +54,14 @@ public class UserController {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final AuthUtil authUtil;
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     UserController(RideService rideService,
                    UserService userService,
                    MessageService messageService,
                    INoteService noteService, AuthenticationManager authenticationManager,
-                   JwtUtil jwtUtil, AuthUtil authUtil) {
+                   JwtUtil jwtUtil, AuthUtil authUtil, PasswordEncoder passwordEncoder) {
         this.rideService = rideService;
         this.userService = userService;
         this.messageService = messageService;
@@ -67,6 +69,7 @@ public class UserController {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.authUtil = authUtil;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping(value = "/{id}/ride",produces = MediaType.APPLICATION_JSON_VALUE)
@@ -122,7 +125,8 @@ public class UserController {
     {
         try {
             var authentication = authenticationManager.authenticate (
-                    new UsernamePasswordAuthenticationToken(userCredentialDTO.getEmail(), userCredentialDTO.getPassword())
+                    new UsernamePasswordAuthenticationToken(userCredentialDTO.getEmail(),
+                             userCredentialDTO.getPassword())
             );
             SecurityContextHolder.getContext().setAuthentication(authentication);
 

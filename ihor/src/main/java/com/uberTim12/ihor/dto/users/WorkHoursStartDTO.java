@@ -1,5 +1,6 @@
 package com.uberTim12.ihor.dto.users;
 
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.PastOrPresent;
 import lombok.AllArgsConstructor;
@@ -15,5 +16,6 @@ import java.time.LocalDateTime;
 @Setter
 public class WorkHoursStartDTO {
     @PastOrPresent
+    @NotNull
     private LocalDateTime start;
 }

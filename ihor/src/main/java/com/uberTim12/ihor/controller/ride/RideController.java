@@ -159,7 +159,6 @@ public class RideController {
 
         try {
             Ride ride = rideService.get(id);
-            String pera = jwtUtil.extractRole(token);
 
 
             if (jwtUtil.extractRole(token).equals("ROLE_DRIVER") &&

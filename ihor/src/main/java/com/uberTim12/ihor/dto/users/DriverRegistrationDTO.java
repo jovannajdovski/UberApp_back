@@ -22,7 +22,7 @@ public class DriverRegistrationDTO {
     private String surname;
 
     private String profilePicture;
-    @Pattern(regexp = "[0-9]+[0-9 \\-]+")
+    @Pattern(regexp = "[0-9 +]?[0-9]+[0-9 \\-]+")
     private String telephoneNumber;
 
     @Email(regexp = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")

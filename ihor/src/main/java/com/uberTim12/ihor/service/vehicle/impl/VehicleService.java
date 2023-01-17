@@ -74,6 +74,7 @@ public class VehicleService extends JPAService<Vehicle> implements IVehicleServi
         if (vehicle.getDriver() == null)
             throw new EntityPropertyIsNullException("Vehicle is not assigned to driver!");
 
+        location = locationService.save(location);
         vehicle.setCurrentLocation(location);
         save(vehicle);
     }

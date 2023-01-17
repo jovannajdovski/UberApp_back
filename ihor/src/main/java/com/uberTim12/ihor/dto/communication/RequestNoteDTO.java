@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Length;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -12,5 +13,6 @@ import lombok.NoArgsConstructor;
 @Setter
 public class RequestNoteDTO {
     @NotEmpty
+    @Length(max = 100)
     String message;
 }

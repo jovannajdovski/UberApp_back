@@ -28,7 +28,7 @@ public class NoteService extends JPAService<Note> implements INoteService {
 
     @Override
     protected JpaRepository<Note, Integer> getEntityRepository() {
-        return null;
+        return noteRepository;
     }
 
     @Override

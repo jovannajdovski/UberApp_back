@@ -79,7 +79,8 @@ public class UserService extends JPAService<User> implements IUserService, UserD
     public void changePassword(Integer id, String oldPassword, String newPassword)
             throws EntityNotFoundException, PasswordDoesNotMatchException {
         User user = get(id);
-        if (!user.getPassword().equals(bCryptPasswordEncoder.encode(oldPassword)))
+
+        if (!bCryptPasswordEncoder.matches(oldPassword, user.getPassword()))
             throw new PasswordDoesNotMatchException("Current password is not matching!");
 
         user.setPassword(bCryptPasswordEncoder.encode(newPassword));
@@ -115,7 +116,7 @@ public class UserService extends JPAService<User> implements IUserService, UserD
         User user = get(userId);
 
         PasswordResetToken token = updatePasswordResetToken(user);
-        mailSender.send(constructResetTokenEmail(token.getToken(), user));
+//        mailSender.send(constructResetTokenEmail(token.getToken(), user));
     }
 
     private PasswordResetToken updatePasswordResetToken(User user) {

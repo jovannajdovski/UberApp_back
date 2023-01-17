@@ -9,11 +9,13 @@ import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.repository.users.IDriverRepository;
 import com.uberTim12.ihor.service.base.impl.JPAService;
 import com.uberTim12.ihor.service.ride.interfaces.IRideService;
+import com.uberTim12.ihor.repository.users.IAuthorityRepository;
 import com.uberTim12.ihor.service.users.interfaces.IDriverService;
 import com.uberTim12.ihor.util.ImageConverter;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -25,11 +27,15 @@ import java.util.List;
 public class DriverService extends JPAService<Driver> implements IDriverService {
     private final IDriverRepository driverRepository;
     private final IRideService rideService;
+    private final PasswordEncoder passwordEncoder;
+    private final IAuthorityRepository authorityRepository;
 
     @Autowired
-    DriverService(IDriverRepository driverRepository, IRideService rideService) {
+    DriverService(IDriverRepository driverRepository, IRideService rideService, PasswordEncoder passwordEncoder, IAuthorityRepository authorityRepository) {
         this.driverRepository = driverRepository;
         this.rideService = rideService;
+        this.passwordEncoder = passwordEncoder;
+        this.authorityRepository = authorityRepository;
     }
 
     @Override
@@ -47,6 +53,8 @@ public class DriverService extends JPAService<Driver> implements IDriverService 
         if (findByEmail(driver.getEmail()) != null)
             throw new EmailAlreadyExistsException("User with that email already exists!");
 
+        driver.setAuthority(authorityRepository.findById(2).get());
+        driver.setPassword(passwordEncoder.encode(driver.getPassword()));
         return save(driver);
     }
 

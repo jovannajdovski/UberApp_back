@@ -94,7 +94,7 @@ public class WorkHoursService extends JPAService<WorkHours> implements IWorkHour
         TreeSet<WorkHours> workHoursSorted = new TreeSet<>(new WorkHoursComp());
         workHoursSorted.addAll(workHours);
 
-        if (workHoursSorted.last().getEndTime() == null)
+        if (!workHoursSorted.isEmpty() && workHoursSorted.last().getEndTime() == null)
             throw new ShiftAlreadyStartedException("Shift already ongoing!");
     }
 

@@ -99,11 +99,6 @@ public class DriverController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getDriversPage(Pageable page) {
-        try {
-            SimpleFormatValidator.checkPageableValidity(page);
-        } catch (DataFormatException e) {
-            return new ResponseEntity<>(new ResponseMessageDTO(e.getMessage()), HttpStatus.BAD_REQUEST);
-        }
 
         Page<Driver> drivers = driverService.getAll(page);
 
@@ -118,14 +113,6 @@ public class DriverController {
 
     @GetMapping(value = "/{id}")
     public ResponseEntity<?> getDriverDetails(@Min(value = 1) @PathVariable Integer id, @RequestHeader("Authorization") String authHeader) {
-        String jwtToken = authHeader.substring(7);
-        if (!jwtUtil.extractRole(jwtToken).equals("ROLE_ADMIN")) {
-            Integer loggedId = Integer.parseInt(jwtUtil.extractId(jwtToken));
-            if (!loggedId.equals(id)) {
-                return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
-            }
-        }
-
         try {
             Driver driver = driverService.get(id);
             return new ResponseEntity<>(new DriverDetailsDTO(driver), HttpStatus.OK);
@@ -139,6 +126,7 @@ public class DriverController {
     public ResponseEntity<?> updateDriver(@Valid @RequestBody DriverRegistrationDTO driverDTO, @Min(value = 1) @PathVariable Integer id, @RequestHeader("Authorization") String authHeader) {
         String jwtToken = authHeader.substring(7);
         if (!jwtUtil.extractRole(jwtToken).equals("ROLE_ADMIN")) {
+            String iddd = jwtUtil.extractId(jwtToken);
             Integer loggedId = Integer.parseInt(jwtUtil.extractId(jwtToken));
             if (!loggedId.equals(id)) {
                 return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);

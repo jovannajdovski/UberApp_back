@@ -76,7 +76,7 @@ public class PassengerController {
     public ResponseEntity<?> activatePassenger(@Min(value = 100000) @Max(value = 999999) @PathVariable Integer activationId) {
         try {
             userActivationService.activate(activationId);
-            return ResponseEntity.status(HttpStatus.OK).body("Successful account activation!");
+            return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessageDTO("Successful account activation!"));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Activation with entered id does not exist!");
         } catch (UserActivationExpiredException e) {
@@ -85,11 +85,7 @@ public class PassengerController {
     }
 
     @GetMapping(value = "/{id}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('PASSENGER')")
     public ResponseEntity<?> getPassenger(@Min(value = 1) @PathVariable Integer id, @RequestHeader("Authorization") String authHeader) {
-
-        if (Integer.parseInt(jwtUtil.extractId(authHeader.substring(7))) != id && (jwtUtil.extractRole(authHeader.substring(7)).equals("ROLE_PASSENGER")))
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Passenger does not exist!");
 
         try {
             Passenger passenger = passengerService.get(id);
