@@ -159,12 +159,15 @@ public class RideController {
 
         try {
             Ride ride = rideService.get(id);
+            String pera = jwtUtil.extractRole(token);
+
+
             if (jwtUtil.extractRole(token).equals("ROLE_DRIVER") &&
                     !jwtUtil.extractId(token).equals(ride.getDriver().getId().toString()))
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Active ride does not exist!");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
             else if (jwtUtil.extractRole(token).equals("ROLE_PASSENGER") &&
                     !passengerInPassengers(jwtUtil.extractId(token), new ArrayList<>(ride.getPassengers())))
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Active ride does not exist!");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
 
             return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
@@ -248,7 +251,7 @@ public class RideController {
         String token = authHeader.substring(7);
 
         try {
-            Ride ride = rideService.start(id);
+            Ride ride = rideService.accept(id);
             if (!jwtUtil.extractId(token).equals(ride.getDriver().getId().toString()))
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
 
@@ -268,7 +271,7 @@ public class RideController {
         String token = authHeader.substring(7);
 
         try {
-            Ride ride = rideService.start(id);
+            Ride ride = rideService.end(id);
             if (!jwtUtil.extractId(token).equals(ride.getDriver().getId().toString()))
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
 
@@ -288,7 +291,7 @@ public class RideController {
         String token = authHeader.substring(7);
 
         try {
-            Ride ride = rideService.start(id);
+            Ride ride = rideService.reject(id, reason.getReason());
             if (!jwtUtil.extractId(token).equals(ride.getDriver().getId().toString()))
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
 

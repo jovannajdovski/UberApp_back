@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -89,10 +90,16 @@ public class Ride {
     public Ride(CreateRideDTO rideDTO) {
         this.babiesAllowed = rideDTO.isBabyTransport();
         this.petsAllowed = rideDTO.isPetTransport();
-        this.startTime=rideDTO.getScheduledTime();
         this.vehicleType=new VehicleType();
         this.vehicleType.setVehicleCategory(rideDTO.getVehicleType());
-        this.scheduledTime=rideDTO.getScheduledTime();
+        if (rideDTO.getScheduledTime() == null || rideDTO.getScheduledTime().isBefore(LocalDateTime.now())) {
+            this.scheduledTime = LocalDateTime.now();
+            this.startTime = LocalDateTime.now();
+        }
+        else {
+            this.scheduledTime=rideDTO.getScheduledTime();
+            this.startTime = rideDTO.getScheduledTime();
+        }
     }
     public Ride(RideRequestDTO rideDTO) {
         this.babiesAllowed = rideDTO.isBabyTransport();

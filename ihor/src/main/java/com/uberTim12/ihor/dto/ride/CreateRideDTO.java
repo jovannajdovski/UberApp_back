@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,10 +26,10 @@ import java.util.Set;
 @Getter
 @Setter
 public class CreateRideDTO {
-    @Length(min = 1, max = 1)
+    @Size(min = 1, max = 1)
     @Valid
     private Set<PathDTO> locations = new HashSet<>();
-    @Length(min = 1)
+//    @Size(min = 1)
     @Valid
     private Set<UserRideDTO> passengers = new HashSet<>();
     private VehicleCategory vehicleType;
@@ -36,7 +37,6 @@ public class CreateRideDTO {
     private boolean babyTransport;
     @NotNull
     private boolean petTransport;
-    @FutureOrPresent //custom
     private LocalDateTime scheduledTime;
 
 

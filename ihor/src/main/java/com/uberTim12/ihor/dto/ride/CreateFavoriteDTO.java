@@ -10,6 +10,7 @@ import com.uberTim12.ihor.model.vehicle.VehicleCategory;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,11 +30,11 @@ public class CreateFavoriteDTO {
     private String favoriteName;
 
     @Valid
-    @Length(min = 1,max = 1)
+    @Size(min = 1,max = 1)
     private Set<PathDTO> locations = new HashSet<>();
 
     @Valid
-    @Length(min = 1)
+    @Size(min = 1)
     private Set<UserRideDTO> passengers = new HashSet<>();
 
     private VehicleCategory vehicleType;
