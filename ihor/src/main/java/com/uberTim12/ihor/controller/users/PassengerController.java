@@ -107,6 +107,18 @@ public class PassengerController {
         }
     }
 
+    @GetMapping(value = "/email/check/{email}")
+    public ResponseEntity<?> checkPassengerByEmail(@Email(regexp = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$") @PathVariable String email) {
+        try {
+            Passenger passenger = passengerService.findByEmail(email);
+            if (passenger == null)
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Passenger does not exist!");
+            return new ResponseEntity<>(new PassengerDTO(passenger), HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Passenger does not exist!");
+        }
+    }
+
     @PutMapping(value = "/{id}", consumes = "application/json")
     @PreAuthorize("hasRole('PASSENGER')")
     public ResponseEntity<?> updatePassenger(@Min(value = 1) @PathVariable Integer id, @Valid @RequestBody PassengerRegistrationDTO passengerDTO, @RequestHeader("Authorization") String authHeader) {

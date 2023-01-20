@@ -116,7 +116,7 @@ public class UserService extends JPAService<User> implements IUserService, UserD
         User user = get(userId);
 
         PasswordResetToken token = updatePasswordResetToken(user);
-//        mailSender.send(constructResetTokenEmail(token.getToken(), user));
+        mailSender.send(constructResetTokenEmail(token.getToken(), user));
     }
 
     private PasswordResetToken updatePasswordResetToken(User user) {
