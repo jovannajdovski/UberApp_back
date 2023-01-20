@@ -6,6 +6,7 @@ import com.uberTim12.ihor.dto.ride.RideFullDTO;
 import com.uberTim12.ihor.dto.route.LocationDTO;
 import com.uberTim12.ihor.dto.users.*;
 import com.uberTim12.ihor.dto.vehicle.VehicleAddDTO;
+import com.uberTim12.ihor.dto.vehicle.VehicleBasicDTO;
 import com.uberTim12.ihor.dto.vehicle.VehicleDTO;
 import com.uberTim12.ihor.dto.vehicle.VehicleDetailsDTO;
 import com.uberTim12.ihor.exception.*;
@@ -463,7 +464,7 @@ public class DriverController {
         for(ActiveDriver activeDriver:activeDrivers)
         {
             boolean free=driverService.isDriverFreeForRide(activeDriver.getDriver());
-            activeDriverDTOs.add(new ActiveDriverDTO(new VehicleDTO(activeDriver.getDriver().getVehicle()),new LocationDTO(activeDriver.getLocation()),free));
+            activeDriverDTOs.add(new ActiveDriverDTO(new VehicleBasicDTO(activeDriver.getDriver().getVehicle()),new LocationDTO(activeDriver.getLocation()),free));
         }
         ObjectListResponseDTO<ActiveDriverDTO> res=new ObjectListResponseDTO<>(activeDrivers.size(),activeDriverDTOs);
         return new ResponseEntity<>(res,HttpStatus.OK);
