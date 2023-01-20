@@ -3,11 +3,13 @@ package com.uberTim12.ihor.controller.users;
 import com.uberTim12.ihor.dto.ResponseMessageDTO;
 import com.uberTim12.ihor.dto.communication.ObjectListResponseDTO;
 import com.uberTim12.ihor.dto.ride.RideFullDTO;
+import com.uberTim12.ihor.dto.route.LocationDTO;
 import com.uberTim12.ihor.dto.users.*;
 import com.uberTim12.ihor.dto.vehicle.VehicleAddDTO;
 import com.uberTim12.ihor.dto.vehicle.VehicleDTO;
 import com.uberTim12.ihor.dto.vehicle.VehicleDetailsDTO;
 import com.uberTim12.ihor.exception.*;
+import com.uberTim12.ihor.model.ride.ActiveDriver;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.route.Location;
 import com.uberTim12.ihor.model.users.Driver;
@@ -452,6 +454,19 @@ public class DriverController {
         } catch (EntityPropertyIsNullException e) {
             return new ResponseEntity<>(new ResponseMessageDTO("Cannot end shift because the vehicle is not defined!"),HttpStatus.BAD_REQUEST);
         }
+    }
+    @GetMapping(value = "/active-drivers", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getActiveDrivers()
+    {
+        List<ActiveDriver> activeDrivers=driverService.getActiveDrivers();
+        List<ActiveDriverDTO> activeDriverDTOs=new ArrayList<>();
+        for(ActiveDriver activeDriver:activeDrivers)
+        {
+            boolean free=driverService.isDriverFreeForRide(activeDriver.getDriver());
+            activeDriverDTOs.add(new ActiveDriverDTO(new VehicleDTO(activeDriver.getDriver().getVehicle()),new LocationDTO(activeDriver.getLocation()),free));
+        }
+        ObjectListResponseDTO<ActiveDriverDTO> res=new ObjectListResponseDTO<>(activeDrivers.size(),activeDriverDTOs);
+        return new ResponseEntity<>(res,HttpStatus.OK);
     }
 
     @GetMapping(value = "/{driverId}/ride/pending")

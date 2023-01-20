@@ -14,5 +14,10 @@ public interface IDriverService extends IJPAService<Driver> {
     Driver update(Integer driverId, String name, String surname, String profilePicture,
     String telephoneNumber, String email, String address, String password);
     boolean isDriverFreeForRide(Driver driver, Ride ride);
+
+    boolean isDriverFreeForRide(Driver driver);
+
     List<ActiveDriverCriticalRide> sortPerEndOfCriticalRide(List<ActiveDriver> activeDrivers, Ride newRide);
+
+    List<ActiveDriver> getActiveDrivers();
 }
