@@ -1,12 +1,10 @@
 package com.uberTim12.ihor.controller.ride;
 
 import com.uberTim12.ihor.dto.ResponseMessageDTO;
+import com.uberTim12.ihor.dto.communication.ObjectListResponseDTO;
 import com.uberTim12.ihor.dto.communication.PanicDTO;
 import com.uberTim12.ihor.dto.communication.ReasonDTO;
-import com.uberTim12.ihor.dto.ride.CreateFavoriteDTO;
-import com.uberTim12.ihor.dto.ride.CreateRideDTO;
-import com.uberTim12.ihor.dto.ride.FavoriteFullDTO;
-import com.uberTim12.ihor.dto.ride.RideFullDTO;
+import com.uberTim12.ihor.dto.ride.*;
 import com.uberTim12.ihor.dto.route.PathDTO;
 import com.uberTim12.ihor.dto.users.UserRideDTO;
 import com.uberTim12.ihor.exception.*;
@@ -169,6 +167,24 @@ public class RideController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
 
             return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
+        }
+    }
+    @PutMapping(value = "/specific-rides", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getRidesById(@RequestBody RideIdListDTO rideIdListDTO) {
+
+        List<RideFullDTO> rideFullDTOS=new ArrayList<>();
+        try {
+            for(int id:rideIdListDTO.getIds())
+            {
+                Ride ride = rideService.get(id);
+                rideFullDTOS.add(new RideFullDTO(ride));
+
+            }
+
+            ObjectListResponseDTO<RideFullDTO> res=new ObjectListResponseDTO<>(rideFullDTOS.size(),rideFullDTOS);
+            return new ResponseEntity<>(res, HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
         }

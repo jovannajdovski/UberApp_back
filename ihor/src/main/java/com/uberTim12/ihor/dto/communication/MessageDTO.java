@@ -1,5 +1,6 @@
 package com.uberTim12.ihor.dto.communication;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.uberTim12.ihor.model.communication.Message;
 import com.uberTim12.ihor.model.communication.MessageType;
 import com.uberTim12.ihor.model.ride.Ride;
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 public class MessageDTO {
 
     private Integer id;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private LocalDateTime timeOfSending;
     private Integer senderId;
     private Integer receiverId;
