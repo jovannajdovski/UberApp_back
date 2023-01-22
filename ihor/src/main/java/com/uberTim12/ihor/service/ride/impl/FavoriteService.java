@@ -1,6 +1,7 @@
 package com.uberTim12.ihor.service.ride.impl;
 
 import com.uberTim12.ihor.dto.ride.CreateFavoriteDTO;
+import com.uberTim12.ihor.dto.route.FavoriteRouteForPassengerDTO;
 import com.uberTim12.ihor.dto.route.PathDTO;
 import com.uberTim12.ihor.dto.users.UserRideDTO;
 import com.uberTim12.ihor.exception.AccessDeniedException;
@@ -105,6 +106,28 @@ public class FavoriteService extends JPAService<Favorite> implements IFavoriteSe
         Passenger passenger = passengerService.findByEmailWithFavorites(currentUserName);
 
         return passenger.getFavoriteRoutes();
+    }
+
+    @Override
+    public FavoriteRouteForPassengerDTO isFavoriteRouteForPassenger(String from, String to, Integer passengerId) throws EntityNotFoundException{
+        Passenger passenger = passengerService.get(passengerId);
+
+        List<Favorite> favoritesForPassenger = favoriteRepository.findAllForPassengers(passenger);
+
+        FavoriteRouteForPassengerDTO favoriteRouteForPassengerDTO = new FavoriteRouteForPassengerDTO(false,0);
+        if (favoritesForPassenger.isEmpty()){
+            return favoriteRouteForPassengerDTO;
+        }
+
+        for (Favorite favorite: favoritesForPassenger){
+            if (favorite.getPaths().iterator().next().getStartPoint().getAddress().equals(from) &&
+                    favorite.getPaths().iterator().next().getEndPoint().getAddress().equals(to)){
+                favoriteRouteForPassengerDTO.setFavorite(true);
+                favoriteRouteForPassengerDTO.setFavoriteId(favorite.getId());
+                return  favoriteRouteForPassengerDTO;
+            }
+        }
+        return  favoriteRouteForPassengerDTO;
     }
 
     @Override

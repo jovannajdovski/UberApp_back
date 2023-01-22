@@ -7,6 +7,7 @@ import com.uberTim12.ihor.dto.ride.CreateFavoriteDTO;
 import com.uberTim12.ihor.dto.ride.CreateRideDTO;
 import com.uberTim12.ihor.dto.ride.FavoriteFullDTO;
 import com.uberTim12.ihor.dto.ride.RideFullDTO;
+import com.uberTim12.ihor.dto.route.FavoriteRouteForPassengerDTO;
 import com.uberTim12.ihor.dto.route.PathDTO;
 import com.uberTim12.ihor.dto.users.UserRideDTO;
 import com.uberTim12.ihor.exception.*;
@@ -349,6 +350,21 @@ public class RideController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized!");
         } catch (AccessDeniedException e) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied!");
+        }
+    }
+
+    @GetMapping(value = "/favorites/passenger/ride")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PASSENGER')")
+    public ResponseEntity<?> isFavoritesForPassenger(@RequestParam String from,
+                                                      @RequestParam String to,
+                                                      @RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.substring(7);
+        Integer passengerId = Integer.parseInt(jwtUtil.extractId(token));
+        try {
+            FavoriteRouteForPassengerDTO isFavorite = favoriteService.isFavoriteRouteForPassenger(from,to,passengerId);
+            return new ResponseEntity<>(isFavorite, HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Favorite location does not exist!");
         }
     }
 
