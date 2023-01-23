@@ -255,4 +255,10 @@ public class RideService extends JPAService<Ride> implements IRideService {
     public List<Ride> findPendingRides(Integer driverId) {
         return rideRepository.findAllByDriverIdAndRideStatus(driverId, RideStatus.PENDING);
     }
+
+    @Override
+    public List<Ride> findRidesWithStatusForDriver(Integer id, RideStatus status, LocalDateTime from, LocalDateTime to) {
+        return rideRepository.findAllByDriverIdAndAndRideStatusAndStartTimeBetweenAndEndTimeBetween(id,
+                status, from, to);
+    }
 }

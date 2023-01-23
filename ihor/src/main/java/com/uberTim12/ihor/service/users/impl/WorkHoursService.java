@@ -25,6 +25,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.List;
@@ -117,6 +118,11 @@ public class WorkHoursService extends JPAService<WorkHours> implements IWorkHour
     @Override
     public Page<WorkHours> findFilteredWorkHours(Integer driverId, LocalDateTime from, LocalDateTime to, Pageable pageable) {
         return workHoursRepository.findByDriverIdAndDateRange(driverId, from, to, pageable);
+    }
+
+    @Override
+    public List<WorkHours> findAll(Integer driverId, LocalDateTime from, LocalDateTime to) {
+        return new ArrayList<>(workHoursRepository.findByDriverIdAndDateRange(driverId, from, to));
     }
 
     @Override
