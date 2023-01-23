@@ -33,6 +33,8 @@ public interface IRideService extends IJPAService<Ride> {
 
     Ride findActiveByDriver(Driver driver) throws NoActiveRideException;
 
+    List<Ride> findAcceptedByDriver(Driver driver) throws NoActiveRideException;
+
     Ride findActiveByPassenger(Passenger passenger) throws NoActiveRideException;
 
     List<Passenger> findPassengersForRide(Integer id);
@@ -47,7 +49,7 @@ public interface IRideService extends IJPAService<Ride> {
     
     Ride cancel(Integer id) throws EntityNotFoundException, RideStatusException;
 
-    Ride start(Integer id) throws EntityNotFoundException, RideStatusException;
+    Ride start(Integer id, Integer driverId) throws EntityNotFoundException, RideStatusException;
 
     Ride accept(Integer id) throws EntityNotFoundException, RideStatusException;
 

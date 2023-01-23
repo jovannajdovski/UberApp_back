@@ -1,12 +1,10 @@
 package com.uberTim12.ihor.controller.ride;
 
 import com.uberTim12.ihor.dto.ResponseMessageDTO;
+import com.uberTim12.ihor.dto.communication.ObjectListResponseDTO;
 import com.uberTim12.ihor.dto.communication.PanicDTO;
 import com.uberTim12.ihor.dto.communication.ReasonDTO;
-import com.uberTim12.ihor.dto.ride.CreateFavoriteDTO;
-import com.uberTim12.ihor.dto.ride.CreateRideDTO;
-import com.uberTim12.ihor.dto.ride.FavoriteFullDTO;
-import com.uberTim12.ihor.dto.ride.RideFullDTO;
+import com.uberTim12.ihor.dto.ride.*;
 import com.uberTim12.ihor.dto.route.FavoriteRouteForPassengerDTO;
 import com.uberTim12.ihor.dto.route.PathDTO;
 import com.uberTim12.ihor.dto.users.UserRideDTO;
@@ -130,6 +128,35 @@ public class RideController {
         }
     }
 
+    @GetMapping(value = "/driver/{driverId}/accepted")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
+    public ResponseEntity<?> getAcceptedRidesForDriver(@Min(value = 1) @PathVariable Integer driverId,
+                                                    @RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.substring(7);
+
+        if (jwtUtil.extractRole(token).equals("ROLE_DRIVER") &&
+                !jwtUtil.extractId(token).equals(driverId.toString()))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Active ride does not exist!");
+
+        try {
+            Driver driver;
+            driver = driverService.get(driverId);
+
+            List<Ride> rides = rideService.findAcceptedByDriver(driver);
+
+            List<RideNoStatusDTO> rideDTOs = new ArrayList<>();
+            for (Ride r : rides)
+                rideDTOs.add(new RideNoStatusDTO(r));
+
+            ObjectListResponseDTO<RideNoStatusDTO> res = new ObjectListResponseDTO<>((int) rides.size(), rideDTOs);
+            return new ResponseEntity<>(res, HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Driver does not exist!");
+        } catch (NoActiveRideException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Accepted ride does not exist!");
+        }
+    }
+
     @GetMapping(value = "/passenger/{passengerId}/active")
     @PreAuthorize("hasRole('ADMIN') or hasRole('PASSENGER')")
     public ResponseEntity<?> getActiveRideForPassenger(@Min(value = 1) @PathVariable Integer passengerId,
@@ -232,7 +259,7 @@ public class RideController {
         String token = authHeader.substring(7);
 
         try {
-            Ride ride = rideService.start(id);
+            Ride ride = rideService.start(id, Integer.parseInt(jwtUtil.extractId(token)));
             if (!jwtUtil.extractId(token).equals(ride.getDriver().getId().toString()))
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
 
@@ -240,7 +267,7 @@ public class RideController {
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
         } catch (RideStatusException e) {
-            return new ResponseEntity<>(new ResponseMessageDTO("Cannot start a ride that is not in status ACCEPTED!"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseMessageDTO(e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
 
