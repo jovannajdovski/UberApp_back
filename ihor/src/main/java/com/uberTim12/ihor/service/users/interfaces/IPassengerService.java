@@ -30,7 +30,7 @@ public interface IPassengerService extends IJPAService<Passenger> {
 
     Passenger findByIdWithRides(Integer id);
 
-    Optional<Passenger> findByIdWithFavorites(Integer id);
+    Passenger findByIdWithFavorites(Integer id);
 
     Passenger findByEmailWithFavorites(String email);
 

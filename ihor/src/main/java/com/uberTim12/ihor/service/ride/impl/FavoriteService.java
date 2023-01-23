@@ -3,9 +3,7 @@ package com.uberTim12.ihor.service.ride.impl;
 import com.uberTim12.ihor.dto.ride.CreateFavoriteDTO;
 import com.uberTim12.ihor.dto.route.PathDTO;
 import com.uberTim12.ihor.dto.users.UserRideDTO;
-import com.uberTim12.ihor.exception.AccessDeniedException;
 import com.uberTim12.ihor.exception.FavoriteRideExceedException;
-import com.uberTim12.ihor.exception.UnauthorizedException;
 import com.uberTim12.ihor.model.ride.Favorite;
 import com.uberTim12.ihor.model.route.Location;
 import com.uberTim12.ihor.model.route.Path;
@@ -19,11 +17,9 @@ import com.uberTim12.ihor.service.users.interfaces.IPassengerService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -91,20 +87,9 @@ public class FavoriteService extends JPAService<Favorite> implements IFavoriteSe
     }
 
     @Override
-    public Set<Favorite> getForPassenger() throws UnauthorizedException, AccessDeniedException {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication instanceof AnonymousAuthenticationToken) {
-            throw new UnauthorizedException("Unauthorized!");
-        }
-
-        if (!authUtil.hasRole("PASSENGER")){
-            throw new AccessDeniedException("Access denied!");
-        }
-
-        String currentUserName = authentication.getName();
-        Passenger passenger = passengerService.findByEmailWithFavorites(currentUserName);
-
-        return passenger.getFavoriteRoutes();
+    public List<Favorite> getForPassenger(Integer id) {
+        Passenger passenger = passengerService.findByIdWithFavorites(id);
+        return new ArrayList<>(passenger.getFavoriteRoutes());
     }
 
     @Override
