@@ -12,5 +12,4 @@ import lombok.Setter;
 public class DailyRideCountDTO {
     private String day;
     private Integer count;
-
 }

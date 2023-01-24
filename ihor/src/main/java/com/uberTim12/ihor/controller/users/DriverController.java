@@ -483,8 +483,9 @@ public class DriverController {
     @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
     public ResponseEntity<?> getStatisticsForDriver(@Min(value = 1) @PathVariable Integer driverId,
                                                     @RequestHeader("Authorization") String authHeader,
-                                                    @RequestBody TimeSpanDTO timeSpanDTO
-                                                    ) {
+                                                    @RequestParam LocalDateTime from,
+                                                    @RequestParam LocalDateTime to)
+    {
         String jwtToken = authHeader.substring(7);
         if (!jwtUtil.extractRole(jwtToken).equals("ROLE_ADMIN")) {
             Integer loggedId = Integer.parseInt(jwtUtil.extractId(jwtToken));
@@ -499,8 +500,7 @@ public class DriverController {
             return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
         }
 
-        DriverStatistics statistics = driverStatisticsService.getDriverStatistics(driverId, timeSpanDTO.from,
-                timeSpanDTO.to);
+        DriverStatistics statistics = driverStatisticsService.getDriverStatistics(driverId, from, to);
         return new ResponseEntity<>(new DriverStatisticsDTO(statistics),
                 HttpStatus.OK);
     }
@@ -509,8 +509,10 @@ public class DriverController {
     @GetMapping(value = "/{driverId}/ride-count")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
     public ResponseEntity<?> getRideCountStatistics(@Min(value = 1) @PathVariable Integer driverId,
-                                                         @RequestHeader("Authorization") String authHeader,
-                                                         @RequestBody TimeSpanDTO timeSpanDTO) {
+                                                    @RequestHeader("Authorization") String authHeader,
+                                                    @RequestParam LocalDateTime from,
+                                                    @RequestParam LocalDateTime to)
+    {
         String jwtToken = authHeader.substring(7);
         if (!jwtUtil.extractRole(jwtToken).equals("ROLE_ADMIN")) {
             Integer loggedId = Integer.parseInt(jwtUtil.extractId(jwtToken));
@@ -525,16 +527,17 @@ public class DriverController {
             return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
         }
 
-        RideCountStatistics statistics = driverStatisticsService.numberOfRidesStatistics(driverId, timeSpanDTO.from,
-                timeSpanDTO.to);
+        RideCountStatistics statistics = driverStatisticsService.numberOfRidesStatistics(driverId, from, to);
         return new ResponseEntity<>(new RideCountStatisticsDTO(statistics), HttpStatus.OK);
     }
 
     @GetMapping(value = "/{driverId}/distance")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
     public ResponseEntity<?> getDistanceStatistics(@Min(value = 1) @PathVariable Integer driverId,
-                                                         @RequestHeader("Authorization") String authHeader,
-                                                         @RequestBody TimeSpanDTO timeSpanDTO) {
+                                                   @RequestHeader("Authorization") String authHeader,
+                                                   @RequestParam LocalDateTime from,
+                                                   @RequestParam LocalDateTime to)
+    {
         String jwtToken = authHeader.substring(7);
         if (!jwtUtil.extractRole(jwtToken).equals("ROLE_ADMIN")) {
             Integer loggedId = Integer.parseInt(jwtUtil.extractId(jwtToken));
@@ -549,7 +552,7 @@ public class DriverController {
             return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
         }
 
-        RideDistanceStatistics statistics = driverStatisticsService.distancePerDayStatistics(driverId, timeSpanDTO.from, timeSpanDTO.to);
+        RideDistanceStatistics statistics = driverStatisticsService.distancePerDayStatistics(driverId, from, to);
         return new ResponseEntity<>(new RideDistanceStatisticsDTO(statistics), HttpStatus.OK);
     }
 }

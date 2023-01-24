@@ -1,9 +1,8 @@
 package com.uberTim12.ihor.controller.communication;
 
-import com.uberTim12.ihor.dto.communication.PanicDTO;
 import com.uberTim12.ihor.dto.communication.ObjectListResponseDTO;
+import com.uberTim12.ihor.dto.communication.PanicDTO;
 import com.uberTim12.ihor.model.communication.Panic;
-import com.uberTim12.ihor.service.communication.impl.PanicService;
 import com.uberTim12.ihor.service.communication.interfaces.IPanicService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
