@@ -47,6 +47,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -498,5 +499,46 @@ public class DriverController {
 
         ObjectListResponseDTO<RideFullDTO> res = new ObjectListResponseDTO<>(rides.size(), rideDTOs);
         return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+    @GetMapping(value = "/{driverId}/next-ride")
+    @PreAuthorize("hasRole('DRIVER')")
+    public ResponseEntity<?> getNextRideForDriver(@Min(value = 1) @PathVariable Integer driverId,
+                                                      @RequestHeader("Authorization") String authHeader) {
+        String jwtToken = authHeader.substring(7);
+        if (!jwtUtil.extractRole(jwtToken).equals("ROLE_ADMIN")) {
+            Integer loggedId = Integer.parseInt(jwtUtil.extractId(jwtToken));
+            if (!loggedId.equals(driverId)) {
+                return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
+            }
+        }
+        try {
+            driverService.get(driverId);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
+        }
+        try{
+            return new ResponseEntity<>(new RideFullDTO(rideService.findNextRide(driverId)), HttpStatus.OK);
+        }
+        catch (NoAcceptedRideException e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+    @GetMapping(value = "/{driverId}/work-time-remained")
+    @PreAuthorize("hasRole('DRIVER')")
+    public ResponseEntity<?> getRemainedWorkTimeForDriver(@Min(value = 1) @PathVariable Integer driverId,
+                                                  @RequestHeader("Authorization") String authHeader) {
+        String jwtToken = authHeader.substring(7);
+        if (!jwtUtil.extractRole(jwtToken).equals("ROLE_ADMIN")) {
+            Integer loggedId = Integer.parseInt(jwtUtil.extractId(jwtToken));
+            if (!loggedId.equals(driverId)) {
+                return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
+            }
+        }
+        try {
+            driverService.get(driverId);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(new NumberDTO(480-workHoursService.getWorkingMinutesByDriverAtChosenDay(driverId, LocalDate.now())), HttpStatus.OK);
     }
 }

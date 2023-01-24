@@ -1,6 +1,7 @@
 package com.uberTim12.ihor.service.ride.impl;
 
 
+import com.uberTim12.ihor.exception.NoAcceptedRideException;
 import com.uberTim12.ihor.exception.NoActiveRideException;
 import com.uberTim12.ihor.exception.RideStatusException;
 import com.uberTim12.ihor.model.ride.Ride;
@@ -253,6 +254,13 @@ public class RideService extends JPAService<Ride> implements IRideService {
 
     @Override
     public List<Ride> findPendingRides(Integer driverId) {
-        return rideRepository.findAllByDriverIdAndRideStatus(driverId, RideStatus.PENDING);
+        return rideRepository.findAllByDriverIdAndRideStatusOrderByStartTime(driverId, RideStatus.PENDING);
+    }
+    @Override
+    public Ride findNextRide(Integer driverId) throws NoAcceptedRideException {
+        List<Ride> acceptedRides=rideRepository.findAllByDriverIdAndRideStatusOrderByStartTime(driverId, RideStatus.ACCEPTED);
+        if(acceptedRides.size()==0)
+            throw new NoAcceptedRideException("No accepted rides");
+        return acceptedRides.get(0);
     }
 }

@@ -128,10 +128,10 @@ public class WorkHoursService extends JPAService<WorkHours> implements IWorkHour
     }
 
     @Override
-    public long getWorkingMinutesByDriverAtChosenDay(Integer driverId, LocalDate date)
+    public int getWorkingMinutesByDriverAtChosenDay(Integer driverId, LocalDate date)
     {
         List<WorkHours> workHoursList=workHoursRepository.findByDriverIdAndStartTimeBetween(driverId,date.atStartOfDay(),date.atTime(23,59,59));
-        long sum=0;
+        int sum=0;
         for(WorkHours workHours:workHoursList)
         {
             if(workHours.getEndTime()!=null)
