@@ -22,8 +22,12 @@ public interface IRideRepository extends JpaRepository<Ride, Integer> {
 
     List<Ride> findAllByDriverIdAndRideStatus(Integer driver_id, RideStatus rideStatus);
 
-    List<Ride> findAllByDriverIdAndAndRideStatusAndStartTimeBetweenAndEndTimeBetween(Integer driver_id, RideStatus rideStatus,
-                                                                      LocalDateTime from, LocalDateTime to);
+    @Query("select r from Ride r where r.driver.id =?1 and r.rideStatus = ?2 and r.startTime between ?3 and ?4")
+    List<Ride> findAllByDriverIdAndRideStatusInTimeRange(Integer driver_id, RideStatus rideStatus, LocalDateTime from, LocalDateTime to);
+
+    @Query("select r from Ride r where r.driver.id =?1 and r.rideStatus != 0 and r.rideStatus != 3 " +
+            "and r.rideStatus != 5 and r.startTime between ?2 and ?3")
+    List<Ride> findAllAccepted(Integer driver_id, LocalDateTime from, LocalDateTime to);
 
     @Query("select r from Ride r where r.driver.id =?1 and r.startTime between ?2 and ?3")
     Page<Ride> findAllInRangeForDriver(Integer id, LocalDateTime start, LocalDateTime end, Pageable pageable);

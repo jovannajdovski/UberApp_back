@@ -1,6 +1,7 @@
 package com.uberTim12.ihor.dto.stats;
 
 
+import com.uberTim12.ihor.model.stats.DriverStatistics;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,4 +16,12 @@ public class DriverStatisticsDTO {
     Integer numberOfAcceptedRides;
     Integer totalWorkHours;
     Integer totalIncome;
+
+    public DriverStatisticsDTO(DriverStatistics statistics) {
+        this(statistics.getNumberOfRejectedRides(),
+             statistics.getNumberOfAcceptedRides(),
+             statistics.getTotalWorkHours(),
+             statistics.getTotalIncome()
+        );
+    }
 }
