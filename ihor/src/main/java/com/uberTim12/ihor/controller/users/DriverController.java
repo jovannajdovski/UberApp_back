@@ -470,7 +470,7 @@ public class DriverController {
                 activeDriverDTOs.add(new ActiveDriverDTO(new VehicleBasicDTO(activeDriver.getDriver().getVehicle()), new LocationDTO(activeDriver.getLocation()), free));
             }
         }
-        ObjectListResponseDTO<ActiveDriverDTO> res=new ObjectListResponseDTO<>(activeDrivers.size(),activeDriverDTOs);
+        ObjectListResponseDTO<ActiveDriverDTO> res=new ObjectListResponseDTO<>(activeDriverDTOs.size(),activeDriverDTOs);
         return new ResponseEntity<>(res,HttpStatus.OK);
     }
 

@@ -50,6 +50,13 @@ public class MessageService extends JPAService<Message> implements IMessageServi
         List<Message> messages = sortMessagesToChatFormat(messageRepository.findAllBySenderIdOrReceiverId(id,id),id);
         return messages.stream().map(MessageDTO::new).collect(Collectors.toList());
     }
+
+    @Override
+    public List<MessageDTO> getMessagesOfSpecificRide(Integer id, Integer rideId) {
+        List<Message> messages = sortMessagesToChatFormat(messageRepository.findAllByRideIdAndSenderIdOrReceiverIdAnd(id, rideId),id);
+        return messages.stream().map(MessageDTO::new).collect(Collectors.toList());
+    }
+
     @Override
     public Message sendMessage(Integer senderId, Integer receiverId, Integer rideId, String content,
                                MessageType type) throws EntityNotFoundException {

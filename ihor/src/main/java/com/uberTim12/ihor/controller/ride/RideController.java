@@ -71,7 +71,6 @@ public class RideController {
     @PreAuthorize("hasRole('PASSENGER')")
     public ResponseEntity<?> createRide(@Valid @RequestBody CreateRideDTO rideDTO) {
         Ride ride = new Ride(rideDTO);
-
         Set<Path> paths = new HashSet<>();
 
         for (PathDTO pathDTO : rideDTO.getLocations()) {

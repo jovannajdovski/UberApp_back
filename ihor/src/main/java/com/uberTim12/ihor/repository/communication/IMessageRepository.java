@@ -9,5 +9,7 @@ import java.util.List;
 @Repository
 public interface IMessageRepository extends JpaRepository<Message, Integer>{
     public List<Message> findAllBySenderIdOrReceiverId(Integer sender_id, Integer receiver_id);
+    @Query("select m from Message m where m.ride.id = ?2 and (m.receiver.id = ?1 or m.sender.id = ?1)")
+    public List<Message> findAllByRideIdAndSenderIdOrReceiverIdAnd(Integer user_id, Integer ride_id);
 
 }
