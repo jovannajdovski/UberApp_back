@@ -3,14 +3,20 @@ package com.uberTim12.ihor.controller.users;
 import com.uberTim12.ihor.dto.ResponseMessageDTO;
 import com.uberTim12.ihor.dto.communication.ObjectListResponseDTO;
 import com.uberTim12.ihor.dto.ride.RideNoStatusDTO;
+import com.uberTim12.ihor.dto.stats.MoneySpentStatisticsDTO;
+import com.uberTim12.ihor.dto.stats.RideCountStatisticsDTO;
+import com.uberTim12.ihor.dto.stats.RideDistanceStatisticsDTO;
 import com.uberTim12.ihor.dto.users.PassengerDTO;
 import com.uberTim12.ihor.dto.users.PassengerRegistrationDTO;
 import com.uberTim12.ihor.exception.EmailAlreadyExistsException;
 import com.uberTim12.ihor.exception.UserActivationExpiredException;
 import com.uberTim12.ihor.model.ride.Ride;
+import com.uberTim12.ihor.model.stats.MoneySpentStatistics;
+import com.uberTim12.ihor.model.stats.RideCountStatistics;
+import com.uberTim12.ihor.model.stats.RideDistanceStatistics;
 import com.uberTim12.ihor.model.users.Passenger;
-import com.uberTim12.ihor.security.AuthUtil;
 import com.uberTim12.ihor.security.JwtUtil;
+import com.uberTim12.ihor.service.stats.interfaces.IPassengerStatisticsService;
 import com.uberTim12.ihor.service.users.impl.PassengerService;
 import com.uberTim12.ihor.service.users.interfaces.IPassengerService;
 import com.uberTim12.ihor.service.users.interfaces.IUserActivationService;
@@ -36,12 +42,14 @@ import java.util.List;
 public class PassengerController {
     private final IPassengerService passengerService;
     private final IUserActivationService userActivationService;
+    private final IPassengerStatisticsService passengerStatisticsService;
     private final JwtUtil jwtUtil;
 
     @Autowired
-    public PassengerController(PassengerService passengerService, IUserActivationService userActivationService, JwtUtil jwtUtil) {
+    public PassengerController(PassengerService passengerService, IUserActivationService userActivationService, IPassengerStatisticsService passengerStatisticsService, JwtUtil jwtUtil) {
         this.passengerService = passengerService;
         this.userActivationService = userActivationService;
+        this.passengerStatisticsService = passengerStatisticsService;
         this.jwtUtil = jwtUtil;
     }
 
@@ -85,7 +93,8 @@ public class PassengerController {
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<?> getPassenger(@Min(value = 1) @PathVariable Integer id, @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<?> getPassenger(@Min(value = 1) @PathVariable Integer id,
+                                          @RequestHeader("Authorization") String authHeader) {
 
         try {
             Passenger passenger = passengerService.get(id);
@@ -154,5 +163,81 @@ public class PassengerController {
 
         ObjectListResponseDTO<RideNoStatusDTO> res = new ObjectListResponseDTO<>((int) rides.getTotalElements(), rideDTOs);
         return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/{id}/ride-count")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PASSENGER')")
+    public ResponseEntity<?> getRideCountStatistics(@Min(value = 1) @PathVariable Integer id,
+                                                    @RequestHeader("Authorization") String authHeader,
+                                                    @RequestParam LocalDateTime from,
+                                                    @RequestParam LocalDateTime to)
+    {
+        String jwtToken = authHeader.substring(7);
+        if (!jwtUtil.extractRole(jwtToken).equals("ROLE_ADMIN")) {
+            Integer loggedId = Integer.parseInt(jwtUtil.extractId(jwtToken));
+            if (!loggedId.equals(id)) {
+                return new ResponseEntity<>("Passenger does not exist!", HttpStatus.NOT_FOUND);
+            }
+        }
+
+        try {
+            passengerService.get(id);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>("Passenger does not exist!", HttpStatus.NOT_FOUND);
+        }
+
+        RideCountStatistics statistics = passengerStatisticsService.numberOfRidesStatistics(id, from, to);
+        return new ResponseEntity<>(new RideCountStatisticsDTO(statistics), HttpStatus.OK);
+    }
+
+
+    @GetMapping(value = "/{id}/distance")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PASSENGER')")
+    public ResponseEntity<?> getDistanceStatistics(@Min(value = 1) @PathVariable Integer id,
+                                                   @RequestHeader("Authorization") String authHeader,
+                                                   @RequestParam LocalDateTime from,
+                                                   @RequestParam LocalDateTime to)
+    {
+        String jwtToken = authHeader.substring(7);
+        if (!jwtUtil.extractRole(jwtToken).equals("ROLE_ADMIN")) {
+            Integer loggedId = Integer.parseInt(jwtUtil.extractId(jwtToken));
+            if (!loggedId.equals(id)) {
+                return new ResponseEntity<>("Passenger does not exist!", HttpStatus.NOT_FOUND);
+            }
+        }
+
+        try {
+            passengerService.get(id);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>("Passenger does not exist!", HttpStatus.NOT_FOUND);
+        }
+
+        RideDistanceStatistics statistics = passengerStatisticsService.distancePerDayStatistics(id, from, to);
+        return new ResponseEntity<>(new RideDistanceStatisticsDTO(statistics), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/{id}/money-spent")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PASSENGER')")
+    public ResponseEntity<?> getMoneySpentStatistics(@Min(value = 1) @PathVariable Integer id,
+                                                     @RequestHeader("Authorization") String authHeader,
+                                                     @RequestParam LocalDateTime from,
+                                                     @RequestParam LocalDateTime to)
+    {
+        String jwtToken = authHeader.substring(7);
+        if (!jwtUtil.extractRole(jwtToken).equals("ROLE_ADMIN")) {
+            Integer loggedId = Integer.parseInt(jwtUtil.extractId(jwtToken));
+            if (!loggedId.equals(id)) {
+                return new ResponseEntity<>("Passenger does not exist!", HttpStatus.NOT_FOUND);
+            }
+        }
+
+        try {
+            passengerService.get(id);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>("Passenger does not exist!", HttpStatus.NOT_FOUND);
+        }
+
+        MoneySpentStatistics statistics = passengerStatisticsService.moneySpentStatistics(id, from, to);
+        return new ResponseEntity<>(new MoneySpentStatisticsDTO(statistics), HttpStatus.OK);
     }
 }
