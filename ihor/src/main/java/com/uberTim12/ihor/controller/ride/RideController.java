@@ -23,14 +23,18 @@ import com.uberTim12.ihor.service.ride.interfaces.IRideSchedulingService;
 import com.uberTim12.ihor.service.ride.interfaces.IRideService;
 import com.uberTim12.ihor.service.route.impl.PathService;
 import com.uberTim12.ihor.service.ride.interfaces.IFavoriteService;
+import com.uberTim12.ihor.service.route.interfaces.ILocationService;
 import com.uberTim12.ihor.service.route.interfaces.IPathService;
 import com.uberTim12.ihor.service.users.impl.DriverService;
 import com.uberTim12.ihor.service.users.impl.PassengerService;
 import com.uberTim12.ihor.service.users.interfaces.IDriverService;
 import com.uberTim12.ihor.service.users.interfaces.IPassengerService;
+import com.uberTim12.ihor.service.vehicle.interfaces.IVehicleService;
+import com.uberTim12.ihor.util.RideSimulationTimer;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import net.minidev.json.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -39,29 +43,34 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.util.*;
 
 @RestController
 @RequestMapping(value = "api/ride")
 public class RideController {
     private final IRideService rideService;
+    private final IVehicleService vehicleService;
     private final IPathService pathService;
     private final IPassengerService passengerService;
     private final IDriverService driverService;
     private final IPanicService panicService;
+    private final ILocationService locationService;
     private final IRideSchedulingService rideSchedulingService;
     private final IFavoriteService favoriteService;
     private final JwtUtil jwtUtil;
 
     @Autowired
-    public RideController(RideService rideService, PathService pathService, PassengerService passengerService,
+    public RideController(RideService rideService, IVehicleService vehicleService, PathService pathService, PassengerService passengerService,
                           DriverService driverService, PanicService panicService,
-                          IRideSchedulingService rideSchedulingService, IFavoriteService favoriteService, JwtUtil jwtUtil) {
+                          ILocationService locationService, IRideSchedulingService rideSchedulingService, IFavoriteService favoriteService, JwtUtil jwtUtil) {
         this.rideService = rideService;
+        this.vehicleService = vehicleService;
         this.pathService = pathService;
         this.passengerService = passengerService;
         this.driverService = driverService;
         this.panicService = panicService;
+        this.locationService = locationService;
         this.rideSchedulingService = rideSchedulingService;
         this.favoriteService = favoriteService;
         this.jwtUtil = jwtUtil;
@@ -118,11 +127,22 @@ public class RideController {
             driver = driverService.get(driverId);
 
             Ride ride = rideService.findActiveByDriver(driver);
+
+
+            new Timer().scheduleAtFixedRate(new RideSimulationTimer(driver.getVehicle().getId(),vehicleService,
+                                            locationService.getSteps(ride.getPaths().iterator().next().getStartPoint(),
+                                                    ride.getPaths().iterator().next().getEndPoint())),
+                                        0,300);
+
             return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Driver does not exist!");
         } catch (NoActiveRideException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Active ride does not exist!");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -141,6 +161,7 @@ public class RideController {
             passenger = passengerService.get(passengerId);
 
             Ride ride = rideService.findActiveByPassenger(passenger);
+
             return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Passenger does not exist!");
