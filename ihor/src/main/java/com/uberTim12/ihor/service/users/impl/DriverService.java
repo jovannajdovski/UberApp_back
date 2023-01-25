@@ -60,7 +60,7 @@ public class DriverService extends JPAService<Driver> implements IDriverService 
 
     @Override
     public Driver update(Integer driverId, String name, String surname, String profilePicture,
-                         String telephoneNumber, String email, String address, String password)
+                         String telephoneNumber, String email, String address)
             throws EntityNotFoundException {
         Driver driver = get(driverId);
         driver.setName(name);
@@ -69,8 +69,6 @@ public class DriverService extends JPAService<Driver> implements IDriverService 
         driver.setTelephoneNumber(telephoneNumber);
         driver.setEmail(email);
         driver.setAddress(address);
-        if (password != null)
-            driver.setPassword(password);
         return save(driver);
     }
 

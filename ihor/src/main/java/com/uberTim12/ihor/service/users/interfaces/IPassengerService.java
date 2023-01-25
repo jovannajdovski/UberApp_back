@@ -19,7 +19,7 @@ public interface IPassengerService extends IJPAService<Passenger> {
     Passenger register(Passenger passenger) throws EmailAlreadyExistsException, MessagingException, UnsupportedEncodingException;
 
     Passenger update(Integer passengerId, String name, String surname, String profilePicture,
-                     String telephoneNumber, String email, String address, String password)
+                     String telephoneNumber, String email, String address)
             throws EntityNotFoundException;
 
     Passenger findByEmail(String email);

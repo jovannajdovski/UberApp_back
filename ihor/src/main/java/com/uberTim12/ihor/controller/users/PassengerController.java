@@ -8,6 +8,7 @@ import com.uberTim12.ihor.dto.stats.RideCountStatisticsDTO;
 import com.uberTim12.ihor.dto.stats.RideDistanceStatisticsDTO;
 import com.uberTim12.ihor.dto.users.PassengerDTO;
 import com.uberTim12.ihor.dto.users.PassengerRegistrationDTO;
+import com.uberTim12.ihor.dto.users.UserInfoDTO;
 import com.uberTim12.ihor.exception.EmailAlreadyExistsException;
 import com.uberTim12.ihor.exception.UserActivationExpiredException;
 import com.uberTim12.ihor.model.ride.Ride;
@@ -118,14 +119,16 @@ public class PassengerController {
 
     @PutMapping(value = "/{id}", consumes = "application/json")
     @PreAuthorize("hasRole('PASSENGER')")
-    public ResponseEntity<?> updatePassenger(@Min(value = 1) @PathVariable Integer id, @Valid @RequestBody PassengerRegistrationDTO passengerDTO, @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<?> updatePassenger(@Min(value = 1) @PathVariable Integer id,
+                                             @Valid @RequestBody UserInfoDTO passengerDTO,
+                                             @RequestHeader("Authorization") String authHeader) {
         if (Integer.parseInt(jwtUtil.extractId(authHeader.substring(7))) != id)
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Passenger does not exist!");
 
         try {
             Passenger passenger = passengerService.update(id, passengerDTO.getName(), passengerDTO.getSurname(),
                     passengerDTO.getProfilePicture(), passengerDTO.getTelephoneNumber(), passengerDTO.getEmail(),
-                    passengerDTO.getAddress(), passengerDTO.getPassword());
+                    passengerDTO.getAddress());
             return new ResponseEntity<>(new PassengerDTO(passenger), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Passenger does not exist!");

@@ -122,10 +122,11 @@ public class DriverController {
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
-    public ResponseEntity<?> updateDriver(@Valid @RequestBody DriverRegistrationDTO driverDTO, @Min(value = 1) @PathVariable Integer id, @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<?> updateDriver(@Valid @RequestBody UserInfoDTO driverDTO,
+                                          @Min(value = 1) @PathVariable Integer id,
+                                          @RequestHeader("Authorization") String authHeader) {
         String jwtToken = authHeader.substring(7);
         if (!jwtUtil.extractRole(jwtToken).equals("ROLE_ADMIN")) {
-            String iddd = jwtUtil.extractId(jwtToken);
             Integer loggedId = Integer.parseInt(jwtUtil.extractId(jwtToken));
             if (!loggedId.equals(id)) {
                 return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
@@ -135,7 +136,7 @@ public class DriverController {
         try {
             Driver driver = driverService.update(id, driverDTO.getName(), driverDTO.getSurname(),
                     driverDTO.getProfilePicture(), driverDTO.getTelephoneNumber(), driverDTO.getEmail(),
-                    driverDTO.getAddress(), driverDTO.getPassword());
+                    driverDTO.getAddress());
             return new ResponseEntity<>(new DriverDTO(driver), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
