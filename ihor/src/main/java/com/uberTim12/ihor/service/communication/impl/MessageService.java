@@ -21,9 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -93,30 +91,50 @@ public class MessageService extends JPAService<Message> implements IMessageServi
 
         List<Integer> startIndexes=new ArrayList<>();
         List<Integer> endIndexes=new ArrayList<>();
+        if(groupedMessages.size()==0)  return new ArrayList<Message>();
+
+
         int currentRideId=groupedMessages.get(0).getRideId();
-        startIndexes.add(0);
+//        if(Integer.parseInt(jwtUtil.extractId(authHeader.substring(7)))!=id)
+        int start=0, end=groupedMessages.size();
         for(int i=0;i<groupedMessages.size();i++)
         {
             if(groupedMessages.get(i).getRideId()!=currentRideId) {
-                endIndexes.add(i - 1);
-                startIndexes.add(i);
+                end=i; //indeks prve koja nije ta
+                groupMessageByUser(groupedMessages, start, end, userId);
+                start=i;
                 currentRideId=groupedMessages.get(i).getRideId();
             }
         }
+
+
+        currentRideId=groupedMessages.get(0).getRideId();
+        int otherUserId, currentOtherUserId=groupedMessages.get(0).getSender().getId()+groupedMessages.get(0).getReceiver().getId()-userId;
+        startIndexes.add(0);
+        for(int i=0;i<groupedMessages.size();i++)
+        {
+            otherUserId=groupedMessages.get(i).getSender().getId()+groupedMessages.get(i).getReceiver().getId()-userId;
+            if(groupedMessages.get(i).getRideId()!=currentRideId || otherUserId!=currentOtherUserId) {
+                endIndexes.add(i - 1);
+                startIndexes.add(i);
+                currentRideId=groupedMessages.get(i).getRideId();
+                currentOtherUserId=otherUserId;
+            }
+        }
         endIndexes.add(groupedMessages.size()-1);
-        int pom;
+        int temp;
         for(int i=0;i< endIndexes.size()-1; i++)  // 0 1, 0 2, 1 2
         {
             for(int j=i+1;j<endIndexes.size();j++)
             {
                 if(groupedMessages.get(endIndexes.get(i)).getSendTime().isBefore(groupedMessages.get(endIndexes.get(j)).getSendTime())) {
-                    pom = endIndexes.get(i);
+                    temp = endIndexes.get(i);
                     endIndexes.set(i,endIndexes.get(j));
-                    endIndexes.set(j,pom);
+                    endIndexes.set(j,temp);
 
-                    pom=startIndexes.get(i);
+                    temp=startIndexes.get(i);
                     startIndexes.set(i,startIndexes.get(j));
-                    startIndexes.set(j,pom);
+                    startIndexes.set(j,temp);
                 }
             }
         }
@@ -139,4 +157,38 @@ public class MessageService extends JPAService<Message> implements IMessageServi
         }
         return sortedMessages;
     }
+
+    private void groupMessageByUser(List<Message> groupedMessages, int start, int end, int userId) {
+        Map<Integer, Integer> firstIndexes=new HashMap<>();
+        int otherUserId1, otherUserId2;
+        for(int i=start;i<end;i++)
+        {
+            otherUserId1=groupedMessages.get(i).getReceiver().getId()+groupedMessages.get(i).getSender().getId()-userId;
+            if(!firstIndexes.containsKey(otherUserId1))
+                firstIndexes.put(otherUserId1,i);
+        }
+        Message message1, message2;
+        for(int i=start;i<end-1;i++)
+        {
+            otherUserId1=groupedMessages.get(i).getReceiver().getId()+groupedMessages.get(i).getSender().getId()-userId;
+            for(int j=i+1;j<end;j++)
+            {
+                otherUserId2=groupedMessages.get(j).getReceiver().getId()+groupedMessages.get(j).getSender().getId()-userId;
+                if(firstIndexes.get(otherUserId1)>firstIndexes.get(otherUserId2) ||
+                        (Objects.equals(firstIndexes.get(otherUserId1), firstIndexes.get(otherUserId2)) && groupedMessages.get(i).getSendTime().isAfter(groupedMessages.get(j).getSendTime())))
+                {
+                    message1=new Message();
+                    message1.setMessage(groupedMessages.get(i));
+                    groupedMessages.get(i).setMessage(groupedMessages.get(j));
+                    groupedMessages.get(j).setMessage(message1);
+//                    message2=groupedMessages.get(j);
+
+//                    groupedMessages.set(i, groupedMessages.get(j));
+//                    groupedMessages.set(j, temp);
+                }
+            }
+        }
+
+    }
+
 }

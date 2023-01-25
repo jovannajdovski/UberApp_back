@@ -68,4 +68,13 @@ public class Message {
                 ", ride=" + ride.getId() +
                 '}';
     }
+
+    public void setMessage(Message message) {
+        this.sender=message.getSender();
+        this.receiver=message.getReceiver();
+        this.content=message.getContent();
+        this.sendTime=message.getSendTime();
+        this.type=message.getType();
+        this.ride=message.getRide();
+    }
 }

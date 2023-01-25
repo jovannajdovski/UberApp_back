@@ -114,7 +114,7 @@ public class RideSchedulingService implements IRideSchedulingService {
         {
             distance=Double.MAX_VALUE;
         }
-        ride.setTotalPrice(ride.getVehicleType().getPricePerKM()+distance*120);
+        ride.setTotalPrice((double)Math.round(ride.getVehicleType().getPricePerKM()+distance*120));
         rideService.save(ride);
         return ride;
     }

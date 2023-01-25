@@ -180,7 +180,7 @@ public class UserController {
         }
     }
     @PostMapping(value = "/send-messages",consumes=MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> sendMessage(@Valid @RequestBody MultipleSendingMessageDTO multipleSendingMessageDTO, @RequestHeader("Authorization") String authHeader)
+    public ResponseEntity<?> sendMessageToPassengers(@Valid @RequestBody MultipleSendingMessageDTO multipleSendingMessageDTO, @RequestHeader("Authorization") String authHeader)
     {
         try {
             for(int receiverId:multipleSendingMessageDTO.getUserIds())

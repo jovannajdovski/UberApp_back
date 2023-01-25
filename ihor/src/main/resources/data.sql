@@ -43,7 +43,7 @@ VALUES ('User', 'Usser', 'ffdfdfedf', '+3816563122', 'admin@gmail.com', 'Gogolje
 INSERT INTO Administrator (id) values ( 3 );
 
 INSERT INTO ihor (name, surname, profile_picture, telephone_number, email, address, password, is_blocked,is_active, authority_id)
-VALUES ('User', 'Usser', 'ffdfdfedf', '+3816563122', 'perapera@gmail.com', 'Gogoljeva 3', '$2a$12$SAb4HMfSjGuDnXdHEgUztu6Tnoema1khOgq7F1yEM1hDntSJbX1x6' , false, true, 3); --NekaSifra123
+VALUES ('User', 'Usser', 'ffdfdfedf', '+3816563122', 'perapera@gmail.com', 'Gogoljeva 3', '$2a$12$j7iYyVb8oUctjiiiHN42eOkPFXPatyKNxuqeuEKpENA6F.RFTqJhy' , false, true, 3); --NekaSifra123
 INSERT INTO Passenger (id) values ( 4 );
 
 INSERT INTO ihor (name, surname, profile_picture, telephone_number, email, address, password, is_blocked,is_active, authority_id)
@@ -110,13 +110,14 @@ INSERT INTO RIDE_PATH ( RIDE_ID, PATH_ID) VALUES (4, 1);
 
 INSERT INTO ACTIVE_DRIVER(DRIVER_ID, LOCATION_ID) VALUES (5, 3);
 --
-INSERT INTO MESSAGE (SENDER_ID, RECEIVER_ID, CONTENT, SEND_TIME, TYPE, RIDE_ID) VALUES (2,1, 'Voznja 3 moja', '2022-12-10T10:55:06.134', 2, 3);
-INSERT INTO MESSAGE (SENDER_ID, RECEIVER_ID, CONTENT, SEND_TIME, TYPE, RIDE_ID) VALUES (2,1, 'Voznja 2 moja', '2022-12-11T10:52:06.134', 2, 2);
-INSERT INTO MESSAGE (SENDER_ID, RECEIVER_ID, CONTENT, SEND_TIME, TYPE, RIDE_ID) VALUES (2,1, 'Voznja 1 moja2', '2022-12-12T09:52:06.134', 1, 1);
-INSERT INTO MESSAGE (SENDER_ID, RECEIVER_ID, CONTENT, SEND_TIME, TYPE, RIDE_ID) VALUES (1,2, 'Voznja 2 tudja', '2022-12-11T10:56:06.134', 1, 2);
-INSERT INTO MESSAGE ( SENDER_ID, RECEIVER_ID, CONTENT, SEND_TIME, TYPE, RIDE_ID) VALUES (1,2, 'Voznja 1 tudja', '2022-12-10T10:52:06.134', 2, 1);
-INSERT INTO MESSAGE (SENDER_ID, RECEIVER_ID, CONTENT, SEND_TIME, TYPE, RIDE_ID) VALUES (1,2, 'Voznja 3 tudja', '2022-12-11T10:56:06.134', 1, 3);
-INSERT INTO MESSAGE ( SENDER_ID, RECEIVER_ID, CONTENT, SEND_TIME, TYPE, RIDE_ID) VALUES (1,2, 'Voznja 1 tudja', '2022-12-10T10:52:06.134', 1, 1);
+INSERT INTO MESSAGE (SENDER_ID, RECEIVER_ID, CONTENT, SEND_TIME, TYPE, RIDE_ID) VALUES (2,1, 'Voznja 3 vozac->passenger', '2022-12-10T10:55:06.134', 2, 3);
+INSERT INTO MESSAGE (SENDER_ID, RECEIVER_ID, CONTENT, SEND_TIME, TYPE, RIDE_ID) VALUES (2,1, 'Voznja 2 vozac->passenger', '2022-12-11T10:52:06.134', 2, 2);
+INSERT INTO MESSAGE (SENDER_ID, RECEIVER_ID, CONTENT, SEND_TIME, TYPE, RIDE_ID) VALUES (2,1, 'Voznja 1 vozac->passenger', '2022-12-12T09:52:06.134', 1, 1);
+INSERT INTO MESSAGE (SENDER_ID, RECEIVER_ID, CONTENT, SEND_TIME, TYPE, RIDE_ID) VALUES (1,2, 'Voznja 2 passenger->vozac', '2022-12-11T10:56:06.134', 1, 2);
+INSERT INTO MESSAGE ( SENDER_ID, RECEIVER_ID, CONTENT, SEND_TIME, TYPE, RIDE_ID) VALUES (1,2, 'Voznja 1 passenger->vozac', '2022-12-10T10:52:06.134', 2, 1);
+INSERT INTO MESSAGE (SENDER_ID, RECEIVER_ID, CONTENT, SEND_TIME, TYPE, RIDE_ID) VALUES (1,2, 'Voznja 3 passenger->vozac', '2022-12-11T10:56:06.134', 1, 3);
+INSERT INTO MESSAGE ( SENDER_ID, RECEIVER_ID, CONTENT, SEND_TIME, TYPE, RIDE_ID) VALUES (1,2, 'Voznja 1 passenger->vozac', '2022-12-10T10:52:06.134', 1, 1);
+INSERT INTO MESSAGE ( SENDER_ID, RECEIVER_ID, CONTENT, SEND_TIME, TYPE, RIDE_ID) VALUES (2,4, 'Voznja 1 vozac->perapera', '2022-12-10T10:52:06.134', 1, 1);
 
 -- INSERT INTO panic (ride_id, user_id, reason, time) VALUES (1, 1, 'Driver is crazy', '2022-12-10T09:52:06.134');
 --
