@@ -61,8 +61,8 @@ public class ReviewController {
             Ride ride = rideService.get(rideId);
             if (!passengerInPassengers(jwtUtil.extractId(token), new ArrayList<>(ride.getPassengers())))
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
-
-            Review review = reviewService.createVehicleReview(rideId, reviewRequestDTO.getRating(), reviewRequestDTO.getComment());
+            Integer passengerId = Integer.parseInt(jwtUtil.extractId(token));
+            Review review = reviewService.createVehicleReview(passengerId, rideId, reviewRequestDTO.getRating(), reviewRequestDTO.getComment());
             return new ResponseEntity<>(new ReviewDTO(review, true), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
@@ -99,7 +99,8 @@ public class ReviewController {
             if (!passengerInPassengers(jwtUtil.extractId(token), new ArrayList<>(ride.getPassengers())))
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
 
-            Review review = reviewService.createDriverReview(rideId, reviewRequestDTO.getRating(), reviewRequestDTO.getComment());
+            Integer passengerId = Integer.parseInt(jwtUtil.extractId(token));
+            Review review = reviewService.createDriverReview(passengerId, rideId, reviewRequestDTO.getRating(), reviewRequestDTO.getComment());
             return new ResponseEntity<>(new ReviewDTO(review, false), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");

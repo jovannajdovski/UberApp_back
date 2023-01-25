@@ -31,11 +31,11 @@ VALUES ('ROLE_PASSENGER');
 -- INSERT INTO administrator (id) VALUES ( 6 );
 --
 INSERT INTO ihor (name, surname, profile_picture, telephone_number, email, address, password, is_blocked,is_active, authority_id)
-VALUES ('User', 'Usser', 'ffdfdfedf', '+3816563122', 'passenger@gmail.com', 'Gogoljeva 3', '$2a$12$j7iYyVb8oUctjiiiHN42eOkPFXPatyKNxuqeuEKpENA6F.RFTqJhy' , false, true, 3); --NekaSifra123
+VALUES ('User', 'Usser', null, '+3816563122', 'passenger@gmail.com', 'Gogoljeva 3', '$2a$12$j7iYyVb8oUctjiiiHN42eOkPFXPatyKNxuqeuEKpENA6F.RFTqJhy' , false, true, 3); --NekaSifra123
 INSERT INTO passenger (id) values ( 1 );
 
 INSERT INTO ihor (name, surname, profile_picture, telephone_number, email, address, password, is_blocked,is_active, authority_id)
-VALUES ('User', 'Usser', 'ffdfdfedf', '+3816563122', 'driver@gmail.com', 'Gogoljeva 3', '$2a$12$j7iYyVb8oUctjiiiHN42eOkPFXPatyKNxuqeuEKpENA6F.RFTqJhy' , false, true, 2); --NekaSifra123
+VALUES ('User', 'Usser', null, '+3816563122', 'driver@gmail.com', 'Gogoljeva 3', '$2a$12$j7iYyVb8oUctjiiiHN42eOkPFXPatyKNxuqeuEKpENA6F.RFTqJhy' , false, true, 2); --NekaSifra123
 INSERT INTO Driver (id) values ( 2 );
 
 INSERT INTO ihor (name, surname, profile_picture, telephone_number, email, address, password, is_blocked,is_active, authority_id)
@@ -43,11 +43,11 @@ VALUES ('User', 'Usser', 'ffdfdfedf', '+3816563122', 'admin@gmail.com', 'Gogolje
 INSERT INTO Administrator (id) values ( 3 );
 
 INSERT INTO ihor (name, surname, profile_picture, telephone_number, email, address, password, is_blocked,is_active, authority_id)
-VALUES ('User', 'Usser', 'ffdfdfedf', '+3816563122', 'perapera@gmail.com', 'Gogoljeva 3', '$2a$12$SAb4HMfSjGuDnXdHEgUztu6Tnoema1khOgq7F1yEM1hDntSJbX1x6' , false, true, 1); --NekaSifra123
+VALUES ('User', 'Usser', null, '+3816563122', 'j.najdovski@gmail.com', 'Gogoljeva 3', '$2a$12$j7iYyVb8oUctjiiiHN42eOkPFXPatyKNxuqeuEKpENA6F.RFTqJhy' , false, true, 3); --NekaSifra123
 INSERT INTO Passenger (id) values ( 4 );
 
 INSERT INTO ihor (ID, name, surname, profile_picture, telephone_number, email, address, password, is_blocked,is_active, authority_id)
-VALUES (72, 'User', 'Usser', 'ffdfdfedf', '+3816563122', 'passenger.attached.to.ride@gmail.com', 'Gogoljeva 3', '$2a$12$SAb4HMfSjGuDnXdHEgUztu6Tnoema1khOgq7F1yEM1hDntSJbX1x6' , false, true, 1); --NekaSifra123
+VALUES (72, 'User', 'Usser', null, '+3816563122', 'passenger.attached.to.ride@gmail.com', 'Gogoljeva 3', '$2a$12$SAb4HMfSjGuDnXdHEgUztu6Tnoema1khOgq7F1yEM1hDntSJbX1x6' , false, true, 3); --NekaSifra123
 INSERT INTO Passenger (id) values ( 72 );
 --
 -- INSERT INTO DRIVER_DOCUMENT (NAME, PICTURE, DRIVER_ID) VALUES ('Vozačka dozvola', 'U3dhZ2dlciByb2Nrcw=', 3);
@@ -62,21 +62,21 @@ INSERT INTO VEHICLE_TYPE ( VEHICLE_CATEGORY , PRICE_PER_KM ) VALUES ( 0, 300.0);
 -- INSERT INTO VEHICLE_TYPE ( VEHICLE_CATEGORY , PRICE_PER_KM ) VALUES ( 0, 400.0);
 -- INSERT INTO VEHICLE_TYPE ( VEHICLE_CATEGORY , PRICE_PER_KM ) VALUES ( 1, 500.0);
 --
-INSERT INTO LOCATION (address, latitude, longitude) VALUES ( 'Rackog 35', 45.237360,19.884690 );
- INSERT INTO LOCATION (address, latitude, longitude) VALUES ( 'Bulevar Patrijaha Pavla 2', 45.239840,19.820620 );
+INSERT INTO LOCATION (address, latitude, longitude) VALUES ( 'Rackog 35', 45.23747407777962, 19.884639498330873 );
+ INSERT INTO LOCATION (address, latitude, longitude) VALUES ( 'Bulevar Patrijaha Pavla 2', 45.23998170666056, 19.821792511825848 );
 -- INSERT INTO LOCATION (address, latitude, longitude) VALUES ( 'Branislava Borote 11', 45.252080,19.807280 );
 -- INSERT INTO LOCATION (address, latitude, longitude) VALUES ( 'Bulevar Cara Lazara 10', 45.248211,19.850460 );
 --
  INSERT INTO PATH (startpoint_id, endpoint_id, distance) VALUES ( 1, 2, 550.0 );
 --
  INSERT INTO RIDE ( START_TIME , END_TIME , TOTAL_PRICE , DRIVER_ID , ESTIMATED_TIME , RIDE_STATUS , BABIES_ALLOWED , PETS_ALLOWED , VEHICLE_TYPE, IS_PANIC_ACTIVATED, SCHEDULED_TIME  )
- VALUES ('2023-01-22T9:40:59.161', '2023-01-22T10:10:59.161', 200.0, 2, 32.0, 4, true, true, 1, false, '2023-01-10T12:52:06.134');
+ VALUES ('2023-01-23T9:40:59.161', '2023-01-22T10:10:59.161', 200.0, 2, 32.0, 4, true, true, 1, false, '2023-01-10T12:52:06.134');
 --
  INSERT INTO RIDE (START_TIME , END_TIME , TOTAL_PRICE , DRIVER_ID , ESTIMATED_TIME , RIDE_STATUS , BABIES_ALLOWED , PETS_ALLOWED , VEHICLE_TYPE, IS_PANIC_ACTIVATED, SCHEDULED_TIME  )
- VALUES ('2023-01-22T12:52:06.134', '2023-01-22T13:20:06.134', 200.0, 2, 32.0, 4, true, true, 1, false, '2023-01-10T12:52:06.134');
+ VALUES ('2023-01-23T12:52:06.134', '2023-01-22T13:20:06.134', 200.0, 2, 32.0, 4, true, true, 1, false, '2023-01-10T12:52:06.134');
 
 INSERT INTO RIDE (START_TIME , END_TIME , TOTAL_PRICE , DRIVER_ID , ESTIMATED_TIME , RIDE_STATUS , BABIES_ALLOWED , PETS_ALLOWED , VEHICLE_TYPE, IS_PANIC_ACTIVATED, SCHEDULED_TIME  )
-VALUES ('2023-01-22T12:52:06.134', '2023-01-22T13:20:06.134', 200.0, 2, 32.0, 2, true, true, 1, false, '2023-01-10T12:52:06.134');
+VALUES ('2023-01-23T12:52:06.134', '2023-01-22T13:20:06.134', 200.0, 2, 32.0, 2, true, true, 1, false, '2023-01-10T12:52:06.134');
 --
 -- INSERT INTO RIDE (START_TIME , END_TIME , TOTAL_PRICE , DRIVER_ID , ESTIMATED_TIME , RIDE_STATUS , BABIES_ALLOWED , PETS_ALLOWED , VEHICLE_TYPE, IS_PANIC_ACTIVATED, SCHEDULED_TIME  )
 -- VALUES ('2023-01-10T12:52:06.134', '2023-01-10T13:15:06.134', 300.0, 3, 33.0, 4, true, true, 1, false, '2023-01-10T12:52:06.134');
@@ -90,6 +90,7 @@ VALUES ('2023-01-22T12:52:06.134', '2023-01-22T13:20:06.134', 200.0, 2, 32.0, 2,
 --
 --
  INSERT INTO PASSENGER_RIDE ( PASSENGER_ID , RIDE_ID ) VALUES (1,1);
+INSERT INTO PASSENGER_RIDE ( PASSENGER_ID , RIDE_ID ) VALUES (4,1);
 INSERT INTO PASSENGER_RIDE ( PASSENGER_ID , RIDE_ID ) VALUES (1,2);
 INSERT INTO PASSENGER_RIDE ( PASSENGER_ID , RIDE_ID ) VALUES (1,3);
 -- INSERT INTO PASSENGER_RIDE ( PASSENGER_ID , RIDE_ID ) VALUES (2,3);
