@@ -193,7 +193,7 @@ public class RideService extends JPAService<Ride> implements IRideService {
         if (ride.getRideStatus() != RideStatus.PENDING && ride.getRideStatus() != RideStatus.STARTED) {
             throw new RideStatusException("Cannot cancel a ride that is not in status PENDING or STARTED!");
         }
-
+        ride.setStartTime(null);
         ride.setRideStatus(RideStatus.CANCELED);
         return this.save(ride);
     }
@@ -207,6 +207,7 @@ public class RideService extends JPAService<Ride> implements IRideService {
         }
 
         ride.setRideStatus(RideStatus.STARTED);
+        ride.setStartTime(LocalDateTime.now());
         return this.save(ride);
     }
 
@@ -231,6 +232,7 @@ public class RideService extends JPAService<Ride> implements IRideService {
         }
 
         ride.setRideStatus(RideStatus.FINISHED);
+        ride.setEndTime(LocalDateTime.now());
         return this.save(ride);
     }
 
@@ -247,7 +249,9 @@ public class RideService extends JPAService<Ride> implements IRideService {
         }
         ride.getRideRejection().setReason(reason);
         ride.getRideRejection().setTime(LocalDateTime.now());
-
+        ride.getRideRejection().setRide(ride);
+        ride.getRideRejection().setUser(ride.getDriver());
+        ride.setStartTime(null);
         ride.setRideStatus(RideStatus.REJECTED);
         return this.save(ride);
     }
