@@ -29,7 +29,7 @@ public class DriverRegistrationDTO {
     private String email;
     @NotEmpty
     private String address;
-    @Length(min = 6)
+//    @Length(min = 6)
     private String password;
 
     public DriverRegistrationDTO(Driver driver)

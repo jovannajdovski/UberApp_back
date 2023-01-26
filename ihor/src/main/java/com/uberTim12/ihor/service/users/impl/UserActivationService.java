@@ -54,7 +54,7 @@ public class UserActivationService extends JPAService<UserActivation> implements
 
         userActivationRepository.deleteAllByUser(user);
         save(userActivation);
-//        mailSender.send(constructResetTokenEmail(activationToken, user));
+        mailSender.send(constructResetTokenEmail(activationToken, user));
     }
 
     private Integer generateToken() {

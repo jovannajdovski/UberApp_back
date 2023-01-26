@@ -132,6 +132,21 @@ public class RideService extends JPAService<Ride> implements IRideService {
     }
 
     @Override
+    public List<Ride> findAcceptedByDriver(Driver driver) throws NoActiveRideException {
+        List<Ride> rides = rideRepository.findActiveByDriver(driver, RideStatus.ACCEPTED);
+        if (rides.isEmpty()) {
+            throw new NoActiveRideException("Accepted ride does not exist!");
+        } else {
+            for (Ride ride: rides){
+                Set<Passenger> passengers = new HashSet<>(findPassengersForRide(ride.getId()));
+                ride.setPassengers(passengers);
+            }
+
+            return rides;
+        }
+    }
+
+    @Override
     public Ride findActiveByPassenger(Passenger passenger) throws NoActiveRideException {
         List<Ride> rides = rideRepository.findActiveByPassenger(passenger, RideStatus.STARTED);
         if (rides.isEmpty()) {
@@ -199,11 +214,20 @@ public class RideService extends JPAService<Ride> implements IRideService {
     }
 
     @Override
-    public Ride start(Integer id) throws EntityNotFoundException, RideStatusException {
+    public Ride start(Integer id, Integer driverId) throws EntityNotFoundException, RideStatusException {
         Ride ride = this.get(id);
 
         if (ride.getRideStatus() != RideStatus.ACCEPTED) {
             throw new RideStatusException("Cannot start a ride that is not in status ACCEPTED!");
+        }
+
+        Driver driver = driverRepository.findById(driverId).orElse(null);
+        if (driver==null){
+            throw new EntityNotFoundException("Driver does not exists!");
+        }
+        List<Ride> rides = rideRepository.findActiveByDriver(driver, RideStatus.STARTED);
+        if (rides.size()>0){
+            throw new RideStatusException("Cannot start a ride if you already have STARTED ride!");
         }
 
         ride.setRideStatus(RideStatus.STARTED);

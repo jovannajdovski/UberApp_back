@@ -50,6 +50,7 @@ public class SecurityConfig {
             .requestMatchers(POST, "/api/passenger").permitAll()
             .requestMatchers(GET,"/api/passenger/*").permitAll()
             .requestMatchers(GET,"/api/passenger/activate/*").permitAll()
+                .requestMatchers(GET,"/api/passenger/email/check/*").permitAll()
             .requestMatchers("/api/unregisteredUser/").permitAll()
             .requestMatchers("/api/user/login").permitAll()
             .requestMatchers("/api/user/*/resetPassword").permitAll()
