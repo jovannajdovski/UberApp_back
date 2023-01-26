@@ -129,21 +129,11 @@ public class RideController {
 
             Ride ride = rideService.findActiveByDriver(driver);
 
-
-            new Timer().scheduleAtFixedRate(new RideSimulationTimer(driver.getVehicle().getId(),vehicleService,
-                                            locationService.getSteps(ride.getPaths().iterator().next().getStartPoint(),
-                                                    ride.getPaths().iterator().next().getEndPoint())),
-                                        0,300);
-
             return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Driver does not exist!");
         } catch (NoActiveRideException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Active ride does not exist!");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -301,11 +291,18 @@ public class RideController {
             if (!jwtUtil.extractId(token).equals(ride.getDriver().getId().toString()))
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
 
+            new Timer().scheduleAtFixedRate(new RideSimulationTimer(ride.getDriver().getVehicle().getId(),vehicleService,
+                            locationService.getSteps(ride.getPaths().iterator().next().getStartPoint(),
+                                    ride.getPaths().iterator().next().getEndPoint())),
+                    0,2000);
+
             return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
         } catch (RideStatusException e) {
             return new ResponseEntity<>(new ResponseMessageDTO(e.getMessage()), HttpStatus.BAD_REQUEST);
+        } catch (IOException | ParseException e) {
+            throw new RuntimeException(e);
         }
     }
 
