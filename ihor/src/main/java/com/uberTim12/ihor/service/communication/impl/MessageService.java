@@ -96,7 +96,7 @@ public class MessageService extends JPAService<Message> implements IMessageServi
 
         int currentRideId=groupedMessages.get(0).getRideId();
 //        if(Integer.parseInt(jwtUtil.extractId(authHeader.substring(7)))!=id)
-        int start=0, end=groupedMessages.size();
+        int start=0, end;
         for(int i=0;i<groupedMessages.size();i++)
         {
             if(groupedMessages.get(i).getRideId()!=currentRideId) {
@@ -106,7 +106,8 @@ public class MessageService extends JPAService<Message> implements IMessageServi
                 currentRideId=groupedMessages.get(i).getRideId();
             }
         }
-
+        end=groupedMessages.size();
+        groupMessageByUser(groupedMessages,start,end, userId);
 
         currentRideId=groupedMessages.get(0).getRideId();
         int otherUserId, currentOtherUserId=groupedMessages.get(0).getSender().getId()+groupedMessages.get(0).getReceiver().getId()-userId;
