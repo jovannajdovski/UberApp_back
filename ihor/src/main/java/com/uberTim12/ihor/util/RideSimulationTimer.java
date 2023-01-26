@@ -24,7 +24,6 @@ public class RideSimulationTimer extends TimerTask {
     @Override
     public void run() {
         vehicleService.changeVehicleLocation(vehicleId,new Location("Adresa",steps.get(i).getLatitude(), steps.get(i).getLongitude()));
-        System.out.println(steps.get(i).getLatitude()+" - "+steps.get(i).getLongitude());
         i++;
         if(i==steps.size())
             this.cancel();
