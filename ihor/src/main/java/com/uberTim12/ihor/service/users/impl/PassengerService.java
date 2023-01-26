@@ -67,7 +67,7 @@ public class PassengerService extends JPAService<Passenger> implements IPassenge
 
     @Override
     public Passenger update(Integer passengerId, String name, String surname, String profilePicture,
-                            String telephoneNumber, String email, String address, String password)
+                            String telephoneNumber, String email, String address)
             throws EntityNotFoundException {
         Passenger passenger = get(passengerId);
         passenger.setName(name);
@@ -76,8 +76,6 @@ public class PassengerService extends JPAService<Passenger> implements IPassenge
         passenger.setTelephoneNumber(telephoneNumber);
         passenger.setEmail(email);
         passenger.setAddress(address);
-        if (password != null)
-            passenger.setPassword(password);
         return save(passenger);
     }
 
@@ -103,8 +101,8 @@ public class PassengerService extends JPAService<Passenger> implements IPassenge
     }
 
     @Override
-    public Optional<Passenger> findByIdWithFavorites(Integer id) {
-        return passengerRepository.findById(id);
+    public Passenger findByIdWithFavorites(Integer id) {
+        return passengerRepository.findByIdWithFavorites(id);
     }
 
     @Override

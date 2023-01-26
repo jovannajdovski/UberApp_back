@@ -1,11 +1,11 @@
 package com.uberTim12.ihor.service.ride.interfaces;
 
-import com.uberTim12.ihor.dto.ride.RideRequestDTO;
 import com.uberTim12.ihor.dto.ride.RideResponseDTO;
 import com.uberTim12.ihor.exception.NoAcceptedRideException;
 import com.uberTim12.ihor.exception.NoActiveRideException;
 import com.uberTim12.ihor.exception.RideStatusException;
 import com.uberTim12.ihor.model.ride.Ride;
+import com.uberTim12.ihor.model.ride.RideStatus;
 import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.users.Passenger;
@@ -61,4 +61,10 @@ public interface IRideService extends IJPAService<Ride> {
     List<Ride> findPendingRides(Integer driverId);
 
     Ride findNextRide(Integer driverId) throws NoAcceptedRideException;
+
+    List<Ride> findRidesWithStatusForDriver(Integer id, RideStatus status, LocalDateTime from, LocalDateTime to);
+
+    List<Ride> findRidesWithStatusForPassenger(Integer id, RideStatus status, LocalDateTime from, LocalDateTime to);
+
+    List<Ride> findAcceptedRides(Integer id, LocalDateTime from, LocalDateTime to);
 }

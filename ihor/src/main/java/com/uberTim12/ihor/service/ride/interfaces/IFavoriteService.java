@@ -9,12 +9,14 @@ import com.uberTim12.ihor.model.ride.Favorite;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.service.base.interfaces.IJPAService;
 
+import java.util.List;
 import java.util.Set;
 
 public interface IFavoriteService extends IJPAService<Favorite> {
     Favorite create(CreateFavoriteDTO favoriteDTO) throws FavoriteRideExceedException;
 
-    Set<Favorite> getForPassenger() throws UnauthorizedException, AccessDeniedException;
 
     FavoriteRouteForPassengerDTO isFavoriteRouteForPassenger(String from, String to, Integer passengerId);
+
+    List<Favorite> getForPassenger(Integer id);
 }

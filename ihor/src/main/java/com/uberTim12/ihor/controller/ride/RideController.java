@@ -400,21 +400,25 @@ public class RideController {
         return new ResponseEntity<>(favoritesDTO, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/favorites/passenger")
+    @GetMapping(value = "/favorites/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('PASSENGER')")
-    public ResponseEntity<Set<FavoriteFullDTO>> getFavoritesForPassenger() {
+    public ResponseEntity<?> getFavoritesForPassenger(@PathVariable Integer id,
+                                                      @RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.substring(7);
+
+        if (jwtUtil.extractRole(token).equals("ROLE_PASSENGER") && !id.toString().equals(jwtUtil.extractId(token)))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Favorites do not exist!");
         try {
-            Set<Favorite> favorites = favoriteService.getForPassenger();
-            // if all then favoriteService.getAll();
-            Set<FavoriteFullDTO> favoritesDTO = new HashSet<>();
+            passengerService.get(id);
+
+            List<Favorite> favorites = favoriteService.getForPassenger(id);
+            List<FavoriteFullDTO> favoritesDTO = new ArrayList<>();
             for (Favorite favorite : favorites) {
                 favoritesDTO.add(new FavoriteFullDTO(favorite));
             }
             return new ResponseEntity<>(favoritesDTO, HttpStatus.OK);
-        } catch (UnauthorizedException e) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized!");
-        } catch (AccessDeniedException e) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied!");
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Passenger does not exist!");
         }
     }
 

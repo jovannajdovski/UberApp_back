@@ -291,4 +291,19 @@ public class RideService extends JPAService<Ride> implements IRideService {
             throw new NoAcceptedRideException("No accepted rides");
         return acceptedRides.get(0);
     }
+
+    @Override
+    public List<Ride> findRidesWithStatusForPassenger(Integer id, RideStatus status, LocalDateTime from, LocalDateTime to) {
+        return rideRepository.findAllByPassengerIdAndRideStatusInTimeRange(id, status, from, to);
+    }
+
+    @Override
+    public List<Ride> findRidesWithStatusForDriver(Integer id, RideStatus status, LocalDateTime from, LocalDateTime to) {
+        return rideRepository.findAllByDriverIdAndRideStatusInTimeRange(id, status, from, to);
+    }
+
+    @Override
+    public List<Ride> findAcceptedRides(Integer id, LocalDateTime from, LocalDateTime to) {
+        return rideRepository.findAllAccepted(id, from, to);
+    }
 }
