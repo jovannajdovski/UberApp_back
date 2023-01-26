@@ -11,6 +11,7 @@ import com.uberTim12.ihor.security.JwtUtil;
 import com.uberTim12.ihor.service.ride.interfaces.IRideService;
 import com.uberTim12.ihor.service.vehicle.interfaces.IVehicleService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -25,6 +26,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @Controller
+@Transactional
 public class RideWebSocketController {
 
     private final SimpMessagingTemplate simpMessagingTemplate;
@@ -39,65 +41,32 @@ public class RideWebSocketController {
         this.rideService = rideService;
     }
 
-//    @CrossOrigin(origins = "http://localhost:4200")
-//    @MessageMapping("vehicle/{rideId}/current-location/{authHeader}")
-//    public void getVehicleCurrentLocation(@DestinationVariable Integer rideId, @DestinationVariable String authHeader)
-//    {
-//        System.out.println("usao u soket");
-//        String token = authHeader.substring(7);
-//        String userId=jwtUtil.extractId(token);
-//        try {
-//            Ride ride = rideService.get(rideId);
-//            if (!userId.equals(ride.getDriver().getId().toString())) {
-//
-//            }
-//            if (!passengerInPassengers(userId, new ArrayList<>(ride.getPassengers())))
-//            {
-//
-//            }    //nesto
-//            Location currentLocation=ride.getDriver().getVehicle().getCurrentLocation();
-//            System.out.println("salje ");
-//            this.simpMessagingTemplate.convertAndSend("api/socket-publisher/" +"vehicle/current-location/"+rideId , new LocationDTO(currentLocation));
-//        } catch (EntityNotFoundException e) {
-//            //return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
-//        }
-//    }
+    @MessageMapping("vehicle/{rideId}/current-location/{token}")
+    public void getVehicleCurrentLocation(@DestinationVariable Integer rideId, @DestinationVariable String token)
+    {
+        System.out.println("usao u soket");
+        String userId=jwtUtil.extractId(token);
+        try {
+            Ride ride = rideService.get(rideId);
+            if (!userId.equals(ride.getDriver().getId().toString())) {
+
+            }
+            if (!passengerInPassengers(userId, new ArrayList<>(ride.getPassengers())))
+            {
+
+            }    //nesto
+            Location currentLocation=ride.getDriver().getVehicle().getCurrentLocation();
+            System.out.println("salje ");
+            this.simpMessagingTemplate.convertAndSend("api/socket-publisher/" +"vehicle/current-location/"+rideId , new LocationDTO(currentLocation));
+        } catch (EntityNotFoundException e) {
+            //return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
+        }
+    }
     private boolean passengerInPassengers(String passengerId, ArrayList<Passenger> passengers) {
         for (Passenger p : passengers)
             if (passengerId.equals(p.getId().toString()))
                 return true;
         return false;
     }
-    @MessageMapping("/send/message")
-    public Map<String, String> broadcastNotification(String message) {
-        Map<String, String> messageConverted = parseMessage(message);
 
-        if (messageConverted != null) {
-            if (messageConverted.containsKey("toId") && messageConverted.get("toId") != null
-                    && !messageConverted.get("toId").equals("")) {
-                this.simpMessagingTemplate.convertAndSend("/socket-publisher/" + messageConverted.get("toId"),
-                        messageConverted);
-                this.simpMessagingTemplate.convertAndSend("/socket-publisher/" + messageConverted.get("fromId"),
-                        messageConverted);
-            } else {
-                this.simpMessagingTemplate.convertAndSend("/socket-publisher", messageConverted);
-            }
-        }
-
-        return messageConverted;
-    }
-
-    @SuppressWarnings("unchecked")
-    private Map<String, String> parseMessage(String message) {
-        ObjectMapper mapper = new ObjectMapper();
-        Map<String, String> retVal;
-
-        try {
-            retVal = mapper.readValue(message, Map.class); // parsiranje JSON stringa
-        } catch (IOException e) {
-            retVal = null;
-        }
-
-        return retVal;
-    }
 }
