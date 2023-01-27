@@ -129,7 +129,7 @@ public class UserController {
                              userCredentialDTO.getPassword())
             );
             SecurityContextHolder.getContext().setAuthentication(authentication);
-
+            System.out.println(this.rideService);
             String token = jwtUtil.generateToken(authentication);
             AuthTokenDTO tokenDTO = new AuthTokenDTO(token, token);
             return new ResponseEntity<>(tokenDTO, HttpStatus.OK);

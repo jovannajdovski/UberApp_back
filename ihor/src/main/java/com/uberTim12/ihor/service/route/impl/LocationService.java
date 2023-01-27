@@ -70,7 +70,9 @@ public class LocationService extends JPAService<Location> implements ILocationSe
 
     @Override
     public List<RouteStep> getSteps(Location location1, Location location2) throws IOException, ParseException {
-        URL url = new URL("https://routing.openstreetmap.de/routed-car/route/v1/driving/"+location1.getLongitude().toString()+","+location1.getLatitude().toString()+";"+location2.getLongitude().toString()+","+location1.getLatitude().toString()+"?geometries=geojson&overview=false&alternatives=true&steps=true");
+        String urlStr="https://routing.openstreetmap.de/routed-car/route/v1/driving/"+location1.getLongitude().toString()+","+location1.getLatitude().toString()+";"+location2.getLongitude().toString()+","+location2.getLatitude().toString()+"?geometries=geojson&overview=false&alternatives=true&steps=true";
+        System.out.println(urlStr);
+        URL url = new URL(urlStr);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET");
         InputStream inputStream = con.getInputStream();
@@ -89,7 +91,8 @@ public class LocationService extends JPAService<Location> implements ILocationSe
         JSONObject geometry;
         JSONArray coordinates;
         JSONArray location;
-        Number latitude, longitude;;
+        Number latitude, longitude;
+        System.out.println(json);
         for(int i=0;i<steps.size();i++)
         {
             step=(JSONObject) steps.get(i);
@@ -98,8 +101,8 @@ public class LocationService extends JPAService<Location> implements ILocationSe
             for(int j=0;j<coordinates.size();j++)
             {
                 location=(JSONArray) coordinates.get(j);
-                latitude= (Number) location.get(0);
-                longitude=(Number) location.get(1);
+                latitude= (Number) location.get(1);
+                longitude=(Number) location.get(0);
                 stepList.add(new RouteStep(latitude.doubleValue(),longitude.doubleValue()));
             }
 

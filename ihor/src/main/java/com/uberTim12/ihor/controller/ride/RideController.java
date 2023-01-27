@@ -32,6 +32,7 @@ import com.uberTim12.ihor.service.users.interfaces.IDriverService;
 import com.uberTim12.ihor.service.users.interfaces.IPassengerService;
 import com.uberTim12.ihor.service.vehicle.interfaces.IVehicleService;
 import com.uberTim12.ihor.util.RideSimulationTimer;
+import com.uberTim12.ihor.util.SocketTimer;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -42,7 +43,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.util.*;
@@ -60,11 +60,13 @@ public class RideController {
     private final IRideSchedulingService rideSchedulingService;
     private final IFavoriteService favoriteService;
     private final JwtUtil jwtUtil;
+    private final SocketTimer socketTimer;
+    private final RideSimulationTimer rideSimulationTimer;
 
     @Autowired
     public RideController(RideService rideService, IVehicleService vehicleService, PathService pathService, PassengerService passengerService,
                           DriverService driverService, PanicService panicService,
-                          ILocationService locationService, IRideSchedulingService rideSchedulingService, IFavoriteService favoriteService, JwtUtil jwtUtil) {
+                          ILocationService locationService, IRideSchedulingService rideSchedulingService, IFavoriteService favoriteService, JwtUtil jwtUtil, SocketTimer socketTimer, RideSimulationTimer rideSimulationTimer) {
         this.rideService = rideService;
         this.vehicleService = vehicleService;
         this.pathService = pathService;
@@ -75,6 +77,8 @@ public class RideController {
         this.rideSchedulingService = rideSchedulingService;
         this.favoriteService = favoriteService;
         this.jwtUtil = jwtUtil;
+        this.socketTimer = socketTimer;
+        this.rideSimulationTimer = rideSimulationTimer;
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -128,6 +132,11 @@ public class RideController {
             driver = driverService.get(driverId);
 
             Ride ride = rideService.findActiveByDriver(driver);
+//            System.out.println(ride);
+//            System.out.println(ride.getId());
+//            System.out.println(ride.getDriver().getVehicle().getCurrentLocation().getLatitude());
+//
+//            System.out.println("--------------");
 
             return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
@@ -290,11 +299,13 @@ public class RideController {
             Ride ride = rideService.start(id, Integer.parseInt(jwtUtil.extractId(token)));
             if (!jwtUtil.extractId(token).equals(ride.getDriver().getId().toString()))
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
-
-            new Timer().scheduleAtFixedRate(new RideSimulationTimer(ride.getDriver().getVehicle().getId(),vehicleService,
-                            locationService.getSteps(ride.getPaths().iterator().next().getStartPoint(),
-                                    ride.getPaths().iterator().next().getEndPoint())),
-                    0,2000);
+//            System.out.println(ride);
+//            System.out.println(ride.getId());
+//            System.out.println(ride.getDriver().getVehicle().getCurrentLocation().getLatitude());
+            rideSimulationTimer.setProperties(ride.getDriver().getVehicle().getId(),
+                    locationService.getSteps(ride.getPaths().iterator().next().getStartPoint(),
+                            ride.getPaths().iterator().next().getEndPoint()));
+            new Timer().scheduleAtFixedRate(rideSimulationTimer, 0,2000);
 
             return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
         } catch (EntityNotFoundException e) {

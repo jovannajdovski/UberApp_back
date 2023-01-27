@@ -25,7 +25,10 @@ public abstract class CRUDService<T> implements ICRUDService<T> {
     public T save(T entity) {
         return getEntityRepository().save(entity);
     }
-
+    @Override
+    public T saveAndFlush(T entity) {
+        return getEntityRepository().saveAndFlush(entity);
+    }
     @Override
     public T update(T entity) {
         return save(entity);
