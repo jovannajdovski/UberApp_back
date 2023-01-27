@@ -162,7 +162,9 @@ public class RideController {
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Driver does not exist!");
         } catch (NoActiveRideException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Accepted ride does not exist!");
+            List<RideNoStatusDTO> rideDTOs = new ArrayList<>();
+            ObjectListResponseDTO<RideNoStatusDTO> res = new ObjectListResponseDTO<>(0, rideDTOs);
+            return new ResponseEntity<>(res, HttpStatus.OK);
         }
     }
 

@@ -412,6 +412,39 @@ public class DriverController {
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
+    @GetMapping(value = "/{driverId}/ride/finished")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
+    public ResponseEntity<?> getRidesForDriver(@Min(value = 1) @PathVariable Integer driverId,
+                                               @Min(value = 0) @RequestParam int page,
+                                               @Min(value = 1) @RequestParam int size,
+                                               @RequestHeader("Authorization") String authHeader) {
+        String jwtToken = authHeader.substring(7);
+        if (!jwtUtil.extractRole(jwtToken).equals("ROLE_ADMIN")) {
+            Integer loggedId = Integer.parseInt(jwtUtil.extractId(jwtToken));
+            if (!loggedId.equals(driverId)) {
+                return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
+            }
+        }
+
+        try {
+            driverService.get(driverId);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
+        }
+
+        Pageable paging = PageRequest.of(page, size);
+
+        Page<Ride> rides;
+        rides = rideService.findFilteredFinishedRidesDriver(driverId, paging);
+
+        List<RideFullDTO> rideDTOs = new ArrayList<>();
+        for (Ride r : rides)
+            rideDTOs.add(new RideFullDTO(r));
+
+        ObjectListResponseDTO<RideFullDTO> res = new ObjectListResponseDTO<>((int) rides.getTotalElements(), rideDTOs);
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
     @GetMapping(value = "/working-hour/{workingHourId}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
     public ResponseEntity<?> getWorkingHours(@Min(value = 1) @PathVariable Integer workingHourId, @RequestHeader("Authorization") String authHeader) {

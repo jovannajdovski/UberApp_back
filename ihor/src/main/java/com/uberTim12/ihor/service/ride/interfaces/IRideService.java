@@ -24,6 +24,10 @@ public interface IRideService extends IJPAService<Ride> {
 
     Page<Ride> findFilteredRides(Integer driverId, LocalDateTime from, LocalDateTime to, Pageable pageable);
 
+    Page<Ride> findFilteredFinishedRidesDriver(Integer driverId, Pageable pageable);
+
+    Page<Ride> findFilteredFinishedRidesPassenger(Integer passengerId, Pageable pageable);
+
     Page<Ride> findFilteredRidesForUser(Integer userId, LocalDateTime from, LocalDateTime to, Pageable pageable);
 
     Page<Ride> findFilteredRidesForUser(Integer userId, Pageable pageable);
