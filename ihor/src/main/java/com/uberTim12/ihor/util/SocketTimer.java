@@ -31,7 +31,7 @@ public class SocketTimer extends TimerTask {
     public void run() {
         Ride ride=rideService.get(rideId);
         Location currentLocation=ride.getDriver().getVehicle().getCurrentLocation();
-        System.out.println(currentLocation.getLatitude());
+//        System.out.println(currentLocation.getLatitude());
         this.simpMessagingTemplate.convertAndSend("api/socket-publisher/" +"vehicle/current-location/"+ride.getId() , new LocationDTO(currentLocation));
 
     }
