@@ -180,6 +180,31 @@ public class PassengerController {
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
+    @GetMapping(value = "/{id}/ride/finished")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PASSENGER')")
+    public ResponseEntity<?> getPassengerRidesPage(@Min(value = 1) @PathVariable Integer id, Pageable page,
+                                                   @RequestHeader("Authorization") String authHeader) {
+
+        if (Integer.parseInt(jwtUtil.extractId(authHeader.substring(7))) != id && (jwtUtil.extractRole(authHeader.substring(7)).equals("ROLE_PASSENGER")))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Passenger does not exist!");
+
+        Passenger passenger = passengerService.findByIdWithRides(id);
+
+        if (passenger == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Passenger does not exist!");
+        }
+
+        Page<Ride> rides;
+        rides = passengerService.findAllByIdFinished(id, page);
+
+        List<RideNoStatusDTO> rideDTOs = new ArrayList<>();
+        for (Ride r : rides)
+            rideDTOs.add(new RideNoStatusDTO(r));
+
+        ObjectListResponseDTO<RideNoStatusDTO> res = new ObjectListResponseDTO<>((int) rides.getTotalElements(), rideDTOs);
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
     @GetMapping(value = "/{id}/ride-count")
     @PreAuthorize("hasRole('ADMIN') or hasRole('PASSENGER')")
     public ResponseEntity<?> getRideCountStatistics(@Min(value = 1) @PathVariable Integer id,

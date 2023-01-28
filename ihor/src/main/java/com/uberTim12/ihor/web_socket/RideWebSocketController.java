@@ -1,11 +1,13 @@
 package com.uberTim12.ihor.web_socket;
 
+import com.uberTim12.ihor.dto.ride.RideFullDTO;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.users.Passenger;
-import com.uberTim12.ihor.security.JwtUtil;
 import com.uberTim12.ihor.service.ride.interfaces.IRideService;
-import com.uberTim12.ihor.service.vehicle.interfaces.IVehicleService;
-import com.uberTim12.ihor.util.SocketTimer;
+import com.uberTim12.ihor.service.users.interfaces.IDriverService;
+import com.uberTim12.ihor.service.users.interfaces.IUserService;
+import com.uberTim12.ihor.timer.SocketTimer;
+import com.uberTim12.ihor.timer.WorkHoursTimer;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,98 +17,96 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 import java.util.*;
+import java.util.ArrayList;
 
 @Controller
 @Transactional
 public class RideWebSocketController {
 
     private final SimpMessagingTemplate simpMessagingTemplate;
-    private final IVehicleService vehicleService;
-    private final JwtUtil jwtUtil;
     private final IRideService rideService;
+    private final IDriverService driverService;
+    private final IUserService userService;
     private final SocketTimer socketTimer;
+    private final WorkHoursTimer workHoursTimer;
 
     @Autowired
-    public RideWebSocketController(SimpMessagingTemplate simpMessagingTemplate, IVehicleService vehicleService, JwtUtil jwtUtil, IRideService rideService, SocketTimer socketTimer) {
+    public RideWebSocketController(SimpMessagingTemplate simpMessagingTemplate, IRideService rideService, IDriverService driverService, IUserService userService, SocketTimer socketTimer, WorkHoursTimer workHoursTimer) {
         this.simpMessagingTemplate = simpMessagingTemplate;
-        this.vehicleService = vehicleService;
-        this.jwtUtil = jwtUtil;
         this.rideService = rideService;
+        this.driverService = driverService;
+        this.userService = userService;
         this.socketTimer = socketTimer;
+        this.workHoursTimer = workHoursTimer;
     }
 
-    @MessageMapping("vehicle/{rideId}/current-location/{token}")
-    public void getVehicleCurrentLocation(@DestinationVariable Integer rideId, @DestinationVariable String token)
-    {
-        System.out.println("usao u soket");
-        String userId=jwtUtil.extractId(token);
+    @MessageMapping("vehicle/{rideId}/current-location")
+    public void getVehicleCurrentLocation(@DestinationVariable Integer rideId) {
+
         try {
             Ride ride = rideService.get(rideId);
-//            System.out.println(ride);
-//            System.out.println(ride.getId());
-//            System.out.println(this.rideService);
-            if (!userId.equals(ride.getDriver().getId().toString())) {
 
-            }
-            if (!passengerInPassengers(userId, new ArrayList<>(ride.getPassengers())))
-            {
-
-            }
-
-
-
-//            Timer timer = new Timer();
-//            SimpMessagingTemplate smt=this.simpMessagingTemplate;
-//            timer.scheduleAtFixedRate(new TimerTask()
-//            {
-//                public void run()
-//                {
-//                    // Your code
-//
-//                    Location currentLocation=ride.getDriver().getVehicle().getCurrentLocation();
-//                    System.out.println(currentLocation.getLatitude());
-//                    smt.convertAndSend("api/socket-publisher/" +"vehicle/current-location/"+ride.getId() , new LocationDTO(currentLocation));
-//
-//
-//                }
-//            }, 0, 2000);
-//
             socketTimer.setProperties(ride.getId(),this.simpMessagingTemplate);
-//            new Timer().scheduleAtFixedRate(new SocketTimer(this.simpMessagingTemplate,rideService,ride.getId()),0,2000);
-
             new Timer().scheduleAtFixedRate(socketTimer,0,2000);
-
-
-//            Location loc1=ride.getDriver().getVehicle().getCurrentLocation();
-//            Thread.sleep(5000);
-//            Ride ride1 = rideService.get(rideId);
-//            System.out.println(ride);
-//            System.out.println(ride1);
-//            Location loc2=ride1.getDriver().getVehicle().getCurrentLocation();
-//            System.out.println(loc1.getLatitude());
-//            System.out.println(loc2.getLatitude());
-
-//            while(true)
-//            {
-//                Thread.sleep(2000);
-//                ride=rideService.get(rideId);
-//                Location currentLocation=ride.getDriver().getVehicle().getCurrentLocation();
-//                this.simpMessagingTemplate.convertAndSend("api/socket-publisher/" +"vehicle/current-location/"+rideId , new LocationDTO(currentLocation));
-//
-//            }
-
-//            Location currentLocation=ride.getDriver().getVehicle().getCurrentLocation();
-//            this.simpMessagingTemplate.convertAndSend("api/socket-publisher/" +"vehicle/current-location/"+rideId , new LocationDTO(currentLocation));
-        } catch (EntityNotFoundException e) {
-            //return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
+        } catch (EntityNotFoundException  | IllegalStateException ignored) {
         }
     }
+
+    @MessageMapping("{userId}/new-ride/{rideId}")
+    public void getNewRide(@DestinationVariable Integer userId, @DestinationVariable Integer rideId) {
+        Ride ride;
+        try {
+            userService.get(userId);
+            ride=rideService.get(rideId);
+
+            this.simpMessagingTemplate.convertAndSend("api/socket-publisher/" +"new-ride/"+ride.getDriver().getId() , new RideFullDTO(ride));
+            for(Passenger p:ride.getPassengers())
+            {
+                if(!Objects.equals(p.getId(), userId))
+                    this.simpMessagingTemplate.convertAndSend("api/socket-publisher/" +"new-ride/"+p.getId() , new RideFullDTO(ride));
+            }
+
+        } catch (EntityNotFoundException | IllegalStateException ignored) {}
+
+    }
+
+    @MessageMapping("{driverId}/work-hours")
+    public void getRemainedWorkHours(@DestinationVariable Integer driverId){
+        System.out.println("usao u soket");
+        try {
+            System.out.println(driverId);
+            driverService.get(driverId);
+            workHoursTimer.setProperties(driverId,this.simpMessagingTemplate);
+            new Timer().scheduleAtFixedRate(workHoursTimer,0,60000);
+        } catch (EntityNotFoundException | IllegalStateException ignored) {}
+
+    }
+
+
+    @MessageMapping("finish-ride/{rideId}")
+    public void finishRide(@DestinationVariable Integer rideId) {
+        Ride ride;
+        try {
+            ride=rideService.get(rideId);
+            //this.simpMessagingTemplate.convertAndSend("api/socket-publisher/" +"finished-ride/"+ride.getDriver().getId() , new RideFullDTO(ride));
+            for(Passenger p:ride.getPassengers())
+            {
+                this.simpMessagingTemplate.convertAndSend("api/socket-publisher/" +"finished-ride/"+p.getId() , new RideFullDTO(ride));
+            }
+
+        } catch (EntityNotFoundException  | IllegalStateException ignored) {}
+
+    }
+
+
+
     private boolean passengerInPassengers(String passengerId, ArrayList<Passenger> passengers) {
         for (Passenger p : passengers)
             if (passengerId.equals(p.getId().toString()))
                 return true;
         return false;
     }
+
 
 
 }

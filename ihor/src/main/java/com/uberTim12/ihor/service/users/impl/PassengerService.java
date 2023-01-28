@@ -18,7 +18,6 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -88,6 +87,12 @@ public class PassengerService extends JPAService<Passenger> implements IPassenge
     public Page<Ride> findAllById(Integer passengerId, LocalDateTime start, LocalDateTime end, Pageable page){
         Optional<Passenger> passenger=passengerRepository.findById(passengerId);
         return passenger.map(value -> rideRepository.findAllInRangeForPassenger(value, start, end, page)).orElse(null);
+    }
+
+    @Override
+    public Page<Ride> findAllByIdFinished(Integer passengerId, Pageable page){
+        Optional<Passenger> passenger=passengerRepository.findById(passengerId);
+        return passenger.map(value -> rideRepository.findAllFinishedForPassenger(value, RideStatus.FINISHED, page)).orElse(null);
     }
 
     @Override

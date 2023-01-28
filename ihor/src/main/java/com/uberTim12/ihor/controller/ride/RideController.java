@@ -31,8 +31,8 @@ import com.uberTim12.ihor.service.users.impl.PassengerService;
 import com.uberTim12.ihor.service.users.interfaces.IDriverService;
 import com.uberTim12.ihor.service.users.interfaces.IPassengerService;
 import com.uberTim12.ihor.service.vehicle.interfaces.IVehicleService;
-import com.uberTim12.ihor.util.RideSimulationTimer;
-import com.uberTim12.ihor.util.SocketTimer;
+import com.uberTim12.ihor.timer.RideSimulationTimer;
+import com.uberTim12.ihor.timer.SocketTimer;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -171,7 +171,9 @@ public class RideController {
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Driver does not exist!");
         } catch (NoActiveRideException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Accepted ride does not exist!");
+            List<RideNoStatusDTO> rideDTOs = new ArrayList<>();
+            ObjectListResponseDTO<RideNoStatusDTO> res = new ObjectListResponseDTO<>(0, rideDTOs);
+            return new ResponseEntity<>(res, HttpStatus.OK);
         }
     }
 

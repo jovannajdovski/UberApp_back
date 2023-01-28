@@ -65,6 +65,25 @@ public class RideService extends JPAService<Ride> implements IRideService {
     }
 
     @Override
+    public Page<Ride> findFilteredFinishedRidesDriver(Integer driverId, Pageable pageable) {
+        return rideRepository.findAllFinishedForDriver(driverId, RideStatus.FINISHED, pageable);
+    }
+
+    @Override
+    public Page<Ride> findFilteredFinishedRidesAdmin(Pageable pageable) {
+        return rideRepository.findAllFinishedForAdmin(RideStatus.FINISHED, pageable);
+    }
+
+    @Override
+    public Page<Ride> findFilteredFinishedRidesPassenger(Integer passengerId, Pageable pageable) {
+        Passenger passenger = passengerRepository.findById(passengerId).orElse(null);
+        if (passenger==null){
+            throw new EntityNotFoundException("Passenger does not exists!");
+        }
+        return rideRepository.findAllFinishedForPassenger(passenger, RideStatus.FINISHED, pageable);
+    }
+
+    @Override
     public Page<Ride> findFilteredRidesForUser(Integer userId, LocalDateTime from, LocalDateTime to, Pageable pageable) {
         return rideRepository.findAllInRangeForUser(userId, from, to, pageable);
     }

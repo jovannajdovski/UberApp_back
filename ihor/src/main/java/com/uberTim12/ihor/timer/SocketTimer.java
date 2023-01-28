@@ -1,4 +1,4 @@
-package com.uberTim12.ihor.util;
+package com.uberTim12.ihor.timer;
 
 import com.uberTim12.ihor.dto.route.LocationDTO;
 import com.uberTim12.ihor.model.ride.Ride;

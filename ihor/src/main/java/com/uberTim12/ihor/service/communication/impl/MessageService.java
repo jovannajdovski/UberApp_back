@@ -1,8 +1,6 @@
 package com.uberTim12.ihor.service.communication.impl;
 
 import com.uberTim12.ihor.dto.communication.MessageDTO;
-import com.uberTim12.ihor.exception.NotFoundException;
-import com.uberTim12.ihor.exception.UnauthorizedException;
 import com.uberTim12.ihor.model.communication.Message;
 import com.uberTim12.ihor.model.communication.MessageType;
 import com.uberTim12.ihor.model.ride.Ride;
@@ -13,11 +11,7 @@ import com.uberTim12.ihor.service.communication.interfaces.IMessageService;
 import com.uberTim12.ihor.service.ride.interfaces.IRideService;
 import com.uberTim12.ihor.service.users.interfaces.IUserService;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.boot.autoconfigure.neo4j.Neo4jProperties;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -51,7 +45,12 @@ public class MessageService extends JPAService<Message> implements IMessageServi
 
     @Override
     public List<MessageDTO> getMessagesOfSpecificRide(Integer id, Integer rideId) {
-        List<Message> messages = sortMessagesToChatFormat(messageRepository.findAllByRideIdAndSenderIdOrReceiverIdAnd(id, rideId),id);
+        List<Message> messages = sortMessagesToChatFormat(messageRepository.findAllByRideIdAndSenderIdOrReceiverId(id, rideId),id);
+        return messages.stream().map(MessageDTO::new).collect(Collectors.toList());
+    }
+    @Override
+    public List<MessageDTO> getMessagesWithoutRide(Integer id){
+        List<Message> messages = sortMessagesToChatFormat(messageRepository.findAllBySenderIdOrReceiverId(id),id);
         return messages.stream().map(MessageDTO::new).collect(Collectors.toList());
     }
 
@@ -139,19 +138,6 @@ public class MessageService extends JPAService<Message> implements IMessageServi
                 }
             }
         }
-
-        // sort po sender/receiverId, pa po vremenu,
-        // sortirati po poslednjoj za svaku konverzaciju
-        /* primer KORISNIK SA ID=1
-
-            id senderId reciverId content sendTime type rideId
-                3           1               6.12.           1
-                1           3               8.12.           1
-                1           3               2.12.           2
-                5           1               4.12.           3
-                startIndexes=[2,3,0]
-                endIndexes=[2,3,1]
-         */
         for(int i=0;i< endIndexes.size(); i++)
         {
             sortedMessages= Stream.concat(sortedMessages.stream(),groupedMessages.subList(startIndexes.get(i),endIndexes.get(i)+1).stream()).toList();
