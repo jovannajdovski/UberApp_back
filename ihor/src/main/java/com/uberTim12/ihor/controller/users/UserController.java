@@ -140,6 +140,12 @@ public class UserController {
         }
     }
 
+    @GetMapping(value = "/logout", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> logoutUser () {
+        SecurityContextHolder.getContext().setAuthentication(null);
+        return ResponseEntity.status(HttpStatus.OK).body("Successful logout.");
+    }
+
     @GetMapping(value = "/{id}/message",produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getUserMessages(@Min(value = 1) @PathVariable Integer id, @RequestHeader("Authorization") String authHeader)
     {
@@ -155,7 +161,7 @@ public class UserController {
         }
     }
 
-    @PostMapping(value = "/{id}/message",consumes=MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/{id}/message",consumes=MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> sendMessage(@Min(value = 1) @PathVariable("id") Integer receiverId, @Valid @RequestBody SendingMessageDTO sendingMessageDTO, @RequestHeader("Authorization") String authHeader)
     {
         try {

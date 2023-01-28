@@ -2,6 +2,7 @@ package com.uberTim12.ihor.validation;
 
 import ch.qos.logback.core.encoder.EchoEncoder;
 import com.uberTim12.ihor.dto.ResponseMessageDTO;
+import io.jsonwebtoken.ExpiredJwtException;
 import org.hibernate.TypeMismatchException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -78,6 +79,15 @@ public class ValidationErrorsHandler {
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     protected ResponseEntity<String> accessDenied(AccessDeniedException exception) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.TEXT_PLAIN);
+
+        return new ResponseEntity<>("Access denied!", headers, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    protected ResponseEntity<String> accessDenied(ExpiredJwtException exception) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.TEXT_PLAIN);
 
