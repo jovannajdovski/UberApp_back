@@ -70,6 +70,11 @@ public class RideService extends JPAService<Ride> implements IRideService {
     }
 
     @Override
+    public Page<Ride> findFilteredFinishedRidesAdmin(Pageable pageable) {
+        return rideRepository.findAllFinishedForAdmin(RideStatus.FINISHED, pageable);
+    }
+
+    @Override
     public Page<Ride> findFilteredFinishedRidesPassenger(Integer passengerId, Pageable pageable) {
         Passenger passenger = passengerRepository.findById(passengerId).orElse(null);
         if (passenger==null){

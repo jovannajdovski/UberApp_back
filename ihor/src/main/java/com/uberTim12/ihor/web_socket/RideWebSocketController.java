@@ -2,29 +2,25 @@ package com.uberTim12.ihor.web_socket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.uberTim12.ihor.dto.communication.ChatMessageDTO;
-import com.uberTim12.ihor.dto.ride.RideFullDTO;
+import com.uberTim12.ihor.dto.communication.LiveSupportMessageDTO;
+import com.uberTim12.ihor.dto.communication.PanicMessageDTO;
 import com.uberTim12.ihor.dto.route.LocationDTO;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.route.Location;
 import com.uberTim12.ihor.model.users.Passenger;
-import com.uberTim12.ihor.model.vehicle.Vehicle;
 import com.uberTim12.ihor.security.JwtUtil;
 import com.uberTim12.ihor.service.ride.interfaces.IRideService;
 import com.uberTim12.ihor.service.vehicle.interfaces.IVehicleService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Objects;
 
 @Controller
 @Transactional
@@ -80,6 +76,38 @@ public class RideWebSocketController {
         }
 
         return chatMessageDTO;
+    }
+
+    @MessageMapping("/send/panic/{fromId}")
+    public PanicMessageDTO panicChat(@DestinationVariable Integer fromId, String message) {
+
+        PanicMessageDTO panicMessageDTO = new PanicMessageDTO(message,fromId);
+        if (fromId != null && fromId != 0 ) {
+
+            this.simpMessagingTemplate.convertAndSend("api/socket-publisher/panic-chat/" + fromId,
+                    panicMessageDTO);
+
+            this.simpMessagingTemplate.convertAndSend("api/socket-publisher/panic-chat/admin",
+                    panicMessageDTO);
+        }
+
+        return panicMessageDTO;
+    }
+
+    @MessageMapping("/send/live-support/{fromId}")
+    public LiveSupportMessageDTO livSupportChat(@DestinationVariable Integer fromId, String message) {
+
+        LiveSupportMessageDTO liveSupportMessageDTO = new LiveSupportMessageDTO(message,fromId);
+        if (fromId != null && fromId != 0 ) {
+
+            this.simpMessagingTemplate.convertAndSend("api/socket-publisher/live-support-chat/" + fromId,
+                    liveSupportMessageDTO);
+
+            this.simpMessagingTemplate.convertAndSend("api/socket-publisher/live-support-chat/admin",
+                    liveSupportMessageDTO);
+        }
+
+        return liveSupportMessageDTO;
     }
 
     @SuppressWarnings("unchecked")
