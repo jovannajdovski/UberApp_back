@@ -41,7 +41,7 @@ public class MessageWebSocketController {
 
     @MessageMapping("/send/panic/{fromId}/{rideId}")
     public PanicMessageDTO panicChat(@DestinationVariable Integer fromId, @DestinationVariable Integer rideId, String message) {
-
+        System.out.println("usao panic");
         PanicMessageDTO panicMessageDTO = new PanicMessageDTO(message,fromId, rideId);
         if (fromId != null && fromId != 0 ) {
 

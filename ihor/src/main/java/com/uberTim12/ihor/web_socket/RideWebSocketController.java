@@ -85,6 +85,7 @@ public class RideWebSocketController {
 
     @MessageMapping("finish-ride/{rideId}")
     public void finishRide(@DestinationVariable Integer rideId) {
+        System.out.println("uso finish ride");
         Ride ride;
         try {
             ride=rideService.get(rideId);
