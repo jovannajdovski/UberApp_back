@@ -39,7 +39,9 @@ public class MessageService extends JPAService<Message> implements IMessageServi
     @Override
     public List<MessageDTO> getMessages(Integer id) {
         //List<Message> messages= messageRepository.findAllBySenderIdOrReceiverId(id,id);
-        List<Message> messages = sortMessagesToChatFormat(messageRepository.findAllBySenderIdOrReceiverId(id,id),id);
+        List<Message> messages = sortMessagesToChatFormat(messageRepository.findAllBySenderIdOrReceiverId(id),id);
+        List<Message> supportMessages=messageRepository.findAllWithAdmin(id);
+        messages=Stream.concat(supportMessages.stream(),messages.stream()).toList();
         return messages.stream().map(MessageDTO::new).collect(Collectors.toList());
     }
 
@@ -49,8 +51,8 @@ public class MessageService extends JPAService<Message> implements IMessageServi
         return messages.stream().map(MessageDTO::new).collect(Collectors.toList());
     }
     @Override
-    public List<MessageDTO> getMessagesWithoutRide(Integer id){
-        List<Message> messages = sortMessagesToChatFormat(messageRepository.findAllBySenderIdOrReceiverId(id),id);
+    public List<MessageDTO> getMessagesForAdmin(){
+        List<Message> messages = groupMessageForAdmin(messageRepository.findAllForAdmin());
         return messages.stream().map(MessageDTO::new).collect(Collectors.toList());
     }
 
@@ -61,9 +63,14 @@ public class MessageService extends JPAService<Message> implements IMessageServi
         User receiver = null;
         Ride ride = null;
         try {
+            if(rideId!=0)
+                ride = rideService.get(rideId);
+
             sender = userService.get(senderId);
-            receiver = userService.get(receiverId);
-            ride = rideService.get(rideId);
+            if(sender.getAuthority().getName().equals("ROLE_ADMIN"))
+                sender=null;
+            if(receiverId!=0)
+                receiver=userService.get(receiverId);
             LocalDateTime currentTime = LocalDateTime.now();
             Message message = new Message(sender, receiver, content, currentTime, type, ride);
             return save(message);
@@ -168,14 +175,36 @@ public class MessageService extends JPAService<Message> implements IMessageServi
                     message1.setMessage(groupedMessages.get(i));
                     groupedMessages.get(i).setMessage(groupedMessages.get(j));
                     groupedMessages.get(j).setMessage(message1);
-//                    message2=groupedMessages.get(j);
-
-//                    groupedMessages.set(i, groupedMessages.get(j));
-//                    groupedMessages.set(j, temp);
                 }
             }
         }
 
     }
-
+    private List<Message> groupMessageForAdmin(List<Message> groupedMessages) {
+        Map<Integer, Integer> firstIndexes=new HashMap<>();
+        int otherUserId1, otherUserId2;
+        for(int i=0;i<groupedMessages.size();i++)
+        {
+            otherUserId1=(groupedMessages.get(i).getReceiver()==null)? groupedMessages.get(i).getSender().getId():groupedMessages.get(i).getReceiver().getId();
+            firstIndexes.put(otherUserId1,i);
+        }
+        Message message1;
+        for(int i=0;i< groupedMessages.size()-1;i++)
+        {
+            otherUserId1=(groupedMessages.get(i).getReceiver()==null)? groupedMessages.get(i).getSender().getId():groupedMessages.get(i).getReceiver().getId();
+            for(int j=i+1;j<groupedMessages.size();j++)
+            {
+                otherUserId2=(groupedMessages.get(j).getReceiver()==null)? groupedMessages.get(j).getSender().getId():groupedMessages.get(j).getReceiver().getId();
+                if(firstIndexes.get(otherUserId1)<firstIndexes.get(otherUserId2) ||
+                        (Objects.equals(firstIndexes.get(otherUserId1), firstIndexes.get(otherUserId2)) && groupedMessages.get(i).getSendTime().isAfter(groupedMessages.get(j).getSendTime())))
+                {
+                    message1=new Message();
+                    message1.setMessage(groupedMessages.get(i));
+                    groupedMessages.get(i).setMessage(groupedMessages.get(j));
+                    groupedMessages.get(j).setMessage(message1);
+                }
+            }
+        }
+        return groupedMessages;
+    }
 }

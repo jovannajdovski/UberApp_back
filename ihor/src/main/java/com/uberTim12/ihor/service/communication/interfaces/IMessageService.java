@@ -14,7 +14,7 @@ public interface IMessageService extends IJPAService<Message> {
     List<MessageDTO> getMessages(Integer id);
     List<MessageDTO> getMessagesOfSpecificRide(Integer id, Integer rideId);
 
-    List<MessageDTO> getMessagesWithoutRide(Integer id);
+    List<MessageDTO> getMessagesForAdmin();
 
     Message sendMessage(Integer senderId, Integer receiverId, Integer rideId, String content,
                         MessageType type) throws EntityNotFoundException;

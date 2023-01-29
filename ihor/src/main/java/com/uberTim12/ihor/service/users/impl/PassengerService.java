@@ -123,11 +123,12 @@ public class PassengerService extends JPAService<Passenger> implements IPassenge
         {
             for(Ride ride: passenger.getRides())
             {
-                rideStart=ride.getStartTime();
-                rideEnd=rideStart.plusMinutes(ride.getEstimatedTime().longValue());
-                if(rideService.hasIntersectionBetweenRides(rideStart, rideEnd, newRideStart,newRideEnd) &&
-                        (ride.getRideStatus()== RideStatus.ACCEPTED || ride.getRideStatus()==RideStatus.STARTED))
-                    return false;
+                if(ride.getRideStatus()== RideStatus.ACCEPTED || ride.getRideStatus()==RideStatus.STARTED) {
+                    rideStart = ride.getStartTime();
+                    rideEnd = rideStart.plusMinutes(ride.getEstimatedTime().longValue());
+                    if (rideService.hasIntersectionBetweenRides(rideStart, rideEnd, newRideStart, newRideEnd))
+                        return false;
+                }
             }
         }
         return true;

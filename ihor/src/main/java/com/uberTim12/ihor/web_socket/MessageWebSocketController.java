@@ -1,11 +1,17 @@
 package com.uberTim12.ihor.web_socket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.uberTim12.ihor.dto.ResponseMessageDTO;
 import com.uberTim12.ihor.dto.communication.ChatMessageDTO;
 import com.uberTim12.ihor.dto.communication.LiveSupportMessageDTO;
-import com.uberTim12.ihor.dto.communication.MessageDTO;
 import com.uberTim12.ihor.dto.communication.PanicMessageDTO;
+import com.uberTim12.ihor.dto.ride.RideNoStatusDTO;
+import com.uberTim12.ihor.dto.users.UserPanicDTO;
+import com.uberTim12.ihor.model.ride.Ride;
+import com.uberTim12.ihor.model.users.User;
+import com.uberTim12.ihor.service.ride.interfaces.IRideService;
+import com.uberTim12.ihor.service.users.interfaces.IUserService;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -16,12 +22,17 @@ import java.io.IOException;
 import java.util.Map;
 
 @Controller
+@Transactional
 public class MessageWebSocketController {
     private final SimpMessagingTemplate simpMessagingTemplate;
+    private final IRideService rideService;
+    private final IUserService userService;
 
     @Autowired
-    public MessageWebSocketController(SimpMessagingTemplate simpMessagingTemplate) {
+    public MessageWebSocketController(SimpMessagingTemplate simpMessagingTemplate, IRideService rideService, IUserService userService) {
         this.simpMessagingTemplate = simpMessagingTemplate;
+        this.rideService = rideService;
+        this.userService = userService;
     }
 
 
@@ -30,7 +41,7 @@ public class MessageWebSocketController {
         System.out.println("usao");
 
         ChatMessageDTO chatMessageDTO = new ChatMessageDTO(message,fromId,rideId);
-        if (rideId != null && rideId != 0 && fromId != null && fromId !=0 && toId != null && toId !=0) {
+        if (rideId != null && fromId != null && toId != null ) {
 
 //            this.simpMessagingTemplate.convertAndSend("api/socket-publisher/ride-chat/" + rideId, chatMessageDTO);
             this.simpMessagingTemplate.convertAndSend("api/socket-publisher/user-chat/"+toId, chatMessageDTO);
@@ -40,16 +51,20 @@ public class MessageWebSocketController {
     }
 
     @MessageMapping("/send/panic/{fromId}/{rideId}")
-    public PanicMessageDTO panicChat(@DestinationVariable Integer fromId, @DestinationVariable Integer rideId, String message) {
-        System.out.println("usao panic");
-        PanicMessageDTO panicMessageDTO = new PanicMessageDTO(message,fromId, rideId);
-        if (fromId != null && fromId != 0 ) {
+    public void panicChat(@DestinationVariable Integer fromId, @DestinationVariable Integer rideId, String message) {
+        try{
+            Ride ride=this.rideService.get(rideId);
+            User user=this.userService.get(fromId);
+            PanicMessageDTO panicMessageDTO = new PanicMessageDTO(message, new UserPanicDTO(user), new RideNoStatusDTO(ride));
 
-            this.simpMessagingTemplate.convertAndSend("api/socket-publisher/panic-chat/admin",
-                    panicMessageDTO);
+            if (fromId != null && fromId != 0 ) {
+
+                this.simpMessagingTemplate.convertAndSend("api/socket-publisher/panic-chat/admin",
+                        panicMessageDTO);
+            }
         }
+        catch(EntityNotFoundException ignored){}
 
-        return panicMessageDTO;
     }
 
     @MessageMapping("/send/live-support/{fromId}")

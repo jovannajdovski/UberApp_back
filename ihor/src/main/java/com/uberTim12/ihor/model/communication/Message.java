@@ -55,6 +55,7 @@ public class Message {
     {
         return this.ride.getId();
     }
+    public Integer getReceiverId(){return this.receiver.getId();}
 
     @Override
     public String toString() {

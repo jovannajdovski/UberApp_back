@@ -29,12 +29,12 @@ public class MessageDTO {
 
     public MessageDTO(Message message)
     {
-        this(message.getId(),
-                message.getSendTime(),
-                message.getSender().getId(),
-                message.getReceiver().getId(),
-                message.getContent(),
-                message.getType(),
-                message.getRide().getId());
+        this.id=message.getId();
+        this.timeOfSending=message.getSendTime();
+        this.senderId=(message.getSender()==null)? 0: message.getSender().getId();
+        this.receiverId=(message.getReceiver()==null)?0:message.getReceiver().getId();
+        this.message=message.getContent();
+        this.type=message.getType();
+        this.rideId=(message.getRide()==null)?0:message.getRide().getId();
     }
 }

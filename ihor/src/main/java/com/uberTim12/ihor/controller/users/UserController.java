@@ -144,8 +144,12 @@ public class UserController {
         if(Integer.parseInt(jwtUtil.extractId(authHeader.substring(7)))!=id)
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist!");
         try {
-            userService.get(id);
-            List<MessageDTO> messages = messageService.getMessages(id);
+            User user=userService.get(id);
+            List<MessageDTO> messages;
+            if(user.getAuthority().getName().equals("ROLE_ADMIN"))
+                messages=messageService.getMessagesForAdmin();
+            else
+                messages = messageService.getMessages(id);
             ObjectListResponseDTO<MessageDTO> res = new ObjectListResponseDTO<>(messages.size(), messages);
             return new ResponseEntity<>(res, HttpStatus.OK);
         } catch (EntityNotFoundException e) {
