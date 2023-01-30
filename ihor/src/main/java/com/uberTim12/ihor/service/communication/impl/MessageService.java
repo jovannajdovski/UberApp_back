@@ -175,6 +175,7 @@ public class MessageService extends JPAService<Message> implements IMessageServi
                     message1.setMessage(groupedMessages.get(i));
                     groupedMessages.get(i).setMessage(groupedMessages.get(j));
                     groupedMessages.get(j).setMessage(message1);
+                    otherUserId1=groupedMessages.get(i).getReceiver().getId()+groupedMessages.get(i).getSender().getId()-userId;
                 }
             }
         }
@@ -202,6 +203,7 @@ public class MessageService extends JPAService<Message> implements IMessageServi
                     message1.setMessage(groupedMessages.get(i));
                     groupedMessages.get(i).setMessage(groupedMessages.get(j));
                     groupedMessages.get(j).setMessage(message1);
+                    otherUserId1=(groupedMessages.get(i).getReceiver()==null)? groupedMessages.get(i).getSender().getId():groupedMessages.get(i).getReceiver().getId();
                 }
             }
         }

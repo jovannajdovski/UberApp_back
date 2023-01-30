@@ -229,9 +229,10 @@ public class RideController {
         try {
             for(int id:rideIdListDTO.getIds())
             {
-                Ride ride = rideService.get(id);
-                rideFullDTOS.add(new RideFullDTO(ride));
-
+                if(id!=0) {
+                    Ride ride = rideService.get(id);
+                    rideFullDTOS.add(new RideFullDTO(ride));
+                }
             }
 
             ObjectListResponseDTO<RideFullDTO> res=new ObjectListResponseDTO<>(rideFullDTOS.size(),rideFullDTOS);

@@ -55,6 +55,7 @@ public class RideWebSocketController {
     @MessageMapping("{userId}/new-ride/{rideId}")//mobilne
     public void getNewRide(@DestinationVariable Integer userId, @DestinationVariable Integer rideId) {
         Ride ride;
+        System.out.println("new ride");
         try {
             userService.get(userId);
             ride=rideService.get(rideId);
