@@ -1,5 +1,6 @@
 package com.uberTim12.ihor.dto.communication;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.uberTim12.ihor.dto.ride.RideFullDTO;
 import com.uberTim12.ihor.dto.ride.RideNoStatusDTO;
 import com.uberTim12.ihor.dto.users.UserPanicDTO;
@@ -20,6 +21,7 @@ public class PanicDTO {
 
     private RideNoStatusDTO ride;
 
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     private LocalDateTime time;
 
     private String reason;

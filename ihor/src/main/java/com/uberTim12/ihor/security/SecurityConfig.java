@@ -58,6 +58,7 @@ public class SecurityConfig {
             .requestMatchers("/api/unregisteredUser/").permitAll()
             .requestMatchers("/api/user/login").permitAll()
             .requestMatchers("/api/user/*/resetPassword").permitAll()
+                .requestMatchers("/api/driver/active-drivers").permitAll()
             .anyRequest()
             .authenticated()
             .and()

@@ -52,7 +52,7 @@ public class RideWebSocketController {
         }
     }
 
-    @MessageMapping("{userId}/new-ride/{rideId}")
+    @MessageMapping("{userId}/new-ride/{rideId}")//mobilne
     public void getNewRide(@DestinationVariable Integer userId, @DestinationVariable Integer rideId) {
         Ride ride;
         try {

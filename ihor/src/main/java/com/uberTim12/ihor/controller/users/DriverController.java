@@ -491,18 +491,14 @@ public class DriverController {
         }
     }
     @GetMapping(value = "/active-drivers", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getActiveDrivers(@RequestHeader("Authorization") String authHeader) {
-        String jwtToken = authHeader.substring(7);
-        int loggedId = Integer.parseInt(jwtUtil.extractId(jwtToken));
+    public ResponseEntity<?> getActiveDrivers() {
 
         List<ActiveDriver> activeDrivers=driverService.getActiveDrivers();
         List<ActiveDriverDTO> activeDriverDTOs=new ArrayList<>();
         for(ActiveDriver activeDriver:activeDrivers)
         {
-            if(loggedId!=activeDriver.getDriver().getId()) {
-                boolean free = driverService.isDriverFreeForRide(activeDriver.getDriver());
-                activeDriverDTOs.add(new ActiveDriverDTO(new VehicleBasicDTO(activeDriver.getDriver().getVehicle()), new LocationDTO(activeDriver.getLocation()), free));
-            }
+            boolean free = driverService.isDriverFreeForRide(activeDriver.getDriver());
+            activeDriverDTOs.add(new ActiveDriverDTO(new VehicleBasicDTO(activeDriver.getDriver().getVehicle()), new LocationDTO(activeDriver.getLocation()), free));
         }
         ObjectListResponseDTO<ActiveDriverDTO> res=new ObjectListResponseDTO<>(activeDriverDTOs.size(),activeDriverDTOs);
         return new ResponseEntity<>(res,HttpStatus.OK);

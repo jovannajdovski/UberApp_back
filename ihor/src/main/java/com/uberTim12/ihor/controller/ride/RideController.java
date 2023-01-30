@@ -304,7 +304,7 @@ public class RideController {
 //            System.out.println(ride);
 //            System.out.println(ride.getId());
 //            System.out.println(ride.getDriver().getVehicle().getCurrentLocation().getLatitude());
-            rideSimulationTimer.setProperties(ride.getDriver().getVehicle().getId(),
+            rideSimulationTimer.setProperties(ride.getId(),ride.getDriver().getVehicle().getId(),
                     locationService.getSteps(ride.getPaths().iterator().next().getStartPoint(),
                             ride.getPaths().iterator().next().getEndPoint()));
             new Timer().scheduleAtFixedRate(rideSimulationTimer, 0,2000);

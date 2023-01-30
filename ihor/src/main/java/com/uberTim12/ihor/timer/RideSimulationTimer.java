@@ -14,6 +14,7 @@ public class RideSimulationTimer extends TimerTask {
     int i=0;
     List<RouteStep> steps;
     Integer vehicleId;
+    Integer rideId;
     private final IVehicleService vehicleService;
     private final SocketTimer socketTimer;
 
@@ -23,9 +24,10 @@ public class RideSimulationTimer extends TimerTask {
         this.vehicleService=vehicleService;
         this.socketTimer=socketTimer;
     }
-    public void setProperties(Integer vehicleId, List<RouteStep> steps){
+    public void setProperties(Integer rideId,Integer vehicleId, List<RouteStep> steps){
         this.steps = steps;
         this.vehicleId = vehicleId;
+        this.rideId=rideId;
     }
     @Override
     public void run() {
@@ -34,7 +36,7 @@ public class RideSimulationTimer extends TimerTask {
         if (i == steps.size())
         {
             this.cancel();
-            socketTimer.cancel();
+            socketTimer.finishRide(rideId);
         }
     }
 }

@@ -36,7 +36,7 @@ public class MessageWebSocketController {
     }
 
 
-    @MessageMapping("/send/message/{rideId}/{fromId}/{toId}")
+    @MessageMapping("/send/message/{rideId}/{fromId}/{toId}")//mobilne
     public ChatMessageDTO rideChat(@DestinationVariable Integer rideId, @DestinationVariable Integer fromId, @DestinationVariable Integer toId, String message) {
         System.out.println("usao");
 
@@ -52,6 +52,7 @@ public class MessageWebSocketController {
 
     @MessageMapping("/send/panic/{fromId}/{rideId}")
     public void panicChat(@DestinationVariable Integer fromId, @DestinationVariable Integer rideId, String message) {
+        System.out.println("pizdarija");
         try{
             Ride ride=this.rideService.get(rideId);
             User user=this.userService.get(fromId);

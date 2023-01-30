@@ -16,6 +16,7 @@ public class SocketTimer extends TimerTask {
     IRideService rideService;
 
     int rideId;
+    Ride ride;
     @Autowired
     public SocketTimer(IRideService rideService) {
 
@@ -29,10 +30,14 @@ public class SocketTimer extends TimerTask {
 
     @Override
     public void run() {
-        Ride ride=rideService.get(rideId);
+        this.ride=rideService.get(rideId);
         Location currentLocation=ride.getDriver().getVehicle().getCurrentLocation();
-//        System.out.println(currentLocation.getLatitude());
         this.simpMessagingTemplate.convertAndSend("api/socket-publisher/" +"vehicle/current-location/"+ride.getId() , new LocationDTO(currentLocation));
 
+    }
+
+    public void finishRide(Integer rideId) {
+        this.simpMessagingTemplate.convertAndSend("api/socket-publisher/" +"vehicle/current-location/"+rideId , new LocationDTO("finish",0.0,0.0));
+        this.cancel();
     }
 }
