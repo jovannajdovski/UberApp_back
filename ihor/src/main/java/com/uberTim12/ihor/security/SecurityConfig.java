@@ -47,6 +47,7 @@ public class SecurityConfig {
         http.cors().and().csrf().disable()
             .authorizeHttpRequests()
             .requestMatchers(toH2Console()).permitAll()
+                .requestMatchers(GET,"/api/driver/active-drivers").permitAll()
                 .requestMatchers("/api/socket").permitAll()
                 .requestMatchers("/api/socket/**").permitAll()
                 .requestMatchers("/api/socket-publisher/**").permitAll()

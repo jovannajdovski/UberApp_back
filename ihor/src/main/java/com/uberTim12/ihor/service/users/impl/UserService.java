@@ -63,6 +63,15 @@ public class UserService extends JPAService<User> implements IUserService, UserD
     }
 
     @Override
+    public void checkIntegrity(String email) throws AccessDeniedException {
+        User user = userRepository.findByEmail(email);
+        if (user == null)
+            throw new AccessDeniedException("Email is already taken");
+        if (user.isBlocked() || !user.isActive())
+            throw new AccessDeniedException("Email is already taken");
+    }
+
+    @Override
     public void emailTaken(String email) throws EmailAlreadyExistsException {
         if (userRepository.findByEmail(email) != null)
             throw new EmailAlreadyExistsException("Email is already taken");

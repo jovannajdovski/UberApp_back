@@ -64,11 +64,8 @@ public class AdminController {
 
     @GetMapping(value = "/ride/finished")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> getFinishedRides(@Min(value = 0) @RequestParam int page,
-                                               @Min(value = 1) @RequestParam int size,
+    public ResponseEntity<?> getFinishedRides(Pageable paging,
                                                @RequestHeader("Authorization") String authHeader) {
-
-        Pageable paging = PageRequest.of(page, size);
 
         Page<Ride> rides;
         rides = rideService.findFilteredFinishedRidesAdmin(paging);

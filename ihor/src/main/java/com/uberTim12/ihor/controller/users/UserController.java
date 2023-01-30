@@ -124,6 +124,7 @@ public class UserController {
     public ResponseEntity<?> loginUser(@Valid @RequestBody UserCredentialsDTO userCredentialDTO)
     {
         try {
+            userService.checkIntegrity(userCredentialDTO.getEmail());
             var authentication = authenticationManager.authenticate (
                     new UsernamePasswordAuthenticationToken(userCredentialDTO.getEmail(),
                              userCredentialDTO.getPassword())
@@ -133,7 +134,7 @@ public class UserController {
             String token = jwtUtil.generateToken(authentication);
             AuthTokenDTO tokenDTO = new AuthTokenDTO(token, token);
             return new ResponseEntity<>(tokenDTO, HttpStatus.OK);
-        } catch (AuthenticationException e) {
+        } catch (AuthenticationException | AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessageDTO( "Wrong username or password!"));
         }
     }
