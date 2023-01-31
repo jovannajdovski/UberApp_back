@@ -62,4 +62,6 @@ public interface IRideService extends IJPAService<Ride> {
     List<Ride> findRidesWithStatusForPassenger(Integer id, RideStatus status, LocalDateTime from, LocalDateTime to);
 
     List<Ride> findAcceptedRides(Integer id, LocalDateTime from, LocalDateTime to);
+
+    List<Ride> findAllRidesWithStatusInTimeRange(RideStatus status, LocalDateTime from, LocalDateTime to);
 }

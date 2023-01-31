@@ -181,9 +181,9 @@ public class UserController {
             userService.blockUser(id);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("User is successfully blocked");
         } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body( "User does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist!");
         } catch (UserAlreadyBlockedException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessageDTO( "User already blocked!"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessageDTO("User already blocked!"));
         }
     }
 

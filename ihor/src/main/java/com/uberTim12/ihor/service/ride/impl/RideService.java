@@ -270,4 +270,9 @@ public class RideService extends JPAService<Ride> implements IRideService {
     public List<Ride> findAcceptedRides(Integer id, LocalDateTime from, LocalDateTime to) {
         return rideRepository.findAllAccepted(id, from, to);
     }
+
+    @Override
+    public List<Ride> findAllRidesWithStatusInTimeRange(RideStatus status, LocalDateTime from, LocalDateTime to) {
+        return rideRepository.findAllByRideStatusInTimeRange(status, from, to);
+    }
 }

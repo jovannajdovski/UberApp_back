@@ -65,4 +65,7 @@ public interface IRideRepository extends JpaRepository<Ride, Integer> {
     /*@Query("select sum(r.estimatedTime) from Ride r where r.driver.id=?1 and r.endTime IS NULL")
     public double sumEstimatedTimeOfNextRidesByDriverAtThatDay(Integer driverId);*/
 
+    @Query("select r from Ride r where r.rideStatus =?1 and r.scheduledTime between ?2 and ?3")
+    List<Ride> findAllByRideStatusInTimeRange(RideStatus rideStatus, LocalDateTime from, LocalDateTime to);
+
 }

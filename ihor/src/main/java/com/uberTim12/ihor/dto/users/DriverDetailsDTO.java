@@ -19,6 +19,7 @@ public class DriverDetailsDTO {
     private String telephoneNumber;
     private String email;
     private String address;
+    private boolean blocked;
 
     public DriverDetailsDTO(Driver driver)
     {
@@ -28,7 +29,8 @@ public class DriverDetailsDTO {
                 ImageConverter.encodeToString(driver.getProfilePicture()),
                 driver.getTelephoneNumber(),
                 driver.getEmail(),
-                driver.getAddress()
+                driver.getAddress(),
+                driver.isBlocked()
         );
     }
 }
