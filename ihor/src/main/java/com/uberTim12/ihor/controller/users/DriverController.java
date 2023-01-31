@@ -241,7 +241,8 @@ public class DriverController {
     @PostMapping(value = "/{driverId}/vehicle", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
     public ResponseEntity<?> addVehicleToDriver(@Min(value = 1) @PathVariable Integer driverId,
-                                                @Valid @RequestBody VehicleAddDTO vehicleDTO, @RequestHeader("Authorization") String authHeader) {
+                                                @Valid @RequestBody VehicleAddDTO vehicleDTO,
+                                                @RequestHeader("Authorization") String authHeader) {
         String jwtToken = authHeader.substring(7);
         if (!jwtUtil.extractRole(jwtToken).equals("ROLE_ADMIN")) {
             Integer loggedId = Integer.parseInt(jwtUtil.extractId(jwtToken));
@@ -252,7 +253,8 @@ public class DriverController {
 
         VehicleType vehicleType = new VehicleType(vehicleDTO.getVehicleType(), 10.0);
         Location location = new Location(vehicleDTO.getCurrentLocation().getAddress(),
-                vehicleDTO.getCurrentLocation().getLatitude(), vehicleDTO.getCurrentLocation().getLongitude());
+                vehicleDTO.getCurrentLocation().getLatitude(),
+                vehicleDTO.getCurrentLocation().getLongitude());
         Vehicle vehicle = new Vehicle(vehicleDTO.getModel(),
                 vehicleType, vehicleDTO.getLicenseNumber(),
                 vehicleDTO.getPassengerSeats(), location,

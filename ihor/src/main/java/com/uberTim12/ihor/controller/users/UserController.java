@@ -179,7 +179,7 @@ public class UserController {
     {
         try {
             userService.blockUser(id);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("User is successfully blocked");
+            return ResponseEntity.status(HttpStatus.OK).body("User is successfully blocked");
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist!");
         } catch (UserAlreadyBlockedException e) {
@@ -193,9 +193,9 @@ public class UserController {
     {
         try {
             userService.unblockUser(id);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("User is successfully unblocked");
+            return ResponseEntity.status(HttpStatus.OK).body("User is successfully unblocked");
         } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body( "User does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist!");
         } catch (UserNotBlockedException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessageDTO( "User is not blocked!"));
         }
