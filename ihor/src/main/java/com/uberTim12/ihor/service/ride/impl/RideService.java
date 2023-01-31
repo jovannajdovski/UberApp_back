@@ -1,6 +1,7 @@
 package com.uberTim12.ihor.service.ride.impl;
 
 
+import com.uberTim12.ihor.exception.NoAcceptedRideException;
 import com.uberTim12.ihor.exception.NoActiveRideException;
 import com.uberTim12.ihor.exception.RideStatusException;
 import com.uberTim12.ihor.model.ride.Ride;
@@ -61,6 +62,25 @@ public class RideService extends JPAService<Ride> implements IRideService {
     @Override
     public Page<Ride> findFilteredRides(Integer driverId, LocalDateTime from, LocalDateTime to, Pageable pageable) {
         return rideRepository.findAllInRangeForDriver(driverId, from, to, pageable);
+    }
+
+    @Override
+    public Page<Ride> findFilteredFinishedRidesDriver(Integer driverId, Pageable pageable) {
+        return rideRepository.findAllFinishedForDriver(driverId, RideStatus.FINISHED, pageable);
+    }
+
+    @Override
+    public Page<Ride> findFilteredFinishedRidesAdmin(Pageable pageable) {
+        return rideRepository.findAllFinishedForAdmin(RideStatus.FINISHED, pageable);
+    }
+
+    @Override
+    public Page<Ride> findFilteredFinishedRidesPassenger(Integer passengerId, Pageable pageable) {
+        Passenger passenger = passengerRepository.findById(passengerId).orElse(null);
+        if (passenger==null){
+            throw new EntityNotFoundException("Passenger does not exists!");
+        }
+        return rideRepository.findAllFinishedForPassenger(passenger, RideStatus.FINISHED, pageable);
     }
 
     @Override
@@ -131,6 +151,21 @@ public class RideService extends JPAService<Ride> implements IRideService {
     }
 
     @Override
+    public List<Ride> findAcceptedByDriver(Driver driver) throws NoActiveRideException {
+        List<Ride> rides = rideRepository.findActiveByDriver(driver, RideStatus.ACCEPTED);
+        if (rides.isEmpty()) {
+            throw new NoActiveRideException("Accepted ride does not exist!");
+        } else {
+            for (Ride ride: rides){
+                Set<Passenger> passengers = new HashSet<>(findPassengersForRide(ride.getId()));
+                ride.setPassengers(passengers);
+            }
+
+            return rides;
+        }
+    }
+
+    @Override
     public Ride findActiveByPassenger(Passenger passenger) throws NoActiveRideException {
         List<Ride> rides = rideRepository.findActiveByPassenger(passenger, RideStatus.STARTED);
         if (rides.isEmpty()) {
@@ -192,20 +227,30 @@ public class RideService extends JPAService<Ride> implements IRideService {
         if (ride.getRideStatus() != RideStatus.PENDING && ride.getRideStatus() != RideStatus.STARTED) {
             throw new RideStatusException("Cannot cancel a ride that is not in status PENDING or STARTED!");
         }
-
+        ride.setStartTime(null);
         ride.setRideStatus(RideStatus.CANCELED);
         return this.save(ride);
     }
 
     @Override
-    public Ride start(Integer id) throws EntityNotFoundException, RideStatusException {
+    public Ride start(Integer id, Integer driverId) throws EntityNotFoundException, RideStatusException {
         Ride ride = this.get(id);
 
         if (ride.getRideStatus() != RideStatus.ACCEPTED) {
             throw new RideStatusException("Cannot start a ride that is not in status ACCEPTED!");
         }
 
+        Driver driver = driverRepository.findById(driverId).orElse(null);
+        if (driver==null){
+            throw new EntityNotFoundException("Driver does not exists!");
+        }
+        List<Ride> rides = rideRepository.findActiveByDriver(driver, RideStatus.STARTED);
+        if (rides.size()>0){
+            throw new RideStatusException("Cannot start a ride if you already have STARTED ride!");
+        }
+
         ride.setRideStatus(RideStatus.STARTED);
+        ride.setStartTime(LocalDateTime.now());
         return this.save(ride);
     }
 
@@ -230,6 +275,7 @@ public class RideService extends JPAService<Ride> implements IRideService {
         }
 
         ride.setRideStatus(RideStatus.FINISHED);
+        ride.setEndTime(LocalDateTime.now());
         return this.save(ride);
     }
 
@@ -246,14 +292,23 @@ public class RideService extends JPAService<Ride> implements IRideService {
         }
         ride.getRideRejection().setReason(reason);
         ride.getRideRejection().setTime(LocalDateTime.now());
-
+        ride.getRideRejection().setRide(ride);
+        ride.getRideRejection().setUser(ride.getDriver());
+        ride.setStartTime(null);
         ride.setRideStatus(RideStatus.REJECTED);
         return this.save(ride);
     }
 
     @Override
     public List<Ride> findPendingRides(Integer driverId) {
-        return rideRepository.findAllByDriverIdAndRideStatus(driverId, RideStatus.PENDING);
+        return rideRepository.findAllByDriverIdAndRideStatusOrderByStartTime(driverId, RideStatus.PENDING);
+    }
+    @Override
+    public Ride findNextRide(Integer driverId) throws NoAcceptedRideException {
+        List<Ride> acceptedRides=rideRepository.findAllByDriverIdAndRideStatusOrderByStartTime(driverId, RideStatus.ACCEPTED);
+        if(acceptedRides.size()==0)
+            throw new NoAcceptedRideException("No accepted rides");
+        return acceptedRides.get(0);
     }
 
     @Override

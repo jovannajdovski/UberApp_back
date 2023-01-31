@@ -6,6 +6,7 @@ import com.uberTim12.ihor.model.ride.ActiveDriverCriticalRide;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.ride.RideStatus;
 import com.uberTim12.ihor.model.users.Driver;
+import com.uberTim12.ihor.repository.ride.IActiveDriverRepository;
 import com.uberTim12.ihor.repository.users.IDriverRepository;
 import com.uberTim12.ihor.service.base.impl.JPAService;
 import com.uberTim12.ihor.service.ride.interfaces.IRideService;
@@ -29,13 +30,15 @@ public class DriverService extends JPAService<Driver> implements IDriverService 
     private final IRideService rideService;
     private final PasswordEncoder passwordEncoder;
     private final IAuthorityRepository authorityRepository;
+    private final IActiveDriverRepository activeDriverRepository;
 
     @Autowired
-    DriverService(IDriverRepository driverRepository, IRideService rideService, PasswordEncoder passwordEncoder, IAuthorityRepository authorityRepository) {
+    DriverService(IDriverRepository driverRepository, IRideService rideService, PasswordEncoder passwordEncoder, IAuthorityRepository authorityRepository, IActiveDriverRepository activeDriverRepository) {
         this.driverRepository = driverRepository;
         this.rideService = rideService;
         this.passwordEncoder = passwordEncoder;
         this.authorityRepository = authorityRepository;
+        this.activeDriverRepository = activeDriverRepository;
     }
 
     @Override
@@ -87,6 +90,15 @@ public class DriverService extends JPAService<Driver> implements IDriverService 
         }
         return true;
     }
+    @Override
+    public boolean isDriverFreeForRide(Driver driver) {
+        for(Ride ride: driver.getRides())
+        {
+            if(ride.getRideStatus()==RideStatus.STARTED)
+                return false;
+        }
+        return true;
+    }
 
     @Override
     public List<ActiveDriverCriticalRide> sortPerEndOfCriticalRide(List<ActiveDriver> activeDrivers, Ride newRide)
@@ -102,6 +114,11 @@ public class DriverService extends JPAService<Driver> implements IDriverService 
         }
         activeDriversCriticalRides.sort(RideEndComparator);
         return activeDriversCriticalRides;
+    }
+
+    @Override
+    public List<ActiveDriver> getActiveDrivers() {
+        return activeDriverRepository.findAll();
     }
 
     public static Comparator<ActiveDriverCriticalRide> RideEndComparator=new Comparator<ActiveDriverCriticalRide>() {

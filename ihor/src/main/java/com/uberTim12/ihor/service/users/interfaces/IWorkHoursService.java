@@ -18,9 +18,12 @@ import java.util.List;
 public interface IWorkHoursService extends IJPAService<WorkHours> {
     boolean isDriverAvailable(Driver driver, Ride ride);
     WorkHours endShift(Integer workHoursId, LocalDateTime endTime) throws EntityNotFoundException;
-    WorkHours startShift(Integer driverId, WorkHours workHours) throws EntityNotFoundException, EntityPropertyIsNullException, ShiftAlreadyStartedException, WorkTimeExceededException;
+    void startShift(Integer driverId, WorkHours workHours) throws EntityNotFoundException, EntityPropertyIsNullException, ShiftAlreadyStartedException, WorkTimeExceededException;
     Page<WorkHours> findFilteredWorkHours(Integer driverId, Pageable pageable);
     Page<WorkHours> findFilteredWorkHours(Integer driverId, LocalDateTime from, LocalDateTime to, Pageable pageable);
+
+    int getWorkingMinutesByDriverAtChosenDay(Integer driverId, LocalDate date);
+
     List<WorkHours> findAll(Integer driverId, LocalDateTime from, LocalDateTime to);
-    long getWorkingMinutesByDriverAtChosenDay(Integer driverId, LocalDate date);
+
 }

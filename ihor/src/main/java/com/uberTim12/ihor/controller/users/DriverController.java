@@ -3,12 +3,15 @@ package com.uberTim12.ihor.controller.users;
 import com.uberTim12.ihor.dto.ResponseMessageDTO;
 import com.uberTim12.ihor.dto.communication.ObjectListResponseDTO;
 import com.uberTim12.ihor.dto.ride.RideFullDTO;
+import com.uberTim12.ihor.dto.route.LocationDTO;
 import com.uberTim12.ihor.dto.stats.*;
 import com.uberTim12.ihor.dto.users.*;
 import com.uberTim12.ihor.dto.vehicle.VehicleAddDTO;
+import com.uberTim12.ihor.dto.vehicle.VehicleBasicDTO;
 import com.uberTim12.ihor.dto.vehicle.VehicleDTO;
 import com.uberTim12.ihor.dto.vehicle.VehicleDetailsDTO;
 import com.uberTim12.ihor.exception.*;
+import com.uberTim12.ihor.model.ride.ActiveDriver;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.route.Location;
 import com.uberTim12.ihor.model.stats.DriverStatistics;
@@ -46,6 +49,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -410,6 +414,39 @@ public class DriverController {
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
+    @GetMapping(value = "/{driverId}/ride/finished")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
+    public ResponseEntity<?> getRidesForDriver(@Min(value = 1) @PathVariable Integer driverId,
+                                               @Min(value = 0) @RequestParam int page,
+                                               @Min(value = 1) @RequestParam int size,
+                                               @RequestHeader("Authorization") String authHeader) {
+        String jwtToken = authHeader.substring(7);
+        if (!jwtUtil.extractRole(jwtToken).equals("ROLE_ADMIN")) {
+            Integer loggedId = Integer.parseInt(jwtUtil.extractId(jwtToken));
+            if (!loggedId.equals(driverId)) {
+                return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
+            }
+        }
+
+        try {
+            driverService.get(driverId);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
+        }
+
+        Pageable paging = PageRequest.of(page, size);
+
+        Page<Ride> rides;
+        rides = rideService.findFilteredFinishedRidesDriver(driverId, paging);
+
+        List<RideFullDTO> rideDTOs = new ArrayList<>();
+        for (Ride r : rides)
+            rideDTOs.add(new RideFullDTO(r));
+
+        ObjectListResponseDTO<RideFullDTO> res = new ObjectListResponseDTO<>((int) rides.getTotalElements(), rideDTOs);
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
     @GetMapping(value = "/working-hour/{workingHourId}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
     public ResponseEntity<?> getWorkingHours(@Min(value = 1) @PathVariable Integer workingHourId, @RequestHeader("Authorization") String authHeader) {
@@ -455,6 +492,19 @@ public class DriverController {
             return new ResponseEntity<>(new ResponseMessageDTO("Cannot end shift because the vehicle is not defined!"), HttpStatus.BAD_REQUEST);
         }
     }
+    @GetMapping(value = "/active-drivers", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getActiveDrivers() {
+
+        List<ActiveDriver> activeDrivers=driverService.getActiveDrivers();
+        List<ActiveDriverDTO> activeDriverDTOs=new ArrayList<>();
+        for(ActiveDriver activeDriver:activeDrivers)
+        {
+            boolean free = driverService.isDriverFreeForRide(activeDriver.getDriver());
+            activeDriverDTOs.add(new ActiveDriverDTO(new VehicleBasicDTO(activeDriver.getDriver().getVehicle()), new LocationDTO(activeDriver.getLocation()), free));
+        }
+        ObjectListResponseDTO<ActiveDriverDTO> res=new ObjectListResponseDTO<>(activeDriverDTOs.size(),activeDriverDTOs);
+        return new ResponseEntity<>(res,HttpStatus.OK);
+    }
 
     @GetMapping(value = "/{driverId}/ride/pending")
     @PreAuthorize("hasRole('DRIVER')")
@@ -481,7 +531,47 @@ public class DriverController {
         ObjectListResponseDTO<RideFullDTO> res = new ObjectListResponseDTO<>(rides.size(), rideDTOs);
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
-
+    @GetMapping(value = "/{driverId}/next-ride")
+    @PreAuthorize("hasRole('DRIVER')")
+    public ResponseEntity<?> getNextRideForDriver(@Min(value = 1) @PathVariable Integer driverId,
+                                                  @RequestHeader("Authorization") String authHeader) {
+        String jwtToken = authHeader.substring(7);
+        if (!jwtUtil.extractRole(jwtToken).equals("ROLE_ADMIN")) {
+            Integer loggedId = Integer.parseInt(jwtUtil.extractId(jwtToken));
+            if (!loggedId.equals(driverId)) {
+                return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
+            }
+        }
+        try {
+            driverService.get(driverId);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
+        }
+        try{
+            return new ResponseEntity<>(new RideFullDTO(rideService.findNextRide(driverId)), HttpStatus.OK);
+        }
+        catch (NoAcceptedRideException e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+    @GetMapping(value = "/{driverId}/work-time-remained")
+    @PreAuthorize("hasRole('DRIVER')")
+    public ResponseEntity<?> getRemainedWorkTimeForDriver(@Min(value = 1) @PathVariable Integer driverId,
+                                                          @RequestHeader("Authorization") String authHeader) {
+        String jwtToken = authHeader.substring(7);
+        if (!jwtUtil.extractRole(jwtToken).equals("ROLE_ADMIN")) {
+            Integer loggedId = Integer.parseInt(jwtUtil.extractId(jwtToken));
+            if (!loggedId.equals(driverId)) {
+                return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
+            }
+        }
+        try {
+            driverService.get(driverId);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>("Driver does not exist!", HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(new NumberDTO(480-workHoursService.getWorkingMinutesByDriverAtChosenDay(driverId, LocalDate.now())), HttpStatus.OK);
+    }
     @GetMapping(value = "/{driverId}/stats")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
     public ResponseEntity<?> getStatisticsForDriver(@Min(value = 1) @PathVariable Integer driverId,
@@ -507,8 +597,6 @@ public class DriverController {
         return new ResponseEntity<>(new DriverStatisticsDTO(statistics),
                 HttpStatus.OK);
     }
-
-
     @GetMapping(value = "/{driverId}/ride-count")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
     public ResponseEntity<?> getRideCountStatistics(@Min(value = 1) @PathVariable Integer driverId,
@@ -533,7 +621,6 @@ public class DriverController {
         RideCountStatistics statistics = driverStatisticsService.numberOfRidesStatistics(driverId, from, to);
         return new ResponseEntity<>(new RideCountStatisticsDTO(statistics), HttpStatus.OK);
     }
-
     @GetMapping(value = "/{driverId}/distance")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
     public ResponseEntity<?> getDistanceStatistics(@Min(value = 1) @PathVariable Integer driverId,

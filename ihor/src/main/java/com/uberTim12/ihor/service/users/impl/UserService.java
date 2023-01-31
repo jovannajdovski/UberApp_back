@@ -116,7 +116,7 @@ public class UserService extends JPAService<User> implements IUserService, UserD
         User user = get(userId);
 
         PasswordResetToken token = updatePasswordResetToken(user);
-//        mailSender.send(constructResetTokenEmail(token.getToken(), user));
+        mailSender.send(constructResetTokenEmail(token.getToken(), user));
     }
 
     private PasswordResetToken updatePasswordResetToken(User user) {
@@ -137,7 +137,7 @@ public class UserService extends JPAService<User> implements IUserService, UserD
     }
 
     private MimeMessage constructResetTokenEmail(String token, User user) throws MessagingException, UnsupportedEncodingException {
-        String url = angularPath + "/reset-password?token=" + token;
+        String url = angularPath + "/reset-password?token=" + token+"&id="+user.getId();
         String content = "<p>Hello " + user.getName() + ",</p>"
                 + "<p>You have requested to reset your password.</p>"
                 + "<p>Click the link below to change your password:</p>"

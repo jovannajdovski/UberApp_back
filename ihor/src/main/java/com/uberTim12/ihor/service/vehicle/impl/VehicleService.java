@@ -76,7 +76,7 @@ public class VehicleService extends JPAService<Vehicle> implements IVehicleServi
 
         location = locationService.save(location);
         vehicle.setCurrentLocation(location);
-        save(vehicle);
+        saveAndFlush(vehicle);
     }
 
     @Override
