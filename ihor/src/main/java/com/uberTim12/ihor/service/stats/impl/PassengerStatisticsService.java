@@ -72,8 +72,8 @@ public class PassengerStatisticsService implements IPassengerStatisticsService {
 
     @Override
     public RideDistanceStatistics distancePerDayStatistics(Integer id, LocalDateTime from, LocalDateTime to) {
-        TreeMap<LocalDate, Integer> distancePerDay = initializeDayMap(from, to);
-        int totalDistance = 0;
+        TreeMap<LocalDate, Double> distancePerDay = initializeDayMapDouble(from, to);
+        double totalDistance = 0;
         double avgDistance = 0d;
 
         List<Ride> rides = rideService.findRidesWithStatusForPassenger(id, RideStatus.FINISHED, from, to);
@@ -86,7 +86,7 @@ public class PassengerStatisticsService implements IPassengerStatisticsService {
         }
         avgDistance = avgDistance / distancePerDay.size();
 
-        return new RideDistanceStatistics(distancePerDay, totalDistance, (int) avgDistance);
+        return new RideDistanceStatistics(doubleToIntMap(distancePerDay), (int) totalDistance, (int) avgDistance);
     }
 
     private Double calculateDistance(Ride r) {
@@ -107,6 +107,21 @@ public class PassengerStatisticsService implements IPassengerStatisticsService {
         for (LocalDate date = from.toLocalDate(); date.isBefore(to.toLocalDate().plusDays(1)); date = date.plusDays(1))
             dayMap.put(date, 0);
 
+        return dayMap;
+    }
+
+    private TreeMap<LocalDate, Double> initializeDayMapDouble(LocalDateTime from, LocalDateTime to) {
+        TreeMap<LocalDate, Double> dayMap = new TreeMap<>();
+        for (LocalDate date = from.toLocalDate(); date.isBefore(to.toLocalDate().plusDays(1)); date = date.plusDays(1))
+            dayMap.put(date, 0D);
+
+        return dayMap;
+    }
+
+    private TreeMap<LocalDate, Integer> doubleToIntMap(TreeMap<LocalDate, Double> doubleMap) {
+        TreeMap<LocalDate, Integer> dayMap = new TreeMap<>();
+        for (LocalDate date : doubleMap.keySet())
+            dayMap.put(date, doubleMap.get(date).intValue());
         return dayMap;
     }
 }
