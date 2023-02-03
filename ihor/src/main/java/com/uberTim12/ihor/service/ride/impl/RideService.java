@@ -109,7 +109,6 @@ public class RideService extends JPAService<Ride> implements IRideService {
         LocalDateTime finalStart = start;
         LocalDateTime finalEnd = end;
         return passenger.map(value -> rideRepository.findAllInRangeForPassenger(value, finalStart, finalEnd, page)).orElse(null);
-
     }
 
     @Override

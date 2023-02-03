@@ -5,6 +5,7 @@ import com.uberTim12.ihor.model.ride.ActiveDriver;
 import com.uberTim12.ihor.model.ride.ActiveDriverCriticalRide;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.ride.RideStatus;
+import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.repository.ride.IActiveDriverRepository;
 import com.uberTim12.ihor.service.ride.interfaces.IRideSchedulingService;
 import com.uberTim12.ihor.service.ride.interfaces.IRideService;
@@ -40,6 +41,62 @@ public class RideSchedulingService implements IRideSchedulingService {
         this.locationService = locationService;
         this.workHoursService = workHoursService;
         this.passengerService = passengerService;
+    }
+
+    private Double calculateEstimatedTimeForRide(Ride ride) {
+        try {
+            return locationService.calculateEstimatedTime(
+                    ride.getPaths().iterator().next().getStartPoint(),
+                    ride.getPaths().iterator().next().getEndPoint());
+        } catch (ParseException | IOException e) {
+            return Double.MAX_VALUE;
+        }
+    }
+
+
+    private List<ActiveDriver> getQualifiedDrivers(Ride ride) {
+        List<ActiveDriver> qualifiedDrivers = new ArrayList<>();
+        for(ActiveDriver activeDriver: activeDriverRepository.findAll())
+            if(vehicleService.isVehicleMeetCriteria(activeDriver.getDriver().getVehicle(),ride) &&
+                    workHoursService.isDriverAvailable(activeDriver.getDriver(),ride))
+                qualifiedDrivers.add(activeDriver);
+
+        return qualifiedDrivers;
+    }
+
+    private Double getDistanceFromDriverToStart(ActiveDriver driver, Ride ride) {
+        Double distance;
+        try{
+            distance=locationService.calculateDistance(
+                    ride.getPaths().iterator().next().getStartPoint(),
+                    driver.getLocation());
+        }
+        catch(ParseException | IOException e)
+        {
+            distance=Double.MAX_VALUE;
+        }
+        return distance;
+    }
+
+
+    private Driver findClosestDriver(List<ActiveDriver> qualifiedDrivers, Ride ride) {
+        Double minDistance = Double.MAX_VALUE;
+        Double distance;
+        Driver foundDriver = null;
+        for(ActiveDriver driver: qualifiedDrivers)
+        {
+            if(driverService.isDriverFreeForRide(driver.getDriver(), ride) &&
+                    driver.getDriver().getVehicle().getSeats() > ride.getPassengers().size())
+            {
+                distance = getDistanceFromDriverToStart(driver, ride);
+                if(distance < minDistance) {
+                    minDistance = distance;
+                    foundDriver = driver.getDriver();
+                }
+            }
+        }
+
+        return foundDriver;
     }
 
     @Override
