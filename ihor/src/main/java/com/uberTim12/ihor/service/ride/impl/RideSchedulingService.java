@@ -1,5 +1,6 @@
 package com.uberTim12.ihor.service.ride.impl;
 
+import com.uberTim12.ihor.dto.route.RouteStep;
 import com.uberTim12.ihor.exception.CannotScheduleDriveException;
 import com.uberTim12.ihor.model.ride.ActiveDriver;
 import com.uberTim12.ihor.model.ride.ActiveDriverCriticalRide;
@@ -102,6 +103,7 @@ public class RideSchedulingService implements IRideSchedulingService {
     @Override
     public Ride findFreeVehicle(Ride ride) throws CannotScheduleDriveException {
         try{
+            //List<RouteStep> lista=locationService.getSteps(ride.getPaths().iterator().next().getStartPoint(), ride.getPaths().iterator().next().getEndPoint());
             ride.setEstimatedTime(locationService.calculateEstimatedTime(ride.getPaths().iterator().next().getStartPoint(),ride.getPaths().iterator().next().getEndPoint()));
         }
         catch(ParseException | IOException e)
@@ -171,7 +173,7 @@ public class RideSchedulingService implements IRideSchedulingService {
         {
             distance=Double.MAX_VALUE;
         }
-        ride.setTotalPrice(ride.getVehicleType().getPricePerKM()+distance*120);
+        ride.setTotalPrice((double)Math.round(ride.getVehicleType().getPricePerKM()+distance*120));
         rideService.save(ride);
         return ride;
     }
