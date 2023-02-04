@@ -26,6 +26,8 @@ public interface IPassengerService extends IJPAService<Passenger> {
 
     Page<Ride> findAllById(Integer passengerId, LocalDateTime start, LocalDateTime end, Pageable page);
 
+    Page<Ride> findAllByIdFinished(Integer passengerId, Pageable page);
+
     Page<Ride> findAllById(Passenger passenger, Pageable page);
 
     Passenger findByIdWithRides(Integer id);

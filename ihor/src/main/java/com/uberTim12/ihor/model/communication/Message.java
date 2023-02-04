@@ -55,6 +55,7 @@ public class Message {
     {
         return this.ride.getId();
     }
+    public Integer getReceiverId(){return this.receiver.getId();}
 
     @Override
     public String toString() {
@@ -67,5 +68,14 @@ public class Message {
                 ", type=" + type +
                 ", ride=" + ride.getId() +
                 '}';
+    }
+
+    public void setMessage(Message message) {
+        this.sender=message.getSender();
+        this.receiver=message.getReceiver();
+        this.content=message.getContent();
+        this.sendTime=message.getSendTime();
+        this.type=message.getType();
+        this.ride=message.getRide();
     }
 }

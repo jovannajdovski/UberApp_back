@@ -1,12 +1,10 @@
 package com.uberTim12.ihor.controller.users;
 
 import com.uberTim12.ihor.dto.ResponseMessageDTO;
-import com.uberTim12.ihor.dto.communication.MessageDTO;
-import com.uberTim12.ihor.dto.communication.ObjectListResponseDTO;
-import com.uberTim12.ihor.dto.communication.RequestNoteDTO;
-import com.uberTim12.ihor.dto.communication.SendingMessageDTO;
+import com.uberTim12.ihor.dto.communication.*;
 import com.uberTim12.ihor.dto.ride.RideFullDTO;
 import com.uberTim12.ihor.dto.users.*;
+import com.uberTim12.ihor.dto.users.NoteDTO;
 import com.uberTim12.ihor.exception.*;
 import com.uberTim12.ihor.model.communication.Message;
 import com.uberTim12.ihor.model.ride.Ride;
@@ -126,16 +124,17 @@ public class UserController {
     public ResponseEntity<?> loginUser(@Valid @RequestBody UserCredentialsDTO userCredentialDTO)
     {
         try {
+            userService.checkIntegrity(userCredentialDTO.getEmail());
             var authentication = authenticationManager.authenticate (
                     new UsernamePasswordAuthenticationToken(userCredentialDTO.getEmail(),
                              userCredentialDTO.getPassword())
             );
             SecurityContextHolder.getContext().setAuthentication(authentication);
-
+            System.out.println(this.rideService);
             String token = jwtUtil.generateToken(authentication);
             AuthTokenDTO tokenDTO = new AuthTokenDTO(token, token);
             return new ResponseEntity<>(tokenDTO, HttpStatus.OK);
-        } catch (AuthenticationException e) {
+        } catch (AuthenticationException | AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessageDTO( "Wrong username or password!"));
         }
     }
@@ -152,8 +151,27 @@ public class UserController {
         if(Integer.parseInt(jwtUtil.extractId(authHeader.substring(7)))!=id)
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist!");
         try {
+            User user=userService.get(id);
+            List<MessageDTO> messages;
+            if(user.getAuthority().getName().equals("ROLE_ADMIN"))
+                messages=messageService.getMessagesForAdmin();
+            else
+                messages = messageService.getMessages(id);
+            ObjectListResponseDTO<MessageDTO> res = new ObjectListResponseDTO<>(messages.size(), messages);
+            return new ResponseEntity<>(res, HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body( "User does not exist!");
+        }
+    }
+
+    @GetMapping(value = "/{id}/message/{ride_id}",produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getUserMessagesFromSpecificRide(@Min(value = 1) @PathVariable Integer id, @PathVariable Integer ride_id, @RequestHeader("Authorization") String authHeader)
+    {
+        if(Integer.parseInt(jwtUtil.extractId(authHeader.substring(7)))!=id)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist!");
+        try {
             userService.get(id);
-            List<MessageDTO> messages = messageService.getMessages(id);
+            List<MessageDTO> messages = messageService.getMessagesOfSpecificRide(id, ride_id);
             ObjectListResponseDTO<MessageDTO> res = new ObjectListResponseDTO<>(messageService.getAll().size(), messages);
             return new ResponseEntity<>(res, HttpStatus.OK);
         } catch (EntityNotFoundException e) {
@@ -168,6 +186,21 @@ public class UserController {
             Message message = messageService.sendMessage(Integer.parseInt(jwtUtil.extractId(authHeader.substring(7))), receiverId,
                     sendingMessageDTO.getRideId(), sendingMessageDTO.getMessage(), sendingMessageDTO.getType());
             return new ResponseEntity<>(new MessageDTO(message), HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body( e.getMessage());
+        }
+    }
+    @PostMapping(value = "/send-messages",consumes=MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> sendMessageToPassengers(@Valid @RequestBody MultipleSendingMessageDTO multipleSendingMessageDTO, @RequestHeader("Authorization") String authHeader)
+    {
+        try {
+            for(int receiverId:multipleSendingMessageDTO.getUserIds())
+            {
+                messageService.sendMessage(Integer.parseInt(jwtUtil.extractId(authHeader.substring(7))), receiverId,
+                        multipleSendingMessageDTO.getMessage().getRideId(), multipleSendingMessageDTO.getMessage().getMessage(), multipleSendingMessageDTO.getMessage().getType());
+            }
+
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body( e.getMessage());
         }

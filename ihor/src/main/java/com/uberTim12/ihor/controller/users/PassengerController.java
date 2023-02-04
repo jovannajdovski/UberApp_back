@@ -117,6 +117,18 @@ public class PassengerController {
         }
     }
 
+    @GetMapping(value = "/email/check/{email}")
+    public ResponseEntity<?> checkPassengerByEmail(@Email(regexp = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$") @PathVariable String email) {
+        try {
+            Passenger passenger = passengerService.findByEmail(email);
+            if (passenger == null)
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Passenger does not exist!");
+            return new ResponseEntity<>(new PassengerDTO(passenger), HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Passenger does not exist!");
+        }
+    }
+
     @PutMapping(value = "/{id}", consumes = "application/json")
     @PreAuthorize("hasRole('PASSENGER')")
     public ResponseEntity<?> updatePassenger(@Min(value = 1) @PathVariable Integer id,
@@ -159,6 +171,31 @@ public class PassengerController {
             LocalDateTime end = LocalDateTime.parse(to);
             rides = passengerService.findAllById(id, start, end, page);
         }
+
+        List<RideNoStatusDTO> rideDTOs = new ArrayList<>();
+        for (Ride r : rides)
+            rideDTOs.add(new RideNoStatusDTO(r));
+
+        ObjectListResponseDTO<RideNoStatusDTO> res = new ObjectListResponseDTO<>((int) rides.getTotalElements(), rideDTOs);
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/{id}/ride/finished")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PASSENGER')")
+    public ResponseEntity<?> getPassengerRidesPage(@Min(value = 1) @PathVariable Integer id, Pageable page,
+                                                   @RequestHeader("Authorization") String authHeader) {
+
+        if (Integer.parseInt(jwtUtil.extractId(authHeader.substring(7))) != id && (jwtUtil.extractRole(authHeader.substring(7)).equals("ROLE_PASSENGER")))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Passenger does not exist!");
+
+        Passenger passenger = passengerService.findByIdWithRides(id);
+
+        if (passenger == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Passenger does not exist!");
+        }
+
+        Page<Ride> rides;
+        rides = passengerService.findAllByIdFinished(id, page);
 
         List<RideNoStatusDTO> rideDTOs = new ArrayList<>();
         for (Ride r : rides)

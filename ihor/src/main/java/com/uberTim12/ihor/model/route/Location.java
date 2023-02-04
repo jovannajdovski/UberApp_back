@@ -31,4 +31,8 @@ public class Location {
         this.latitude = latitude;
         this.longitude = longitude;
     }
+    public Location( Double latitude, Double longitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
 }
