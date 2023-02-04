@@ -166,7 +166,7 @@ public class RideController {
             for (Ride r : rides)
                 rideDTOs.add(new RideNoStatusDTO(r));
 
-            ObjectListResponseDTO<RideNoStatusDTO> res = new ObjectListResponseDTO<>((int) rides.size(), rideDTOs);
+            ObjectListResponseDTO<RideNoStatusDTO> res = new ObjectListResponseDTO<>(rides.size(), rideDTOs);
             return new ResponseEntity<>(res, HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Driver does not exist!");
@@ -302,9 +302,6 @@ public class RideController {
             Ride ride = rideService.start(id, Integer.parseInt(jwtUtil.extractId(token)));
             if (!jwtUtil.extractId(token).equals(ride.getDriver().getId().toString()))
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
-//            System.out.println(ride);
-//            System.out.println(ride.getId());
-//            System.out.println(ride.getDriver().getVehicle().getCurrentLocation().getLatitude());
             rideSimulationTimer.setProperties(ride.getId(),ride.getDriver().getVehicle().getId(),
                     locationService.getSteps(ride.getPaths().iterator().next().getStartPoint(),
                             ride.getPaths().iterator().next().getEndPoint()));

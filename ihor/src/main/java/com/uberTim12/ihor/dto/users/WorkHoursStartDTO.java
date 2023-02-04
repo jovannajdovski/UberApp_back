@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class WorkHoursStartDTO {
-    @PastOrPresent
     @NotNull
     private LocalDateTime start;
 }

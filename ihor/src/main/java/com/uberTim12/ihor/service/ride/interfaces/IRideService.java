@@ -28,15 +28,11 @@ public interface IRideService extends IJPAService<Ride> {
 
     Page<Ride> findFilteredFinishedRidesAdmin(Pageable pageable);
 
-    Page<Ride> findFilteredFinishedRidesPassenger(Integer passengerId, Pageable pageable);
-
     Page<Ride> findFilteredRidesForUser(Integer userId, LocalDateTime from, LocalDateTime to, Pageable pageable);
 
     Page<Ride> findFilteredRidesForUser(Integer userId, Pageable pageable);
 
     RideResponseDTO getEstimatedRoute(Ride ride);
-
-    Page<Ride> getRides(Integer userId, LocalDateTime start, LocalDateTime end, Pageable page);
 
     Ride findActiveByDriver(Driver driver) throws NoActiveRideException;
 
@@ -45,8 +41,6 @@ public interface IRideService extends IJPAService<Ride> {
     Ride findActiveByPassenger(Passenger passenger) throws NoActiveRideException;
 
     List<Passenger> findPassengersForRide(Integer id);
-
-    List<Path> findPathsForRide(Integer id);
 
     double getTimeOfNextRidesByDriverAtChoosedDay(Integer driverId, LocalDate now);
 

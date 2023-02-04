@@ -9,10 +9,12 @@ import com.uberTim12.ihor.model.stats.RideDistanceStatistics;
 import com.uberTim12.ihor.service.ride.interfaces.IRideService;
 import com.uberTim12.ihor.service.route.impl.LocationService;
 import com.uberTim12.ihor.service.stats.interfaces.IPassengerStatisticsService;
+import com.uberTim12.ihor.service.users.impl.PassengerService;
 import net.minidev.json.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.Console;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
@@ -39,6 +41,7 @@ public class PassengerStatisticsService implements IPassengerStatisticsService {
         double avgCount = 0d;
 
         List<Ride> rides = rideService.findRidesWithStatusForPassenger(id, RideStatus.FINISHED, from, to);
+        System.out.println(rides.size());
         for (Ride r : rides) {
             LocalDate startDate = r.getStartTime().toLocalDate();
             ridesPerDay.put(startDate, ridesPerDay.get(startDate) + 1);
