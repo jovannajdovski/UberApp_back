@@ -170,7 +170,7 @@ public class RideController {
             return new ResponseEntity<>(res, HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Driver does not exist!");
-        } catch (NoActiveRideException e) {
+        } catch (NoAcceptedRideException e) {
             List<RideNoStatusDTO> rideDTOs = new ArrayList<>();
             ObjectListResponseDTO<RideNoStatusDTO> res = new ObjectListResponseDTO<>(0, rideDTOs);
             return new ResponseEntity<>(res, HttpStatus.OK);

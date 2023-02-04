@@ -40,7 +40,7 @@ public interface IRideService extends IJPAService<Ride> {
 
     Ride findActiveByDriver(Driver driver) throws NoActiveRideException;
 
-    List<Ride> findAcceptedByDriver(Driver driver) throws NoActiveRideException;
+    List<Ride> findAcceptedByDriver(Driver driver) throws NoAcceptedRideException;
 
     Ride findActiveByPassenger(Passenger passenger) throws NoActiveRideException;
 

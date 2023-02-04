@@ -150,10 +150,10 @@ public class RideService extends JPAService<Ride> implements IRideService {
     }
 
     @Override
-    public List<Ride> findAcceptedByDriver(Driver driver) throws NoActiveRideException {
+    public List<Ride> findAcceptedByDriver(Driver driver) throws NoAcceptedRideException {
         List<Ride> rides = rideRepository.findActiveByDriver(driver, RideStatus.ACCEPTED);
         if (rides.isEmpty()) {
-            throw new NoActiveRideException("Accepted ride does not exist!");
+            throw new NoAcceptedRideException("Accepted ride does not exist!");
         } else {
             for (Ride ride: rides){
                 Set<Passenger> passengers = new HashSet<>(findPassengersForRide(ride.getId()));
@@ -207,8 +207,7 @@ public class RideService extends JPAService<Ride> implements IRideService {
         for(Ride ride: rides)
         {
             rideEnd=ride.getStartTime().plusMinutes(ride.getEstimatedTime().longValue());
-            if(hasIntersectionBetweenRides(ride.getStartTime(),rideEnd,newRide.getStartTime(),newRideEnd)
-                    && newRide.getStartTime().plusMinutes(30).isAfter(rideEnd))
+            if(hasIntersectionBetweenRides(ride.getStartTime(),rideEnd,newRide.getStartTime(),newRideEnd))
             {
                 if(latestCriticalRideEnd==null || rideEnd.isAfter(latestCriticalRideEnd))
                 {
@@ -289,6 +288,7 @@ public class RideService extends JPAService<Ride> implements IRideService {
         if (ride.getRideRejection() == null) {
             ride.setRideRejection(new RideRejection());
         }
+
         ride.getRideRejection().setReason(reason);
         ride.getRideRejection().setTime(LocalDateTime.now());
         ride.getRideRejection().setRide(ride);

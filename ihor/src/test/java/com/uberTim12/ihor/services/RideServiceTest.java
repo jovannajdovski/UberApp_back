@@ -1,6 +1,7 @@
 package com.uberTim12.ihor.services;
 
 import com.uberTim12.ihor.dto.ride.RideResponseDTO;
+import com.uberTim12.ihor.exception.NoAcceptedRideException;
 import com.uberTim12.ihor.exception.NoActiveRideException;
 import com.uberTim12.ihor.exception.RideStatusException;
 import com.uberTim12.ihor.model.ride.Ride;
@@ -20,6 +21,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -32,6 +34,8 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
 public class RideServiceTest {
@@ -40,11 +44,12 @@ public class RideServiceTest {
     @Mock
     private IDriverRepository driverRepository;
     @Mock
-    private IPassengerRepository passengerRepository;
-    @Mock
     private LocationService locationService;
     @InjectMocks
     private RideService rideService;
+
+    public RideServiceTest() {
+    }
 
 
     // Method getEstimatedRoute
@@ -134,9 +139,6 @@ public class RideServiceTest {
         Assertions.assertThat(rideResponseDTO.getEstimatedCost()).isInfinite();
     }
 
-    // Method getRides
-    //TODO
-
     //Method findActiveByDriver
     @Test
     @DisplayName("Should return passengers for valid ")
@@ -207,6 +209,81 @@ public class RideServiceTest {
         Ride foundRide = rideService.findActiveByDriver(driver);
         List<Passenger> foundPassengers = new ArrayList<>(foundRide.getPassengers());
         Assertions.assertThat(foundRide.getId()).isEqualTo(2);
+        Assertions.assertThat(foundPassengers.get(0).getId()).isEqualTo(2);
+    }
+
+    //Method findAcceptedByDriver
+    @Test
+    @DisplayName("Should return passengers for valid ")
+    public void shouldReturnRideWithPassengersAccepted() throws NoAcceptedRideException {
+        Driver driver = new Driver();
+        Passenger passenger = new Passenger();
+        Set<Passenger> passengers = new HashSet<>();
+        passengers.add(passenger);
+
+        Ride ride = new Ride();
+        ride.setId(1);
+        ride.setPassengers(passengers);
+
+        List<Ride> rides = new ArrayList<>();
+        rides.add(ride);
+
+        Mockito.when(rideRepository.findActiveByDriver(driver, RideStatus.ACCEPTED)).thenReturn(rides);
+        Mockito.when(rideService.findPassengersForRide(any(Integer.class))).thenReturn(new ArrayList<>(passengers));
+        List<Ride> foundRides = rideService.findAcceptedByDriver(driver);
+        Assertions.assertThat(foundRides.size()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("Should throw exception for no accepted rides")
+    public void shouldThrowExceptionForNoAcceptedRidesDriver() {
+        Driver driver = new Driver();
+        Passenger passenger = new Passenger();
+        Set<Passenger> passengers = new HashSet<>();
+        passengers.add(passenger);
+
+        Ride ride = new Ride();
+        ride.setId(1);
+        ride.setPassengers(passengers);
+
+        Mockito.when(rideRepository.findActiveByDriver(driver, RideStatus.ACCEPTED)).thenReturn(new ArrayList<>());
+        NoAcceptedRideException exception =  assertThrows(NoAcceptedRideException.class, () -> {
+            rideService.findAcceptedByDriver(driver);
+        });
+
+        Assertions.assertThat(exception.getMessage()).isEqualTo("Accepted ride does not exist!");
+    }
+
+    @Test
+    @DisplayName("Should throw exception for no active rides")
+    public void shouldReturnCorrectPassengersInAcceptedRide() throws NoAcceptedRideException {
+        Driver driver = new Driver();
+        Passenger passenger = new Passenger();
+        passenger.setId(1);
+        Passenger passenger1 = new Passenger();
+        passenger.setId(2);
+        Set<Passenger> passengers = new HashSet<>();
+        passengers.add(passenger);
+        Set<Passenger> passengers1 = new HashSet<>();
+        passengers1.add(passenger1);
+
+        Ride ride = new Ride();
+        ride.setId(1);
+        ride.setPassengers(passengers);
+
+        Ride ride1 = new Ride();
+        ride.setId(2);
+        ride.setPassengers(passengers1);
+
+        List<Ride> rides = new ArrayList<>();
+        rides.add(ride);
+        rides.add(ride1);
+
+        Mockito.when(rideRepository.findActiveByDriver(driver, RideStatus.ACCEPTED)).thenReturn(rides);
+        Mockito.when(rideService.findPassengersForRide(2)).thenReturn(new ArrayList<>(passengers));
+        List<Ride> foundRides = rideService.findAcceptedByDriver(driver);
+        List<Passenger> foundPassengers = new ArrayList<>(foundRides.get(0).getPassengers());
+        Assertions.assertThat(foundRides.get(0).getId()).isEqualTo(2);
         Assertions.assertThat(foundPassengers.get(0).getId()).isEqualTo(2);
     }
 
@@ -547,51 +624,73 @@ public class RideServiceTest {
         Ride ride = new Ride();
         ride.setId(1);
         ride.setRideStatus(RideStatus.ACCEPTED);
+        Driver driver = new Driver();
+        driver.setId(2);
 
         Mockito.when(rideRepository.findById(ride.getId())).thenReturn(Optional.of(ride));
+        Mockito.when(driverRepository.findById(driver.getId())).thenReturn(Optional.of(driver));
+        Mockito.when(rideRepository.findActiveByDriver(driver, RideStatus.STARTED)).thenReturn(new ArrayList<>());
         Mockito.when(rideRepository.save(Mockito.any())).thenAnswer(i -> i.getArguments()[0]);
-        Ride newRide = rideService.start(ride.getId());
+
+        Ride newRide = rideService.start(ride.getId(), driver.getId());
         Assertions.assertThat(newRide.getId()).isEqualTo(1);
         Assertions.assertThat(newRide.getRideStatus()).isEqualTo(RideStatus.STARTED);
     }
 
     @Test
-    @DisplayName("Should not start ride")
-    public void shouldNotStartPendingRide() {
+    @DisplayName("Should throw exception")
+    public void shouldThrowExceptionWhenDriverNotExist() {
         Ride ride = new Ride();
         ride.setId(1);
-        ride.setRideStatus(RideStatus.PENDING);
+        ride.setRideStatus(RideStatus.ACCEPTED);
+        Driver driver = new Driver();
+        driver.setId(2);
 
         Mockito.when(rideRepository.findById(ride.getId())).thenReturn(Optional.of(ride));
-        RideStatusException exception = assertThrows(RideStatusException.class, () -> {
-            rideService.start(ride.getId());
+        Mockito.when(driverRepository.findById(driver.getId())).thenReturn(Optional.empty());
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
+            rideService.start(ride.getId(), driver.getId());
         });
 
-        Assertions.assertThat(exception.getMessage()).isEqualTo("Cannot start a ride that is not in status ACCEPTED!");
+        Assertions.assertThat(exception.getMessage()).isEqualTo("Driver does not exists!");
     }
 
     @Test
-    @DisplayName("Should not start ride")
-    public void shouldNotStartStartedRide() {
+    @DisplayName("Should throw exception")
+    public void shouldThrowExceptionWhenRideNotAccepted() {
         Ride ride = new Ride();
         ride.setId(1);
         ride.setRideStatus(RideStatus.STARTED);
 
         Mockito.when(rideRepository.findById(ride.getId())).thenReturn(Optional.of(ride));
         RideStatusException exception = assertThrows(RideStatusException.class, () -> {
-            rideService.start(ride.getId());
+            rideService.start(ride.getId(), 2);
         });
 
         Assertions.assertThat(exception.getMessage()).isEqualTo("Cannot start a ride that is not in status ACCEPTED!");
     }
 
     @Test
-    @DisplayName("Should not start ride")
-    public void shouldNotStartNonExistentRide() {
-        Mockito.when(rideRepository.findById(1)).thenThrow(EntityNotFoundException.class);
-        assertThrows(EntityNotFoundException.class, () -> {
-            rideService.start(1);
+    @DisplayName("Should throw exception")
+    public void shouldThrowExceptionWhenDriverAlreadyHasStartedRide() {
+        Ride ride = new Ride();
+        ride.setId(1);
+        ride.setRideStatus(RideStatus.ACCEPTED);
+        Driver driver = new Driver();
+        driver.setId(2);
+
+        List<Ride> rides = new ArrayList<>();
+        rides.add(new Ride());
+
+        Mockito.when(rideRepository.findById(ride.getId())).thenReturn(Optional.of(ride));
+        Mockito.when(driverRepository.findById(driver.getId())).thenReturn(Optional.of(driver));
+        Mockito.when(rideRepository.findActiveByDriver(driver, RideStatus.STARTED)).thenReturn(rides);
+
+        RideStatusException exception = assertThrows(RideStatusException.class, () -> {
+            rideService.start(ride.getId(), 2);
         });
+
+        Assertions.assertThat(exception.getMessage()).isEqualTo("Cannot start a ride if you already have STARTED ride!");
     }
 
     //Method accept
@@ -698,7 +797,7 @@ public class RideServiceTest {
     public void shouldNotEndNonExistingRide() {
         Mockito.when(rideRepository.findById(1)).thenThrow(EntityNotFoundException.class);
         assertThrows(EntityNotFoundException.class, () -> {
-            rideService.start(1);
+            rideService.end(1);
         });
     }
 
@@ -709,12 +808,16 @@ public class RideServiceTest {
         Ride ride = new Ride();
         ride.setId(1);
         ride.setRideStatus(RideStatus.PENDING);
+        Driver driver = new Driver();
+        driver.setId(2);
+        ride.setDriver(driver);
 
         Mockito.when(rideRepository.findById(ride.getId())).thenReturn(Optional.of(ride));
         Mockito.when(rideRepository.save(Mockito.any())).thenAnswer(i -> i.getArguments()[0]);
         Ride newRide = rideService.reject(ride.getId(), "Reason");
         Assertions.assertThat(newRide.getId()).isEqualTo(1);
         Assertions.assertThat(newRide.getRideStatus()).isEqualTo(RideStatus.REJECTED);
+        Assertions.assertThat(newRide.getRideRejection().getUser().getId()).isEqualTo(driver.getId());
         Assertions.assertThat(newRide.getRideRejection().getReason()).isEqualTo("Reason");
     }
 
@@ -724,12 +827,16 @@ public class RideServiceTest {
         Ride ride = new Ride();
         ride.setId(1);
         ride.setRideStatus(RideStatus.ACCEPTED);
+        Driver driver = new Driver();
+        driver.setId(2);
+        ride.setDriver(driver);
 
         Mockito.when(rideRepository.findById(ride.getId())).thenReturn(Optional.of(ride));
         Mockito.when(rideRepository.save(Mockito.any())).thenAnswer(i -> i.getArguments()[0]);
         Ride newRide = rideService.reject(ride.getId(), "Reason");
         Assertions.assertThat(newRide.getId()).isEqualTo(1);
         Assertions.assertThat(newRide.getRideStatus()).isEqualTo(RideStatus.REJECTED);
+        Assertions.assertThat(newRide.getRideRejection().getUser().getId()).isEqualTo(driver.getId());
         Assertions.assertThat(newRide.getRideRejection().getReason()).isEqualTo("Reason");
     }
 
@@ -755,6 +862,48 @@ public class RideServiceTest {
         assertThrows(EntityNotFoundException.class, () -> {
             rideService.reject(1, "Reason");
         });
+    }
+
+    //Method findNextRide
+    @Test
+    @DisplayName("Should return ride")
+    public void shouldReturnRide() throws NoAcceptedRideException {
+        Integer driverId = 1;
+        Ride ride1 = new Ride();
+        ride1.setId(1);
+        List<Ride> acceptedRides = List.of(ride1);
+        Mockito.when(rideRepository.findAllByDriverIdAndRideStatusOrderByStartTime(driverId, RideStatus.ACCEPTED)).thenReturn(acceptedRides);
+
+        Ride nextRide = rideService.findNextRide(driverId);
+        Assertions.assertThat(nextRide.getId()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("Should not return ride")
+    public void shouldNotReturnRideForNoRides() {
+        Integer driverId = 1;
+        Mockito.when(rideRepository.findAllByDriverIdAndRideStatusOrderByStartTime(driverId, RideStatus.ACCEPTED)).thenReturn(new ArrayList<>());
+
+        NoAcceptedRideException exception = assertThrows(NoAcceptedRideException.class, () -> {
+            rideService.findNextRide(1);
+        });
+
+        Assertions.assertThat(exception.getMessage()).isEqualTo("No accepted rides");
+    }
+
+    @Test
+    @DisplayName("Should return ride")
+    public void shouldReturnRideForMultipleRides() throws NoAcceptedRideException {
+        Integer driverId = 1;
+        Ride ride1 = new Ride();
+        ride1.setId(1);
+        Ride ride2 = new Ride();
+        ride2.setId(2);
+        List<Ride> acceptedRides = Arrays.asList(ride1, ride2);
+        Mockito.when(rideRepository.findAllByDriverIdAndRideStatusOrderByStartTime(driverId, RideStatus.ACCEPTED)).thenReturn(acceptedRides);
+
+        Ride nextRide = rideService.findNextRide(driverId);
+        Assertions.assertThat(nextRide.getId()).isEqualTo(1);
     }
 }
 
