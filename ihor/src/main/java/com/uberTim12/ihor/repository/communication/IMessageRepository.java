@@ -8,13 +8,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 @Repository
 public interface IMessageRepository extends JpaRepository<Message, Integer>{
-    @Query("select m from Message m where m.ride is not null and m.ride.id = ?2 and (m.receiver.id = ?1 or m.sender.id = ?1)")
-    public List<Message> findAllByRideIdAndSenderIdOrReceiverId(Integer user_id, Integer ride_id);
-    @Query("select m from Message m where m.ride is not null and (m.receiver.id = ?1 or m.sender.id = ?1)")
-    public List<Message> findAllBySenderIdOrReceiverId(Integer user_id);
+    public List<Message> findAllBySenderIdOrReceiverId(Integer sender_id, Integer receiver_id);
 
-    @Query("select m from Message m where m.receiver is null or m.sender is null order by m.sendTime")
-    public List<Message> findAllForAdmin();
-    @Query("select m from Message m where (m.receiver is null and m.sender.id=?1) or (m.sender is null and m.receiver.id=?1) order by m.sendTime")
-    public List<Message> findAllWithAdmin(Integer userId);
 }

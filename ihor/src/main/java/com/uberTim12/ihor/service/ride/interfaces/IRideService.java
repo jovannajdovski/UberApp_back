@@ -1,7 +1,6 @@
 package com.uberTim12.ihor.service.ride.interfaces;
 
 import com.uberTim12.ihor.dto.ride.RideResponseDTO;
-import com.uberTim12.ihor.exception.NoAcceptedRideException;
 import com.uberTim12.ihor.exception.NoActiveRideException;
 import com.uberTim12.ihor.exception.RideStatusException;
 import com.uberTim12.ihor.model.ride.Ride;
@@ -24,12 +23,6 @@ public interface IRideService extends IJPAService<Ride> {
 
     Page<Ride> findFilteredRides(Integer driverId, LocalDateTime from, LocalDateTime to, Pageable pageable);
 
-    Page<Ride> findFilteredFinishedRidesDriver(Integer driverId, Pageable pageable);
-
-    Page<Ride> findFilteredFinishedRidesAdmin(Pageable pageable);
-
-    Page<Ride> findFilteredFinishedRidesPassenger(Integer passengerId, Pageable pageable);
-
     Page<Ride> findFilteredRidesForUser(Integer userId, LocalDateTime from, LocalDateTime to, Pageable pageable);
 
     Page<Ride> findFilteredRidesForUser(Integer userId, Pageable pageable);
@@ -39,8 +32,6 @@ public interface IRideService extends IJPAService<Ride> {
     Page<Ride> getRides(Integer userId, LocalDateTime start, LocalDateTime end, Pageable page);
 
     Ride findActiveByDriver(Driver driver) throws NoActiveRideException;
-
-    List<Ride> findAcceptedByDriver(Driver driver) throws NoActiveRideException;
 
     Ride findActiveByPassenger(Passenger passenger) throws NoActiveRideException;
 
@@ -56,7 +47,7 @@ public interface IRideService extends IJPAService<Ride> {
     
     Ride cancel(Integer id) throws EntityNotFoundException, RideStatusException;
 
-    Ride start(Integer id, Integer driverId) throws EntityNotFoundException, RideStatusException;
+    Ride start(Integer id) throws EntityNotFoundException, RideStatusException;
 
     Ride accept(Integer id) throws EntityNotFoundException, RideStatusException;
 
@@ -65,8 +56,6 @@ public interface IRideService extends IJPAService<Ride> {
     Ride reject(Integer id, String reason) throws EntityNotFoundException, RideStatusException;
 
     List<Ride> findPendingRides(Integer driverId);
-
-    Ride findNextRide(Integer driverId) throws NoAcceptedRideException;
 
     List<Ride> findRidesWithStatusForDriver(Integer id, RideStatus status, LocalDateTime from, LocalDateTime to);
 

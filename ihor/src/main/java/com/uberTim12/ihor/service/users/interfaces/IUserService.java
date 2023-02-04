@@ -1,6 +1,9 @@
 package com.uberTim12.ihor.service.users.interfaces;
 
-import com.uberTim12.ihor.exception.*;
+import com.uberTim12.ihor.exception.CodeExpiredException;
+import com.uberTim12.ihor.exception.EmailAlreadyExistsException;
+import com.uberTim12.ihor.exception.IncorrectCodeException;
+import com.uberTim12.ihor.exception.PasswordDoesNotMatchException;
 import com.uberTim12.ihor.model.users.User;
 import com.uberTim12.ihor.dto.users.UserCredentialsDTO;
 import com.uberTim12.ihor.dto.users.UserTokensDTO;
@@ -27,6 +30,4 @@ public interface IUserService extends IJPAService<User> {
     void forgotPassword(Integer id) throws MessagingException, UnsupportedEncodingException;
 
     void resetPassword(Integer userId, String token, String password) throws IncorrectCodeException, CodeExpiredException, EntityNotFoundException;
-
-    void checkIntegrity(String email) throws AccessDeniedException;
 }

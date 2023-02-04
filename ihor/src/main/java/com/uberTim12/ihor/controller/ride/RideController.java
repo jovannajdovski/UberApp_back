@@ -1,11 +1,12 @@
 package com.uberTim12.ihor.controller.ride;
 
 import com.uberTim12.ihor.dto.ResponseMessageDTO;
-import com.uberTim12.ihor.dto.communication.ObjectListResponseDTO;
 import com.uberTim12.ihor.dto.communication.PanicDTO;
 import com.uberTim12.ihor.dto.communication.ReasonDTO;
-import com.uberTim12.ihor.dto.ride.*;
-import com.uberTim12.ihor.dto.route.FavoriteRouteForPassengerDTO;
+import com.uberTim12.ihor.dto.ride.CreateFavoriteDTO;
+import com.uberTim12.ihor.dto.ride.CreateRideDTO;
+import com.uberTim12.ihor.dto.ride.FavoriteFullDTO;
+import com.uberTim12.ihor.dto.ride.RideFullDTO;
 import com.uberTim12.ihor.dto.route.PathDTO;
 import com.uberTim12.ihor.dto.users.UserRideDTO;
 import com.uberTim12.ihor.exception.*;
@@ -24,67 +25,55 @@ import com.uberTim12.ihor.service.ride.interfaces.IRideSchedulingService;
 import com.uberTim12.ihor.service.ride.interfaces.IRideService;
 import com.uberTim12.ihor.service.route.impl.PathService;
 import com.uberTim12.ihor.service.ride.interfaces.IFavoriteService;
-import com.uberTim12.ihor.service.route.interfaces.ILocationService;
 import com.uberTim12.ihor.service.route.interfaces.IPathService;
 import com.uberTim12.ihor.service.users.impl.DriverService;
 import com.uberTim12.ihor.service.users.impl.PassengerService;
 import com.uberTim12.ihor.service.users.interfaces.IDriverService;
 import com.uberTim12.ihor.service.users.interfaces.IPassengerService;
-import com.uberTim12.ihor.service.vehicle.interfaces.IVehicleService;
-import com.uberTim12.ihor.timer.RideSimulationTimer;
-import com.uberTim12.ihor.timer.SocketTimer;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import net.minidev.json.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.io.IOException;
 import java.util.*;
 
 @RestController
 @RequestMapping(value = "api/ride")
 public class RideController {
     private final IRideService rideService;
-    private final IVehicleService vehicleService;
     private final IPathService pathService;
     private final IPassengerService passengerService;
     private final IDriverService driverService;
     private final IPanicService panicService;
-    private final ILocationService locationService;
     private final IRideSchedulingService rideSchedulingService;
     private final IFavoriteService favoriteService;
     private final JwtUtil jwtUtil;
-    private final SocketTimer socketTimer;
-    private final RideSimulationTimer rideSimulationTimer;
 
     @Autowired
-    public RideController(RideService rideService, IVehicleService vehicleService, PathService pathService, PassengerService passengerService,
+    public RideController(RideService rideService, PathService pathService, PassengerService passengerService,
                           DriverService driverService, PanicService panicService,
-                          ILocationService locationService, IRideSchedulingService rideSchedulingService, IFavoriteService favoriteService, JwtUtil jwtUtil, SocketTimer socketTimer, RideSimulationTimer rideSimulationTimer) {
+                          IRideSchedulingService rideSchedulingService, IFavoriteService favoriteService, JwtUtil jwtUtil) {
         this.rideService = rideService;
-        this.vehicleService = vehicleService;
         this.pathService = pathService;
         this.passengerService = passengerService;
         this.driverService = driverService;
         this.panicService = panicService;
-        this.locationService = locationService;
         this.rideSchedulingService = rideSchedulingService;
         this.favoriteService = favoriteService;
         this.jwtUtil = jwtUtil;
-        this.socketTimer = socketTimer;
-        this.rideSimulationTimer = rideSimulationTimer;
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('PASSENGER')")
     public ResponseEntity<?> createRide(@Valid @RequestBody CreateRideDTO rideDTO) {
         Ride ride = new Ride(rideDTO);
+
         Set<Path> paths = new HashSet<>();
 
         for (PathDTO pathDTO : rideDTO.getLocations()) {
@@ -132,48 +121,11 @@ public class RideController {
             driver = driverService.get(driverId);
 
             Ride ride = rideService.findActiveByDriver(driver);
-//            System.out.println(ride);
-//            System.out.println(ride.getId());
-//            System.out.println(ride.getDriver().getVehicle().getCurrentLocation().getLatitude());
-//
-//            System.out.println("--------------");
-
             return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Driver does not exist!");
         } catch (NoActiveRideException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Active ride does not exist!");
-        }
-    }
-
-    @GetMapping(value = "/driver/{driverId}/accepted")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
-    public ResponseEntity<?> getAcceptedRidesForDriver(@Min(value = 1) @PathVariable Integer driverId,
-                                                    @RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.substring(7);
-
-        if (jwtUtil.extractRole(token).equals("ROLE_DRIVER") &&
-                !jwtUtil.extractId(token).equals(driverId.toString()))
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Active ride does not exist!");
-
-        try {
-            Driver driver;
-            driver = driverService.get(driverId);
-
-            List<Ride> rides = rideService.findAcceptedByDriver(driver);
-
-            List<RideNoStatusDTO> rideDTOs = new ArrayList<>();
-            for (Ride r : rides)
-                rideDTOs.add(new RideNoStatusDTO(r));
-
-            ObjectListResponseDTO<RideNoStatusDTO> res = new ObjectListResponseDTO<>((int) rides.size(), rideDTOs);
-            return new ResponseEntity<>(res, HttpStatus.OK);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Driver does not exist!");
-        } catch (NoActiveRideException e) {
-            List<RideNoStatusDTO> rideDTOs = new ArrayList<>();
-            ObjectListResponseDTO<RideNoStatusDTO> res = new ObjectListResponseDTO<>(0, rideDTOs);
-            return new ResponseEntity<>(res, HttpStatus.OK);
         }
     }
 
@@ -192,7 +144,6 @@ public class RideController {
             passenger = passengerService.get(passengerId);
 
             Ride ride = rideService.findActiveByPassenger(passenger);
-
             return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Passenger does not exist!");
@@ -218,25 +169,6 @@ public class RideController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
 
             return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
-        }
-    }
-    @PutMapping(value = "/specific-rides", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getRidesById(@RequestBody RideIdListDTO rideIdListDTO) {
-
-        List<RideFullDTO> rideFullDTOS=new ArrayList<>();
-        try {
-            for(int id:rideIdListDTO.getIds())
-            {
-                if(id!=0) {
-                    Ride ride = rideService.get(id);
-                    rideFullDTOS.add(new RideFullDTO(ride));
-                }
-            }
-
-            ObjectListResponseDTO<RideFullDTO> res=new ObjectListResponseDTO<>(rideFullDTOS.size(),rideFullDTOS);
-            return new ResponseEntity<>(res, HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
         }
@@ -299,24 +231,15 @@ public class RideController {
         String token = authHeader.substring(7);
 
         try {
-            Ride ride = rideService.start(id, Integer.parseInt(jwtUtil.extractId(token)));
+            Ride ride = rideService.start(id);
             if (!jwtUtil.extractId(token).equals(ride.getDriver().getId().toString()))
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
-//            System.out.println(ride);
-//            System.out.println(ride.getId());
-//            System.out.println(ride.getDriver().getVehicle().getCurrentLocation().getLatitude());
-            rideSimulationTimer.setProperties(ride.getId(),ride.getDriver().getVehicle().getId(),
-                    locationService.getSteps(ride.getPaths().iterator().next().getStartPoint(),
-                            ride.getPaths().iterator().next().getEndPoint()));
-            new Timer().scheduleAtFixedRate(rideSimulationTimer, 0,2000);
 
             return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
         } catch (RideStatusException e) {
-            return new ResponseEntity<>(new ResponseMessageDTO(e.getMessage()), HttpStatus.BAD_REQUEST);
-        } catch (IOException | ParseException e) {
-            throw new RuntimeException(e);
+            return new ResponseEntity<>(new ResponseMessageDTO("Cannot start a ride that is not in status ACCEPTED!"), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -430,21 +353,6 @@ public class RideController {
             return new ResponseEntity<>(favoritesDTO, HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Passenger does not exist!");
-        }
-    }
-
-    @GetMapping(value = "/favorites/passenger/ride")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('PASSENGER')")
-    public ResponseEntity<?> isFavoritesForPassenger(@RequestParam String from,
-                                                      @RequestParam String to,
-                                                      @RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.substring(7);
-        Integer passengerId = Integer.parseInt(jwtUtil.extractId(token));
-        try {
-            FavoriteRouteForPassengerDTO isFavorite = favoriteService.isFavoriteRouteForPassenger(from,to,passengerId);
-            return new ResponseEntity<>(isFavorite, HttpStatus.OK);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Favorite location does not exist!");
         }
     }
 

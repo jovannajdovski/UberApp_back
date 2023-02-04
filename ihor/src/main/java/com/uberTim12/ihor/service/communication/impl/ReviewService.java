@@ -37,12 +37,12 @@ public class ReviewService extends JPAService<Review> implements IReviewService 
     }
 
     @Override
-    public Review createVehicleReview(Integer passengerId, Integer rideId, Double rating, String comment) throws EntityNotFoundException {
+    public Review createVehicleReview(Integer rideId, Double rating, String comment) throws EntityNotFoundException {
         Ride ride = rideService.get(rideId);
-        Passenger passenger = passengerService.get(passengerId);
+        Passenger passenger = passengerService.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
 
-        Review review=reviewRepository.findByRideAndPassenger(ride, passenger);
-        if(review!=null && (review.getPassenger()==passenger)) {
+        Review review=reviewRepository.findByRide(ride);
+        if(review!=null) {
             review.setVehicleRate(rating);
             review.setVehicleComment(comment);
         }
@@ -54,12 +54,12 @@ public class ReviewService extends JPAService<Review> implements IReviewService 
     }
 
     @Override
-    public Review createDriverReview(Integer passengerId, Integer rideId, Double rating, String comment) throws EntityNotFoundException {
+    public Review createDriverReview(Integer rideId, Double rating, String comment) throws EntityNotFoundException {
         Ride ride = rideService.get(rideId);
-        Passenger passenger = passengerService.get(passengerId);
+        Passenger passenger = passengerService.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
 
-        Review review=reviewRepository.findByRideAndPassenger(ride, passenger);
-        if(review!=null && (review.getPassenger()==passenger)) {
+        Review review=reviewRepository.findByRide(ride);
+        if(review!=null) {
             review.setDriverRate(rating);
             review.setDriverComment(comment);
         }

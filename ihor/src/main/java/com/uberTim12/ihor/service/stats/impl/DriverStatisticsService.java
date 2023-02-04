@@ -59,21 +59,21 @@ public class DriverStatisticsService implements IDriverStatisticsService {
 
     @Override
     public RideDistanceStatistics distancePerDayStatistics(Integer id, LocalDateTime from, LocalDateTime to) {
-        TreeMap<LocalDate, Double> distancePerDay = initializeDayMapDouble(from, to);
-        double totalDistance = 0d;
+        TreeMap<LocalDate, Integer> distancePerDay = initializeDayMap(from, to);
+        int totalDistance = 0;
         double avgDistance = 0d;
 
         List<Ride> rides = rideService.findRidesWithStatusForDriver(id, RideStatus.FINISHED, from, to);
         for (Ride r : rides) {
             LocalDate startDate = r.getStartTime().toLocalDate();
-            Double distance = calculateDistance(r);
+            Integer distance = calculateDistance(r).intValue();
             distancePerDay.put(startDate, distancePerDay.get(startDate) + distance);
             totalDistance += distance;
             avgDistance += distance;
         }
         avgDistance = avgDistance / distancePerDay.size();
 
-        return new RideDistanceStatistics(doubleToIntMap(distancePerDay), (int) totalDistance, (int) avgDistance);
+        return new RideDistanceStatistics(distancePerDay, totalDistance, (int) avgDistance);
     }
 
     private Double calculateDistance(Ride r) {
@@ -97,20 +97,6 @@ public class DriverStatisticsService implements IDriverStatisticsService {
         return dayMap;
     }
 
-    private TreeMap<LocalDate, Double> initializeDayMapDouble(LocalDateTime from, LocalDateTime to) {
-        TreeMap<LocalDate, Double> dayMap = new TreeMap<>();
-        for (LocalDate date = from.toLocalDate(); date.isBefore(to.toLocalDate().plusDays(1)); date = date.plusDays(1))
-            dayMap.put(date, 0D);
-
-        return dayMap;
-    }
-
-    private TreeMap<LocalDate, Integer> doubleToIntMap(TreeMap<LocalDate, Double> doubleMap) {
-        TreeMap<LocalDate, Integer> dayMap = new TreeMap<>();
-        for (LocalDate date : doubleMap.keySet())
-            dayMap.put(date, doubleMap.get(date).intValue());
-        return dayMap;
-    }
 
     @Override
     public DriverStatistics getDriverStatistics(Integer id, LocalDateTime from, LocalDateTime to) {
@@ -134,8 +120,7 @@ public class DriverStatisticsService implements IDriverStatisticsService {
         long numberOfHours = 0L;
         List<WorkHours> workHours = workHoursService.findAll(id, from, to);
         for (WorkHours w : workHours) {
-            if(w.getEndTime() != null)
-                numberOfHours += w.getStartTime().until(w.getEndTime(), ChronoUnit.HOURS);
+            numberOfHours += w.getStartTime().until(w.getEndTime(), ChronoUnit.HOURS);
         }
 
         return (int) numberOfHours;

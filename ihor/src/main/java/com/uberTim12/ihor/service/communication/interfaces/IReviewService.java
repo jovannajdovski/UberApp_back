@@ -13,9 +13,9 @@ import java.util.List;
 
 public interface IReviewService extends IJPAService<Review> {
 
-    Review createVehicleReview(Integer passengerId, Integer rideId, Double rating, String comment) throws EntityNotFoundException;
+    Review createVehicleReview(Integer rideId, Double rating, String comment) throws EntityNotFoundException;
 
-    Review createDriverReview(Integer passengerId, Integer rideId, Double rating, String comment) throws EntityNotFoundException;
+    Review createDriverReview(Integer rideId, Double rating, String comment) throws EntityNotFoundException;
 
     List<Review> getReviewsForVehicle(Integer vehicleId);
 

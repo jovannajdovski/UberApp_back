@@ -4,8 +4,6 @@ import com.uberTim12.ihor.dto.communication.FullReviewDTO;
 import com.uberTim12.ihor.dto.communication.ObjectListResponseDTO;
 import com.uberTim12.ihor.dto.communication.ReviewDTO;
 import com.uberTim12.ihor.dto.communication.ReviewRequestDTO;
-import com.uberTim12.ihor.dto.ride.ListIdRidesDTO;
-import com.uberTim12.ihor.dto.ride.ReviewsForRideDTO;
 import com.uberTim12.ihor.dto.users.UserRideDTO;
 import com.uberTim12.ihor.model.communication.Review;
 import com.uberTim12.ihor.model.ride.Ride;
@@ -61,8 +59,8 @@ public class ReviewController {
             Ride ride = rideService.get(rideId);
             if (!passengerInPassengers(jwtUtil.extractId(token), new ArrayList<>(ride.getPassengers())))
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
-            Integer passengerId = Integer.parseInt(jwtUtil.extractId(token));
-            Review review = reviewService.createVehicleReview(passengerId, rideId, reviewRequestDTO.getRating(), reviewRequestDTO.getComment());
+
+            Review review = reviewService.createVehicleReview(rideId, reviewRequestDTO.getRating(), reviewRequestDTO.getComment());
             return new ResponseEntity<>(new ReviewDTO(review, true), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
@@ -99,8 +97,7 @@ public class ReviewController {
             if (!passengerInPassengers(jwtUtil.extractId(token), new ArrayList<>(ride.getPassengers())))
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
 
-            Integer passengerId = Integer.parseInt(jwtUtil.extractId(token));
-            Review review = reviewService.createDriverReview(passengerId, rideId, reviewRequestDTO.getRating(), reviewRequestDTO.getComment());
+            Review review = reviewService.createDriverReview(rideId, reviewRequestDTO.getRating(), reviewRequestDTO.getComment());
             return new ResponseEntity<>(new ReviewDTO(review, false), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
@@ -138,28 +135,6 @@ public class ReviewController {
                 reviewDTOs.add(new FullReviewDTO(r));
 
             return new ResponseEntity<>(reviewDTOs, HttpStatus.OK);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
-        }
-    }
-
-    @PostMapping(value = "/rides",produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getReviewsForMultipleRides( @RequestBody List<Integer> listIdRides)
-    {
-        try {
-            List<ReviewsForRideDTO> allReviews = new ArrayList<>();
-            for (Integer rideId:listIdRides){
-                rideService.get(rideId);
-                List<Review> reviews = reviewService.getReviewsForRide(rideId);
-
-                List<FullReviewDTO> reviewDTOs = new ArrayList<>();
-                for(Review r : reviews)
-                    reviewDTOs.add(new FullReviewDTO(r));
-
-                allReviews.add(new ReviewsForRideDTO(rideId,reviewDTOs));
-            }
-
-            return new ResponseEntity<>(allReviews, HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
         }
