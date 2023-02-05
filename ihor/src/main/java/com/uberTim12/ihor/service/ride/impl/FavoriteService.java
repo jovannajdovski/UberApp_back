@@ -4,6 +4,7 @@ import com.uberTim12.ihor.dto.ride.CreateFavoriteDTO;
 import com.uberTim12.ihor.dto.route.FavoriteRouteForPassengerDTO;
 import com.uberTim12.ihor.dto.route.PathDTO;
 import com.uberTim12.ihor.dto.users.UserRideDTO;
+import com.uberTim12.ihor.exception.EntityPropertyIsNullException;
 import com.uberTim12.ihor.exception.FavoriteRideExceedException;
 import com.uberTim12.ihor.model.ride.Favorite;
 import com.uberTim12.ihor.model.route.Location;
@@ -30,14 +31,12 @@ public class FavoriteService extends JPAService<Favorite> implements IFavoriteSe
     private final IFavoriteRepository favoriteRepository;
     private final IPassengerService passengerService;
     private final IPathService pathService;
-    private final AuthUtil authUtil;
 
     @Autowired
-    public FavoriteService(IFavoriteRepository favoriteRepository, IPassengerService passengerService, IPathService pathService, AuthUtil authUtil) {
+    public FavoriteService(IFavoriteRepository favoriteRepository, IPassengerService passengerService, IPathService pathService) {
         this.favoriteRepository = favoriteRepository;
         this.passengerService = passengerService;
         this.pathService = pathService;
-        this.authUtil = authUtil;
     }
 
     @Override
@@ -46,7 +45,15 @@ public class FavoriteService extends JPAService<Favorite> implements IFavoriteSe
     }
 
     @Override
-    public Favorite create(CreateFavoriteDTO favoriteDTO) throws FavoriteRideExceedException, EntityNotFoundException {
+    public Favorite create(CreateFavoriteDTO favoriteDTO) throws FavoriteRideExceedException, EntityNotFoundException, EntityPropertyIsNullException {
+
+        if (favoriteDTO.getFavoriteName()==null || favoriteDTO.getFavoriteName().equals("")){
+            throw new EntityPropertyIsNullException("Favorite name cant be empty!");
+        }
+        if (favoriteDTO.getLocations().isEmpty()){
+            throw new EntityPropertyIsNullException("Favorite path cant be empty!");
+        }
+
         for (UserRideDTO user: favoriteDTO.getPassengers()){
             Passenger passenger = passengerService.get(user.getId());
             if (passenger.getFavoriteRoutes().size()>9){
@@ -88,8 +95,9 @@ public class FavoriteService extends JPAService<Favorite> implements IFavoriteSe
     }
 
     @Override
-    public List<Favorite> getForPassenger(Integer id) {
+    public List<Favorite> getForPassenger(Integer id) throws EntityNotFoundException{
         Passenger passenger = passengerService.findByIdWithFavorites(id);
+        if (passenger == null) throw  new EntityNotFoundException("Passenger does not exist!");
         return new ArrayList<>(passenger.getFavoriteRoutes());
     }
 

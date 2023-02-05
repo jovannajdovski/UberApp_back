@@ -395,7 +395,7 @@ public class RideController {
             return new ResponseEntity<>(new FavoriteFullDTO(favorite), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Passenger does not exist!");
-        } catch (FavoriteRideExceedException e) {
+        } catch (FavoriteRideExceedException | EntityPropertyIsNullException e) {
             return new ResponseEntity<>(new ResponseMessageDTO(e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
