@@ -56,4 +56,12 @@ public class Favorite {
     @Column(name = "pets_allowed", nullable = false)
     private boolean petsAllowed;
 
+    public Favorite(String favoriteName, Set<Path> paths, Set<Passenger> passengers, VehicleCategory vehicleCategory, boolean babiesAllowed, boolean petsAllowed) {
+        this.favoriteName = favoriteName;
+        this.paths = paths;
+        this.passengers = passengers;
+        this.vehicleCategory = vehicleCategory;
+        this.babiesAllowed = babiesAllowed;
+        this.petsAllowed = petsAllowed;
+    }
 }
