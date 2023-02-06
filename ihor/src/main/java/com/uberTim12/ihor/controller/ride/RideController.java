@@ -132,11 +132,6 @@ public class RideController {
             driver = driverService.get(driverId);
 
             Ride ride = rideService.findActiveByDriver(driver);
-//            System.out.println(ride);
-//            System.out.println(ride.getId());
-//            System.out.println(ride.getDriver().getVehicle().getCurrentLocation().getLatitude());
-//
-//            System.out.println("--------------");
 
             return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
