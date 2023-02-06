@@ -108,7 +108,7 @@ public class RideControllerTest {
     }
 
     @Test
-    public void createRide_whenInvalidCreateRideDTO_returnsForbidden() {
+    public void createRide_whenInvalidCreateRideDTO_returnsBadRequest() {
         setUpPassenger();
 
         LocationDTO startLocation = new LocationDTO("Bulevar Cara Lazara 90", 45.2405129, 19.8265563);

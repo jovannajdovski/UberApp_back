@@ -82,6 +82,7 @@ public class Seeder implements BeforeEachCallback, AfterEachCallback {
         seedVehicles();
      //   seedActiveDrivers();
         seedAdmin();
+        seedPath();
      //   seedWorkHours();
     //    seedRides();
     }
@@ -118,6 +119,10 @@ public class Seeder implements BeforeEachCallback, AfterEachCallback {
     public static int PASSENGER_SECOND_ID;
     public static int PASSENGER_THIRD_ID;
     public static int PASSENGER_FOURTH_ID;
+    public static String PASSENGER_FIRST_EMAIL="peki@gmail.com";
+    public static String PASSENGER_SECOND_EMAIL="maki@gmail.com";
+    public static String PASSENGER_THIRD_EMAIL="preki@gmail.com";
+    public static String PASSENGER_FOURTH_EMAIL="miki@gmail.com";
 
 
     private void seedPassengers() {
@@ -175,6 +180,12 @@ public class Seeder implements BeforeEachCallback, AfterEachCallback {
     public static int DRIVER_SECOND_ID;
     public static int DRIVER_THIRD_ID;
     public static int DRIVER_FOURTH_ID;
+    public static String DRIVER_FIRST_EMAIL="staja@gmail.com";
+    public static String DRIVER_SECOND_EMAIL="marinko@gmail.com";
+    public static String DRIVER_THIRD_EMAIL="sica@gmail.com";
+    public static String DRIVER_FOURTH_EMAIL="bogdan@gmail.com";
+    public static String PASSWORD="NekaSifra123";
+
 
     public void seedDrivers() {
         var firstDriver = new Driver("Zivorad", "Stajic", null, "3816563122",
@@ -210,12 +221,24 @@ public class Seeder implements BeforeEachCallback, AfterEachCallback {
         VEHICLE_FOURTH_ID = seedUtils.insertVehicle("Tesla", VEHICLETYPE_SECOND_ID, "SO-6435-KS", 4, LOCATION_FOURTH_ID, false, false, DRIVER_FOURTH_ID);
     }
 
+    public static String ADMIN_EMAIL="admin@gmail.com";
+
     private void seedAdmin() {
         var admin = new Administrator("Admin", "Admin", null, "3816563122",
                 "admin@gmail.com", "Gogoljeva 3", "$2a$12$RLLj4K6KkYJ1kRAmXS5Ui.aSeLRRceYOO2pUhhSIx2RyL2P.zAaMW",
                 authorityAdmin, new HashSet<>(), false, true);
 
         ADMIN_ID = administratorRepository.save(admin).getId();
+    }
+    public static int PATH_FIRST_ID;
+    public static int PATH_SECOND_ID;
+    public static int PATH_THIRD_ID;
+    public static int PATH_FOURTH_ID;
+    private void seedPath(){
+        PATH_FIRST_ID = seedUtils.insertPath(LOCATION_FIRST_ID, LOCATION_SECOND_ID, 500d);
+        PATH_SECOND_ID = seedUtils.insertPath(LOCATION_FOURTH_ID, LOCATION_FIRST_ID, 1500d);
+        PATH_THIRD_ID = seedUtils.insertPath(LOCATION_THIRD_ID, LOCATION_SECOND_ID, 700d);
+        PATH_FOURTH_ID = seedUtils.insertPath(LOCATION_SECOND_ID, LOCATION_FOURTH_ID, 800d);
     }
 
 
