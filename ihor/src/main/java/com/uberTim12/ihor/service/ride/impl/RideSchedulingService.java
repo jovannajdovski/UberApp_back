@@ -112,6 +112,7 @@ public class RideSchedulingService implements IRideSchedulingService {
         }
         if(!passengerService.isPassengersFree(ride))
             throw new CannotScheduleDriveException("Driving is not possible!");
+
         List<ActiveDriver> activeDrivers = activeDriverRepository.findAll();
         List<ActiveDriver> attainableDrivers=new ArrayList<>();
         for(ActiveDriver activeDriver: activeDrivers)

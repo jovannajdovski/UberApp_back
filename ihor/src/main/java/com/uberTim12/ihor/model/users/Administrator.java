@@ -7,7 +7,16 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 
+import java.util.Set;
+
 
 @Entity
 public class Administrator extends User {
+    public Administrator(String name, String surname, byte[] profilePicture, String telephoneNumber, String email, String address, String password, Authority authority, Set<Note> notes, boolean isBlocked, boolean isActive) {
+        super(name, surname, profilePicture, telephoneNumber, email, address, password, authority, notes, isBlocked, isActive);
+    }
+
+    public Administrator() {
+
+    }
 }

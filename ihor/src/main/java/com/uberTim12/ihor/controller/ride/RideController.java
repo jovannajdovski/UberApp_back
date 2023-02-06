@@ -109,7 +109,7 @@ public class RideController {
         ride.setPassengers(passengers);
 
         try {
-            ride=rideSchedulingService.findFreeVehicle(ride);
+            ride = rideSchedulingService.findFreeVehicle(ride);
         } catch (CannotScheduleDriveException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
@@ -149,7 +149,7 @@ public class RideController {
     @GetMapping(value = "/driver/{driverId}/accepted")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DRIVER')")
     public ResponseEntity<?> getAcceptedRidesForDriver(@Min(value = 1) @PathVariable Integer driverId,
-                                                    @RequestHeader("Authorization") String authHeader) {
+                                                       @RequestHeader("Authorization") String authHeader) {
         String token = authHeader.substring(7);
 
         if (jwtUtil.extractRole(token).equals("ROLE_DRIVER") &&
@@ -222,20 +222,19 @@ public class RideController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
         }
     }
+
     @PutMapping(value = "/specific-rides", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getRidesById(@RequestBody RideIdListDTO rideIdListDTO) {
-
-        List<RideFullDTO> rideFullDTOS=new ArrayList<>();
+        List<RideFullDTO> rideFullDTOS = new ArrayList<>();
         try {
-            for(int id:rideIdListDTO.getIds())
-            {
-                if(id!=0) {
+            for (int id : rideIdListDTO.getIds()) {
+                if (id != 0) {
                     Ride ride = rideService.get(id);
                     rideFullDTOS.add(new RideFullDTO(ride));
                 }
             }
 
-            ObjectListResponseDTO<RideFullDTO> res=new ObjectListResponseDTO<>(rideFullDTOS.size(),rideFullDTOS);
+            ObjectListResponseDTO<RideFullDTO> res = new ObjectListResponseDTO<>(rideFullDTOS.size(), rideFullDTOS);
             return new ResponseEntity<>(res, HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ride does not exist!");
@@ -305,10 +304,10 @@ public class RideController {
 //            System.out.println(ride);
 //            System.out.println(ride.getId());
 //            System.out.println(ride.getDriver().getVehicle().getCurrentLocation().getLatitude());
-            rideSimulationTimer.setProperties(ride.getId(),ride.getDriver().getVehicle().getId(),
+            rideSimulationTimer.setProperties(ride.getId(), ride.getDriver().getVehicle().getId(),
                     locationService.getSteps(ride.getPaths().iterator().next().getStartPoint(),
                             ride.getPaths().iterator().next().getEndPoint()));
-            new Timer().scheduleAtFixedRate(rideSimulationTimer, 0,2000);
+            new Timer().scheduleAtFixedRate(rideSimulationTimer, 0, 2000);
 
             return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
@@ -436,12 +435,12 @@ public class RideController {
     @GetMapping(value = "/favorites/passenger/ride")
     @PreAuthorize("hasRole('ADMIN') or hasRole('PASSENGER')")
     public ResponseEntity<?> isFavoritesForPassenger(@RequestParam String from,
-                                                      @RequestParam String to,
-                                                      @RequestHeader("Authorization") String authHeader) {
+                                                     @RequestParam String to,
+                                                     @RequestHeader("Authorization") String authHeader) {
         String token = authHeader.substring(7);
         Integer passengerId = Integer.parseInt(jwtUtil.extractId(token));
         try {
-            FavoriteRouteForPassengerDTO isFavorite = favoriteService.isFavoriteRouteForPassenger(from,to,passengerId);
+            FavoriteRouteForPassengerDTO isFavorite = favoriteService.isFavoriteRouteForPassenger(from, to, passengerId);
             return new ResponseEntity<>(isFavorite, HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Favorite location does not exist!");

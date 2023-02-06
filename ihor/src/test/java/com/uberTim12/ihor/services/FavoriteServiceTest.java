@@ -305,10 +305,8 @@ public class FavoriteServiceTest {
         Mockito.when(passengerService.findByIdWithFavorites(12)).thenReturn(passenger);
 
         List<Favorite> favoritesResult = favoriteService.getForPassenger(12);
-        Assertions.assertThat(favoritesResult.get(0).getId()).isEqualTo(firstFavorite.getId());
-        Assertions.assertThat(favoritesResult.get(0).getFavoriteName()).isEqualTo(firstFavorite.getFavoriteName());
-        Assertions.assertThat(favoritesResult.get(1).getId()).isEqualTo(secondFavorite.getId());
-        Assertions.assertThat(favoritesResult.get(1).getFavoriteName()).isEqualTo(secondFavorite.getFavoriteName());
+        Assertions.assertThat(favoritesResult).contains(firstFavorite);
+        Assertions.assertThat(favoritesResult).contains(secondFavorite);
         Assertions.assertThat(favoritesResult.get(0).getPassengers()).isEqualTo(favoritesResult.get(1).getPassengers());
         assertTrue(favoritesResult.get(0).getPassengers().contains(passenger));
 

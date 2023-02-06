@@ -31,4 +31,9 @@ public class WorkHours {
         this.startTime = startTime;
     }
 
+    public WorkHours(LocalDateTime startTime, LocalDateTime endTime, Driver driver) {
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.driver = driver;
+    }
 }

@@ -6,6 +6,7 @@ import com.uberTim12.ihor.model.ride.ActiveDriverCriticalRide;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.ride.RideStatus;
 import com.uberTim12.ihor.model.users.Driver;
+import com.uberTim12.ihor.model.vehicle.Vehicle;
 import com.uberTim12.ihor.repository.ride.IActiveDriverRepository;
 import com.uberTim12.ihor.repository.users.IDriverRepository;
 import com.uberTim12.ihor.service.base.impl.JPAService;
@@ -130,5 +131,4 @@ public class DriverService extends JPAService<Driver> implements IDriverService 
             return end1.compareTo(end2);
         }
     };
-
 }

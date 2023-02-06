@@ -97,4 +97,11 @@ public class VehicleService extends JPAService<Vehicle> implements IVehicleServi
             return false;
         return true;
     }
+
+    public void assignVehicleToDriver(int driverId, int vehicleId) {
+        Driver driver = driverService.get(driverId);
+        Vehicle vehicle = get(vehicleId);
+        driver.setVehicle(vehicle);
+        driverService.save(driver);
+    }
 }
