@@ -4,10 +4,7 @@ import com.uberTim12.ihor.dto.ride.CreateRideDTO;
 import com.uberTim12.ihor.dto.ride.RideFullDTO;
 import com.uberTim12.ihor.dto.route.LocationDTO;
 import com.uberTim12.ihor.dto.route.PathDTO;
-import com.uberTim12.ihor.dto.users.AuthTokenDTO;
-import com.uberTim12.ihor.dto.users.UserCredentialsDTO;
-import com.uberTim12.ihor.dto.users.UserRideDTO;
-import com.uberTim12.ihor.dto.users.WorkHoursStartDTO;
+import com.uberTim12.ihor.dto.users.*;
 import com.uberTim12.ihor.model.vehicle.VehicleCategory;
 import com.uberTim12.ihor.security.JwtUtil;
 import com.uberTim12.ihor.seeders.Seeder;
@@ -35,7 +32,7 @@ public class RideControllerTest {
     @Value("${server.port}")
     private int serverPort;
 
-    private final String serverPath = "http://localhost:8080/api";
+    private final String serverPath = "http://localhost:8081/api";
 
     @Autowired
     private TestRestTemplate restTemplate;
@@ -60,7 +57,7 @@ public class RideControllerTest {
         restTemplate = new TestRestTemplate();
         headersDriver = new HttpHeaders();
 
-        UserCredentialsDTO dto = new UserCredentialsDTO("marinko@gmail.com", "NekaSifra123");
+        UserCredentialsDTO dto = new UserCredentialsDTO("staja@gmail.com", "NekaSifra123");
         HttpEntity<UserCredentialsDTO> requestLogin = new HttpEntity<>(dto, headersDriver);
         ResponseEntity<AuthTokenDTO> token = restTemplate.exchange(serverPath + "/user/login", HttpMethod.POST, requestLogin, AuthTokenDTO.class);
         headersDriver.add("Authorization", "Bearer " + token.getBody().getAccessToken());
@@ -191,36 +188,42 @@ public class RideControllerTest {
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
     }
 
-//    @Test
-//    public void createRide_whenNoActiveDriver_returnsBadRequest() {
-//        setUpPassenger();
-//
-//        LocationDTO startLocation = new LocationDTO("Bulevar Cara Lazara 90", 45.2405129, 19.8265563);
-//        LocationDTO endLocation = new LocationDTO("Bulevar Patrijaha Pavla 2", 45.23984, 19.82062);
-//        PathDTO path = new PathDTO(startLocation, endLocation);
-//        Set<PathDTO> paths = new HashSet<>();
-//        paths.add(path);
-//
-//        UserRideDTO passenger = new UserRideDTO();
-//        passenger.setId(1);
-//        Set<UserRideDTO> passengers = new HashSet<>();
-//        passengers.add(passenger);
-//
-//        CreateRideDTO rideDTO = new CreateRideDTO(
-//                paths,
-//                passengers,
-//                VehicleCategory.STANDARD,
-//                true,
-//                true,
-//                LocalDateTime.now()
-//        );
-//
-//        HttpEntity<CreateRideDTO> createRideDTO = new HttpEntity<>(rideDTO, headersPassenger);
-//        ResponseEntity<?> response = restTemplate.exchange(serverPath + "/ride", HttpMethod.POST, createRideDTO, String.class);
-//
-//        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-//        assertEquals("Driving is not possible!", response.getBody());
-//    }
+    @Test
+    public void createRide_whenNoActiveDriver_returnsBadRequest() {
+        setUpDriver();
+        WorkHoursEndDTO workHoursEndDTO = new WorkHoursEndDTO(LocalDateTime.now());
+        HttpEntity<WorkHoursEndDTO> changeWorkingHours = new HttpEntity<>(workHoursEndDTO, headersDriver);
+        restTemplate.exchange(serverPath + "/driver/working-hour/" + Seeder.WORKHOURS_FIRST_ID, HttpMethod.PUT, changeWorkingHours, String.class);
+
+
+        setUpPassenger();
+
+        LocationDTO startLocation = new LocationDTO("Bulevar Cara Lazara 90", 45.2405129, 19.8265563);
+        LocationDTO endLocation = new LocationDTO("Bulevar Patrijaha Pavla 2", 45.23984, 19.82062);
+        PathDTO path = new PathDTO(startLocation, endLocation);
+        Set<PathDTO> paths = new HashSet<>();
+        paths.add(path);
+
+        UserRideDTO passenger = new UserRideDTO();
+        passenger.setId(1);
+        Set<UserRideDTO> passengers = new HashSet<>();
+        passengers.add(passenger);
+
+        CreateRideDTO rideDTO = new CreateRideDTO(
+                paths,
+                passengers,
+                VehicleCategory.STANDARD,
+                true,
+                true,
+                LocalDateTime.now()
+        );
+
+        HttpEntity<CreateRideDTO> createRideDTO = new HttpEntity<>(rideDTO, headersPassenger);
+        ResponseEntity<?> response = restTemplate.exchange(serverPath + "/ride", HttpMethod.POST, createRideDTO, String.class);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Driving is not possible!", response.getBody());
+    }
 
     @Test
     public void createRide_whenPassengerAlreadyHasRide_returnsBadRequest() {

@@ -228,12 +228,6 @@ public class Seeder implements BeforeEachCallback, AfterEachCallback {
         VEHICLE_FOURTH_ID = insertVehicle("Tesla", VEHICLETYPE_SECOND_ID, "SO-6435-KS", 4, LOCATION_FOURTH_ID, false, false, DRIVER_FOURTH_ID);
     }
 
-    private void seedActiveDrivers() {
-        jdbcTemplate.update(
-                "INSERT INTO ACTIVE_DRIVER(DRIVER_ID, LOCATION_ID) VALUES (?, ?)",
-                DRIVER_FIRST_ID, LOCATION_FIRST_ID);
-    }
-
     private void seedAdmin() {
         var admin = new Administrator("Admin", "Admin", null, "3816563122",
                 "admin@gmail.com", "Gogoljeva 3", "$2a$12$RLLj4K6KkYJ1kRAmXS5Ui.aSeLRRceYOO2pUhhSIx2RyL2P.zAaMW",
@@ -242,10 +236,40 @@ public class Seeder implements BeforeEachCallback, AfterEachCallback {
         ADMIN_ID = administratorRepository.save(admin).getId();
     }
 
+    private void insertActiveDriver(int driverID, int locationID) {
+        final String sql = "INSERT INTO ACTIVE_DRIVER(DRIVER_ID, LOCATION_ID) VALUES (?, ?);";
+
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, String.valueOf(driverID));
+            ps.setString(2, String.valueOf(locationID));
+            return ps;
+        });
+    }
+
+    private void seedActiveDrivers() {
+        insertActiveDriver(DRIVER_FIRST_ID, LOCATION_FIRST_ID);
+    }
+
+    private int insertWorkHours(LocalDateTime startTime, int driverID) {
+        final String sql = "INSERT INTO WORK_HOURS (START_TIME,END_TIME, DRIVER_ID) VALUES (?, ?, ?);";
+
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, String.valueOf(startTime));
+            ps.setString(2, null);
+            ps.setString(3, String.valueOf(driverID));
+            return ps;
+        }, keyHolder);
+
+        return keyHolder.getKey().intValue();
+    }
+
+    public static int WORKHOURS_FIRST_ID;
+
     private void seedWorkHours() {
-        jdbcTemplate.update(
-                "INSERT INTO WORK_HOURS (START_TIME,END_TIME, DRIVER_ID) VALUES (?, ?, ?);",
-                LocalDateTime.now(), LocalDateTime.now().plusHours(4), DRIVER_FIRST_ID);
+        WORKHOURS_FIRST_ID = insertWorkHours(LocalDateTime.now(), DRIVER_FIRST_ID);
     }
 
     private void seedRides() {
