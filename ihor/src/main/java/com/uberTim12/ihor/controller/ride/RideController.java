@@ -20,10 +20,10 @@ import com.uberTim12.ihor.security.JwtUtil;
 import com.uberTim12.ihor.service.communication.impl.PanicService;
 import com.uberTim12.ihor.service.communication.interfaces.IPanicService;
 import com.uberTim12.ihor.service.ride.impl.RideService;
+import com.uberTim12.ihor.service.ride.interfaces.IFavoriteService;
 import com.uberTim12.ihor.service.ride.interfaces.IRideSchedulingService;
 import com.uberTim12.ihor.service.ride.interfaces.IRideService;
 import com.uberTim12.ihor.service.route.impl.PathService;
-import com.uberTim12.ihor.service.ride.interfaces.IFavoriteService;
 import com.uberTim12.ihor.service.route.interfaces.ILocationService;
 import com.uberTim12.ihor.service.route.interfaces.IPathService;
 import com.uberTim12.ihor.service.users.impl.DriverService;
@@ -41,6 +41,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,6 +51,7 @@ import java.util.*;
 @RestController
 @RequestMapping(value = "api/ride")
 public class RideController {
+
     private final IRideService rideService;
     private final IVehicleService vehicleService;
     private final IPathService pathService;
@@ -305,6 +307,9 @@ public class RideController {
                     locationService.getSteps(ride.getPaths().iterator().next().getStartPoint(),
                             ride.getPaths().iterator().next().getEndPoint()));
             new Timer().scheduleAtFixedRate(rideSimulationTimer, 0, 2000);
+
+//            ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+//            executor.scheduleAtFixedRate(rideSimulationTimer, 2, 2, TimeUnit.SECONDS);
 
             return new ResponseEntity<>(new RideFullDTO(ride), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
