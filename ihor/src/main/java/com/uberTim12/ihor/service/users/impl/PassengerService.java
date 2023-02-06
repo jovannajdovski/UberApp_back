@@ -84,19 +84,19 @@ public class PassengerService extends JPAService<Passenger> implements IPassenge
     }
 
     @Override
-    public Page<Ride> findAllById(Integer passengerId, LocalDateTime start, LocalDateTime end, Pageable page){
-        Optional<Passenger> passenger=passengerRepository.findById(passengerId);
+    public Page<Ride> findAllById(Integer passengerId, LocalDateTime start, LocalDateTime end, Pageable page) {
+        Optional<Passenger> passenger = passengerRepository.findById(passengerId);
         return passenger.map(value -> rideRepository.findAllInRangeForPassenger(value, start, end, page)).orElse(null);
     }
 
     @Override
-    public Page<Ride> findAllByIdFinished(Integer passengerId, Pageable page){
-        Optional<Passenger> passenger=passengerRepository.findById(passengerId);
+    public Page<Ride> findAllByIdFinished(Integer passengerId, Pageable page) {
+        Optional<Passenger> passenger = passengerRepository.findById(passengerId);
         return passenger.map(value -> rideRepository.findAllFinishedForPassenger(value, RideStatus.FINISHED, page)).orElse(null);
     }
 
     @Override
-    public Page<Ride> findAllById(Passenger passenger, Pageable page){
+    public Page<Ride> findAllById(Passenger passenger, Pageable page) {
         return rideRepository.findAllForPassenger(passenger, page);
     }
 
@@ -118,12 +118,10 @@ public class PassengerService extends JPAService<Passenger> implements IPassenge
     @Override
     public boolean isPassengersFree(Ride newRide) {
         LocalDateTime rideStart, rideEnd;
-        LocalDateTime newRideStart=newRide.getStartTime(), newRideEnd=newRideStart.plusMinutes(newRide.getEstimatedTime().longValue());
-        for(Passenger passenger: newRide.getPassengers())
-        {
-            for(Ride ride: passenger.getRides())
-            {
-                if(ride.getRideStatus()== RideStatus.ACCEPTED || ride.getRideStatus()==RideStatus.STARTED) {
+        LocalDateTime newRideStart = newRide.getStartTime(), newRideEnd = newRideStart.plusMinutes(newRide.getEstimatedTime().longValue());
+        for (Passenger passenger : newRide.getPassengers()) {
+            for (Ride ride : passenger.getRides()) {
+                if (ride.getRideStatus() == RideStatus.ACCEPTED || ride.getRideStatus() == RideStatus.STARTED) {
                     rideStart = ride.getStartTime();
                     rideEnd = rideStart.plusMinutes(ride.getEstimatedTime().longValue());
                     if (rideService.hasIntersectionBetweenRides(rideStart, rideEnd, newRideStart, newRideEnd))
