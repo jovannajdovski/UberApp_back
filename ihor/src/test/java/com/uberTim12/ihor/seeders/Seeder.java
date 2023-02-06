@@ -1,5 +1,6 @@
 package com.uberTim12.ihor.seeders;
 
+import com.uberTim12.ihor.model.ride.RideStatus;
 import com.uberTim12.ihor.model.route.Location;
 import com.uberTim12.ihor.model.users.Administrator;
 import com.uberTim12.ihor.model.users.Authority;
@@ -41,7 +42,7 @@ public class Seeder implements BeforeEachCallback, AfterEachCallback {
     private static int callCounter = 0;
 
 
-    private JdbcTemplate jdbcTemplate;
+    private SeedUtils seedUtils;
 
     private static IAuthorityRepository authorityRepository;
     private static IPassengerRepository passengerRepository;
@@ -65,7 +66,7 @@ public class Seeder implements BeforeEachCallback, AfterEachCallback {
         administratorRepository = SpringExtension.getApplicationContext(context).getBean(IAdministratorRepository.class);
         workHoursRepository = SpringExtension.getApplicationContext(context).getBean(IWorkHoursRepository.class);
         rideRepository = SpringExtension.getApplicationContext(context).getBean(IRideRepository.class);
-        jdbcTemplate = SpringExtension.getApplicationContext(context).getBean(JdbcTemplate.class);
+        seedUtils = SpringExtension.getApplicationContext(context).getBean(SeedUtils.class);
         activeDriverRepository = SpringExtension.getApplicationContext(context).getBean(IActiveDriverRepository.class);
         pathRepository = SpringExtension.getApplicationContext(context).getBean(IPathRepository.class);
     }
@@ -79,10 +80,10 @@ public class Seeder implements BeforeEachCallback, AfterEachCallback {
         seedLocations();
         seedDrivers();
         seedVehicles();
-        seedActiveDrivers();
+     //   seedActiveDrivers();
         seedAdmin();
-        seedWorkHours();
-        seedRides();
+     //   seedWorkHours();
+    //    seedRides();
     }
 
     private void dropAll() {
@@ -170,10 +171,10 @@ public class Seeder implements BeforeEachCallback, AfterEachCallback {
         LOCATION_FOURTH_ID = locationRepository.save(fourthLocation).getId();
     }
 
-    private int DRIVER_FIRST_ID;
-    private int DRIVER_SECOND_ID;
-    private int DRIVER_THIRD_ID;
-    private int DRIVER_FOURTH_ID;
+    public static int DRIVER_FIRST_ID;
+    public static int DRIVER_SECOND_ID;
+    public static int DRIVER_THIRD_ID;
+    public static int DRIVER_FOURTH_ID;
 
     public void seedDrivers() {
         var firstDriver = new Driver("Zivorad", "Stajic", null, "3816563122",
@@ -201,31 +202,12 @@ public class Seeder implements BeforeEachCallback, AfterEachCallback {
     public static int VEHICLE_FOURTH_ID;
 
 
-    private int insertVehicle(String model, int vehicleTypeID, String registrationPlate, int seats, int LocationID, boolean babiesAllowed, boolean petsAllowed, int driverID) {
-        final String sql = "INSERT INTO VEHICLE (vehicle_model, vehicle_Type_id, registration_plate, seats, location_id, babies_allowed, pets_allowed, driver_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
-
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, model);
-            ps.setString(2, String.valueOf(vehicleTypeID));
-            ps.setString(3, registrationPlate);
-            ps.setString(4, String.valueOf(seats));
-            ps.setString(5, String.valueOf(LocationID));
-            ps.setString(6, String.valueOf(babiesAllowed));
-            ps.setString(7, String.valueOf(petsAllowed));
-            ps.setString(8, String.valueOf(driverID));
-            return ps;
-        }, keyHolder);
-
-        return keyHolder.getKey().intValue();
-    }
 
     private void seedVehicles() {
-        VEHICLE_FIRST_ID = insertVehicle("Skoda", VEHICLETYPE_FIRST_ID, "SO-1234-CX", 4, LOCATION_FIRST_ID, true, true, DRIVER_FIRST_ID);
-        VEHICLE_SECOND_ID = insertVehicle("Porsche", VEHICLETYPE_SECOND_ID, "SO-3245-AU", 4, LOCATION_SECOND_ID, true, false, DRIVER_SECOND_ID);
-        VEHICLETYPE_THIRD_ID = insertVehicle("Wolksvagen", VEHICLETYPE_THIRD_ID, "SO-3234-SF", 4, LOCATION_THIRD_ID, false, true, DRIVER_THIRD_ID);
-        VEHICLE_FOURTH_ID = insertVehicle("Tesla", VEHICLETYPE_SECOND_ID, "SO-6435-KS", 4, LOCATION_FOURTH_ID, false, false, DRIVER_FOURTH_ID);
+        VEHICLE_FIRST_ID = seedUtils.insertVehicle("Skoda", VEHICLETYPE_FIRST_ID, "SO-1234-CX", 4, LOCATION_FIRST_ID, true, true, DRIVER_FIRST_ID);
+        VEHICLE_SECOND_ID = seedUtils.insertVehicle("Porsche", VEHICLETYPE_SECOND_ID, "SO-3245-AU", 4, LOCATION_SECOND_ID, true, false, DRIVER_SECOND_ID);
+        VEHICLETYPE_THIRD_ID = seedUtils.insertVehicle("Wolksvagen", VEHICLETYPE_THIRD_ID, "SO-3234-SF", 4, LOCATION_THIRD_ID, false, true, DRIVER_THIRD_ID);
+        VEHICLE_FOURTH_ID = seedUtils.insertVehicle("Tesla", VEHICLETYPE_SECOND_ID, "SO-6435-KS", 4, LOCATION_FOURTH_ID, false, false, DRIVER_FOURTH_ID);
     }
 
     private void seedAdmin() {
@@ -236,75 +218,25 @@ public class Seeder implements BeforeEachCallback, AfterEachCallback {
         ADMIN_ID = administratorRepository.save(admin).getId();
     }
 
-    private void insertActiveDriver(int driverID, int locationID) {
-        final String sql = "INSERT INTO ACTIVE_DRIVER(DRIVER_ID, LOCATION_ID) VALUES (?, ?);";
 
-        jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, String.valueOf(driverID));
-            ps.setString(2, String.valueOf(locationID));
-            return ps;
-        });
-    }
 
     private void seedActiveDrivers() {
-        insertActiveDriver(DRIVER_FIRST_ID, LOCATION_FIRST_ID);
+        seedUtils.insertActiveDriver(DRIVER_FIRST_ID, LOCATION_FIRST_ID);
     }
 
-    private int insertWorkHours(LocalDateTime startTime, int driverID) {
-        final String sql = "INSERT INTO WORK_HOURS (START_TIME,END_TIME, DRIVER_ID) VALUES (?, ?, ?);";
-
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, String.valueOf(startTime));
-            ps.setString(2, null);
-            ps.setString(3, String.valueOf(driverID));
-            return ps;
-        }, keyHolder);
-
-        return keyHolder.getKey().intValue();
-    }
 
     public static int WORKHOURS_FIRST_ID;
 
     private void seedWorkHours() {
-        WORKHOURS_FIRST_ID = insertWorkHours(LocalDateTime.now(), DRIVER_FIRST_ID);
+        WORKHOURS_FIRST_ID = seedUtils.insertWorkHours(LocalDateTime.now(), DRIVER_FIRST_ID);
     }
 
+
+    public static int RIDE_FIRST_ID;
     private void seedRides() {
-//        var firstDriver = driverRepository.findById(DRIVER_FIRST_ID).get();
-//
-//        var firstVehicle = vehicleRepository.findById(VEHICLE_FIRST_ID).get();
-//        var firstRidePassengers = new HashSet<Passenger>();
-//        firstRidePassengers.add(firstPassenger);
-//        firstRidePassengers.add(secondPassenger);
-//        var firstRidePaths = new HashSet<Path>();
-//        firstRidePaths.add(new Path(
-//                new Location("Zeleznicka 1", 10.123213, 12.12312),
-//                new Location("Zeleznicka 32", 10.543543, 12.5435),
-//                10d
-//        ));
-//
-//        var firstRide = new Ride(
-//                LocalDateTime.now().minusDays(1).plusMinutes(1),
-//                LocalDateTime.now().minusDays(1).plusMinutes(20),
-//                LocalDateTime.now().minusDays(1),
-//                1000d,
-//                firstDriver,
-//                firstRidePassengers,
-//                firstRidePaths,
-//                15d,
-//                new HashSet<>(),
-//                RideStatus.FINISHED,
-//                null,
-//                false,
-//                true,
-//                false,
-//                firstVehicle.getVehicleType()
-//        );
-//
-//        rideRepository.save(firstRide);
+        RIDE_FIRST_ID = seedUtils.insertRide(LocalDateTime.now().minusDays(1),LocalDateTime.now().minusDays(1).plusMinutes(30),
+                300.0, DRIVER_FIRST_ID, 30.0, RideStatus.FINISHED, true,
+                true, VEHICLETYPE_FIRST_ID, false, LocalDateTime.now().minusDays(1));
     }
 
     @Override
