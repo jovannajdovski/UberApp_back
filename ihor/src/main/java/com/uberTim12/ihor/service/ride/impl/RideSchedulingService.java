@@ -43,16 +43,8 @@ public class RideSchedulingService implements IRideSchedulingService {
         this.workHoursService = workHoursService;
         this.passengerService = passengerService;
     }
-    private List<ActiveDriver> getQualifiedDrivers(Ride ride) {
-        List<ActiveDriver> qualifiedDrivers = new ArrayList<>();
-        for(ActiveDriver activeDriver: activeDriverRepository.findAll())
-            if(vehicleService.isVehicleMeetCriteria(activeDriver.getDriver().getVehicle(),ride) &&
-                    workHoursService.isDriverAvailable(activeDriver.getDriver(),ride))
-                qualifiedDrivers.add(activeDriver);
 
-        return qualifiedDrivers;
-    }
-    private void setEstimatedTimeForRide(Ride ride){
+    private void setEstimatedTimeForRide(Ride ride) throws NullPointerException{
         try{
             ride.setEstimatedTime(locationService.calculateEstimatedTime(
                     ride.getPaths().iterator().next().getStartPoint(),
@@ -88,6 +80,11 @@ public class RideSchedulingService implements IRideSchedulingService {
         }
         return distance;
     }
+    private void setRideFinalDetails(Driver driver, Ride ride){
+        ride.setDriver(driver);
+        ride.setRideStatus(RideStatus.PENDING);
+        ride.setVehicleType(driver.getVehicle().getVehicleType());
+    }
     private Driver findClosestDriver(List<ActiveDriver> qualifiedDrivers, Ride ride) {
         Double minDistance = Double.MAX_VALUE;
         Double distance;
@@ -101,31 +98,37 @@ public class RideSchedulingService implements IRideSchedulingService {
                 if(distance < minDistance) {
                     minDistance = distance;
                     foundDriver = driver.getDriver();
+
                 }
             }
         }
-
         return foundDriver;
     }
+    private List<ActiveDriver> getQualifiedDrivers(Ride ride) {
+        List<ActiveDriver> qualifiedDrivers = new ArrayList<>();
+        for(ActiveDriver activeDriver: activeDriverRepository.findAll())
+            if(vehicleService.isVehicleMeetCriteria(activeDriver.getDriver().getVehicle(),ride) &&
+                    workHoursService.isDriverAvailable(activeDriver.getDriver(),ride))
+                qualifiedDrivers.add(activeDriver);
+
+        return qualifiedDrivers;
+    }
     private Driver findDriverInNextHalfHour(List<ActiveDriver> qualifiedDrivers, Ride ride){
-        List<ActiveDriverCriticalRide> qualifiedDriversSorted=driverService.sortPerEndOfCriticalRide(qualifiedDrivers, ride);;
-        Driver foundDriver = null;
+        List<ActiveDriverCriticalRide> qualifiedDriversSorted=driverService.sortPerEndOfCriticalRide(qualifiedDrivers, ride);
         for(ActiveDriverCriticalRide qualifiedDriver: qualifiedDriversSorted) {
 
             Ride criticalRide=qualifiedDriver.getCriticalRide();
+
             ride.setStartTime(criticalRide.getStartTime().plusMinutes(criticalRide.getEstimatedTime().longValue()));
 
             if (driverService.isDriverFreeForRide(qualifiedDriver.getDriver(), ride) && qualifiedDriver.getDriver().getVehicle().getSeats()>ride.getPassengers().size()) {
                 return qualifiedDriver.getDriver();
             }
         }
+
         return null;
     }
-    private void setRideFinalDetails(Driver driver, Ride ride){
-        ride.setDriver(driver);
-        ride.setRideStatus(RideStatus.PENDING);
-        ride.setVehicleType(driver.getVehicle().getVehicleType());
-    }
+
     @Override
     public Ride findFreeVehicle(Ride ride) throws CannotScheduleDriveException {
         setEstimatedTimeForRide(ride);
@@ -147,7 +150,7 @@ public class RideSchedulingService implements IRideSchedulingService {
                 throw new CannotScheduleDriveException("Driving is not possible!");
         }
         setTotalPriceForRide(ride);
-        rideService.save(ride);
+        ride=rideService.save(ride);
         return ride;
     }
 }
