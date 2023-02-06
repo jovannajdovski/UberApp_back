@@ -9,6 +9,7 @@ import com.uberTim12.ihor.model.users.Passenger;
 import com.uberTim12.ihor.model.vehicle.VehicleCategory;
 import com.uberTim12.ihor.model.vehicle.VehicleType;
 import com.uberTim12.ihor.repository.ride.IActiveDriverRepository;
+import com.uberTim12.ihor.repository.ride.IFavoriteRepository;
 import com.uberTim12.ihor.repository.ride.IRideRepository;
 import com.uberTim12.ihor.repository.route.ILocationRepository;
 import com.uberTim12.ihor.repository.route.IPathRepository;
@@ -55,6 +56,7 @@ public class Seeder implements BeforeEachCallback, AfterEachCallback {
     private static IRideRepository rideRepository;
     private static IActiveDriverRepository activeDriverRepository;
     private static IPathRepository pathRepository;
+    private static IFavoriteRepository favoriteRepository;
 
     private void initializeDependencies(final ExtensionContext context) {
         authorityRepository = SpringExtension.getApplicationContext(context).getBean(IAuthorityRepository.class);
@@ -69,9 +71,11 @@ public class Seeder implements BeforeEachCallback, AfterEachCallback {
         seedUtils = SpringExtension.getApplicationContext(context).getBean(SeedUtils.class);
         activeDriverRepository = SpringExtension.getApplicationContext(context).getBean(IActiveDriverRepository.class);
         pathRepository = SpringExtension.getApplicationContext(context).getBean(IPathRepository.class);
+        favoriteRepository = SpringExtension.getApplicationContext(context).getBean(IFavoriteRepository.class);
     }
 
     public static int ADMIN_ID;
+    public static String ADMIN_EMAIL = "admin@gmail.com";
 
     private void seed() {
         seedAuthority();
@@ -96,6 +100,7 @@ public class Seeder implements BeforeEachCallback, AfterEachCallback {
         passengerRepository.deleteAll();
         vehicleRepository.deleteAll();
         vehicleTypeRepository.deleteAll();
+        favoriteRepository.deleteAll();
         pathRepository.deleteAll();
         locationRepository.deleteAll();
         authorityRepository.deleteAll();
@@ -115,9 +120,15 @@ public class Seeder implements BeforeEachCallback, AfterEachCallback {
     }
 
     public static int PASSENGER_FIRST_ID;
+    public static String PASSENGER_FIRST_EMAIL = "peki@gmail.com";
     public static int PASSENGER_SECOND_ID;
+    public static String PASSENGER_SECOND_EMAIL = "maki@gmail.com";
     public static int PASSENGER_THIRD_ID;
+    public static String PASSENGER_THIRD_EMAIL = "preki@gmail.com";
     public static int PASSENGER_FOURTH_ID;
+    public static String PASSENGER_FOURTH_EMAIL = "miki@gmail.com";
+
+    public static String PASSWORD = "NekaSifra123";
 
 
     private void seedPassengers() {
@@ -172,9 +183,13 @@ public class Seeder implements BeforeEachCallback, AfterEachCallback {
     }
 
     public static int DRIVER_FIRST_ID;
+    public static String DRIVER_FIRST_EMAIL = "staja@gmail.com";
     public static int DRIVER_SECOND_ID;
+    public static String DRIVER_SECOND_EMAIL = "marinko@gmail.com";
     public static int DRIVER_THIRD_ID;
+    public static String DRIVER_THIRD_EMAIL = "sica@gmail.com";
     public static int DRIVER_FOURTH_ID;
+    public static String DRIVER_FOURTH_EMAIL = "bogdan@gmail.com";
 
     public void seedDrivers() {
         var firstDriver = new Driver("Zivorad", "Stajic", null, "3816563122",

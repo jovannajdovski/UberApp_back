@@ -1,6 +1,9 @@
 package com.uberTim12.ihor.seeders;
 
+import com.uberTim12.ihor.model.ride.Favorite;
 import com.uberTim12.ihor.model.ride.RideStatus;
+import com.uberTim12.ihor.model.route.Location;
+import com.uberTim12.ihor.model.vehicle.VehicleCategory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -11,6 +14,7 @@ import org.springframework.stereotype.Component;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 
 @Component
 public class SeedUtils {
@@ -94,4 +98,81 @@ public class SeedUtils {
         return keyHolder.getKey().intValue();
     }
 
+    public void addPassengerToRide(int passengerID, int rideID) {
+        final String sql = "INSERT INTO PASSENGER_RIDE ( PASSENGER_ID , RIDE_ID ) VALUES (?, ?)";
+
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, String.valueOf(passengerID));
+            ps.setString(2, String.valueOf(rideID));
+            return ps;
+        });
+    }
+
+    public int insertPath(int startLocationID, int endLocationID, double distance) {
+        final String sql = "INSERT INTO PATH (startpoint_id, endpoint_id, distance) VALUES (?, ?, ?);";
+
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, String.valueOf(startLocationID));
+            ps.setString(2, String.valueOf(endLocationID));
+            ps.setString(3, String.valueOf(distance));
+            return ps;
+        }, keyHolder);
+
+        return keyHolder.getKey().intValue();
+    }
+
+    public void addPathToRide(int rideId, int pathId) {
+        final String sql = "INSERT INTO RIDE_PATH (RIDE_ID, PATH_ID) VALUES (?, ?)";
+
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, String.valueOf(rideId));
+            ps.setString(2, String.valueOf(pathId));
+            return ps;
+        });
+    }
+
+    public void addPathToFavorite(int pathID, int favoriteID) {
+        final String sql = "INSERT INTO FAVORITE_PATH ( FAVORITE_ID , PATH_ID ) VALUES (?, ?)";
+
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, String.valueOf(favoriteID));
+            ps.setString(2, String.valueOf(pathID));
+            return ps;
+        });
+    }
+
+    public void addPassengerToFavorite(int passengerID, int favoriteID) {
+        final String sql = "INSERT INTO PASSENGER_FAVORITE ( PASSENGER_ID , FAVORITE_ID ) VALUES (?, ?)";
+
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, String.valueOf(passengerID));
+            ps.setString(2, String.valueOf(favoriteID));
+            return ps;
+        });
+    }
+
+
+    public int insertFavorite(String favoriteName, boolean babyTransport, boolean petTransport, int vehicleCategory) {
+        final String sql = "INSERT INTO FAVORITE ( FAVORITE_NAME , BABIES_ALLOWED , PETS_ALLOWED, VEHICLE_CATEGORY) " +
+                "VALUES (?, ?, ?, ?)";
+
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, String.valueOf(favoriteName));
+            ps.setString(2, String.valueOf(babyTransport));
+            ps.setString(3, String.valueOf(petTransport));
+            ps.setString(4, String.valueOf(vehicleCategory));
+
+            return ps;
+        }, keyHolder);
+
+        return keyHolder.getKey().intValue();
+    }
 }
