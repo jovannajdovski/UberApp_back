@@ -52,8 +52,8 @@ public interface IRideRepository extends JpaRepository<Ride, Integer> {
     @Query("select r from Ride r where ?1 member of r.passengers and r.rideStatus = ?2")
     Page<Ride> findAllFinishedForPassenger(Passenger passenger, RideStatus rideStatus, Pageable pageable);
 
-    @Query("select r from Ride r join Passenger p on p.id = ?1 where r.rideStatus = ?2 and r.scheduledTime between ?3 and ?4")
-    List<Ride> findAllByPassengerIdAndRideStatusInTimeRange(Integer id, RideStatus status, LocalDateTime start, LocalDateTime end);
+    @Query("select r from Ride r where ?1 member of r.passengers and r.rideStatus = ?2 and r.scheduledTime between ?3 and ?4")
+    List<Ride> findAllByPassengerIdAndRideStatusInTimeRange(Passenger passenger, RideStatus status, LocalDateTime start, LocalDateTime end);
 
     @Query("select r from Ride r join r.passengers p where ?1 member of r.passengers")
     Page<Ride> findAllForPassenger(Passenger passenger, Pageable pageable);

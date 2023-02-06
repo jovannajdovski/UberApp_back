@@ -52,7 +52,6 @@ public class MessageWebSocketController {
 
     @MessageMapping("/send/panic/{fromId}/{rideId}")
     public void panicChat(@DestinationVariable Integer fromId, @DestinationVariable Integer rideId, String message) {
-        System.out.println("pizdarija");
         try{
             Ride ride=this.rideService.get(rideId);
             User user=this.userService.get(fromId);

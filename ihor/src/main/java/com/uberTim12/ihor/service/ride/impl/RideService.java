@@ -75,15 +75,6 @@ public class RideService extends JPAService<Ride> implements IRideService {
     }
 
     @Override
-    public Page<Ride> findFilteredFinishedRidesPassenger(Integer passengerId, Pageable pageable) {
-        Passenger passenger = passengerRepository.findById(passengerId).orElse(null);
-        if (passenger==null){
-            throw new EntityNotFoundException("Passenger does not exists!");
-        }
-        return rideRepository.findAllFinishedForPassenger(passenger, RideStatus.FINISHED, pageable);
-    }
-
-    @Override
     public Page<Ride> findFilteredRidesForUser(Integer userId, LocalDateTime from, LocalDateTime to, Pageable pageable) {
         return rideRepository.findAllInRangeForUser(userId, from, to, pageable);
     }
@@ -114,23 +105,6 @@ public class RideService extends JPAService<Ride> implements IRideService {
         return new RideResponseDTO(estimatedTime, 500+distance*120);
 
     }
-
-
-    @Override
-    public Page<Ride> getRides(Integer userId, LocalDateTime start, LocalDateTime end, Pageable page) {
-        Optional<Driver> driver = driverRepository.findById(userId);
-        if (start == null) start = LocalDateTime.MIN;
-        if (end == null) end = LocalDateTime.MAX;
-        if (driver.isPresent())
-            return rideRepository.findAllInRangeForDriver(userId, start, end, page);
-
-
-        Optional<Passenger> passenger = passengerRepository.findById(userId);
-        LocalDateTime finalStart = start;
-        LocalDateTime finalEnd = end;
-        return passenger.map(value -> rideRepository.findAllInRangeForPassenger(value, finalStart, finalEnd, page)).orElse(null);
-    }
-
     @Override
     public Ride save(Ride ride) {
         return rideRepository.save(ride);
@@ -182,10 +156,6 @@ public class RideService extends JPAService<Ride> implements IRideService {
         return rideRepository.findPassengersForRide(id);
     }
 
-    @Override
-    public List<Path> findPathsForRide(Integer id) {
-        return rideRepository.findPathsForRide(id);
-    }
 
     @Override
     public double getTimeOfNextRidesByDriverAtChoosedDay(Integer driverId, LocalDate now) {
@@ -312,7 +282,8 @@ public class RideService extends JPAService<Ride> implements IRideService {
 
     @Override
     public List<Ride> findRidesWithStatusForPassenger(Integer id, RideStatus status, LocalDateTime from, LocalDateTime to) {
-        return rideRepository.findAllByPassengerIdAndRideStatusInTimeRange(id, status, from, to);
+        Passenger passenger = passengerRepository.findById(id).get();
+        return rideRepository.findAllByPassengerIdAndRideStatusInTimeRange(passenger, status, from, to);
     }
 
     @Override
