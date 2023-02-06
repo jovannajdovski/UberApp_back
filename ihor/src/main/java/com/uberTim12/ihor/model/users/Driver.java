@@ -37,6 +37,13 @@ public class Driver extends User{
         super(name, surname, profilePicture, telephoneNumber, email, address, password);
     }
 
+    public Driver(String name, String surname, byte[] profilePicture, String telephoneNumber, String email, String address, String password, Authority authority, Set<Note> notes, boolean isBlocked, boolean isActive, Set<DriverDocument> documents, Set<Ride> rides, Vehicle vehicle, Set<Review> reviews) {
+        super(name, surname, profilePicture, telephoneNumber, email, address, password, authority, notes, isBlocked, isActive);
+        this.documents = documents;
+        this.rides = rides;
+        this.vehicle = vehicle;
+        this.reviews = reviews;
+    }
 
     @Override
     public String toString() {

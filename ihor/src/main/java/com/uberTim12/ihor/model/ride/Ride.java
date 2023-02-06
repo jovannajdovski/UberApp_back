@@ -107,4 +107,22 @@ public class Ride {
         this.vehicleType=new VehicleType();
         this.vehicleType.setVehicleCategory(rideDTO.getVehicleType());
     }
+
+    public Ride(LocalDateTime startTime, LocalDateTime endTime, LocalDateTime scheduledTime, Double totalPrice, Driver driver, Set<Passenger> passengers, Set<Path> paths, Double estimatedTime, Set<Review> reviews, RideStatus rideStatus, RideRejection rideRejection, boolean isPanicActivated, boolean babiesAllowed, boolean petsAllowed, VehicleType vehicleType) {
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.scheduledTime = scheduledTime;
+        this.totalPrice = totalPrice;
+        this.driver = driver;
+        this.passengers = passengers;
+        this.paths = paths;
+        this.estimatedTime = estimatedTime;
+        this.reviews = reviews;
+        this.rideStatus = rideStatus;
+        this.rideRejection = rideRejection;
+        this.isPanicActivated = isPanicActivated;
+        this.babiesAllowed = babiesAllowed;
+        this.petsAllowed = petsAllowed;
+        this.vehicleType = vehicleType;
+    }
 }

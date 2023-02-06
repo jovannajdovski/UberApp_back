@@ -13,6 +13,5 @@ import java.util.List;
 @Getter
 @Setter
 public class RideIdListDTO {
-
     List<Integer> ids;
 }

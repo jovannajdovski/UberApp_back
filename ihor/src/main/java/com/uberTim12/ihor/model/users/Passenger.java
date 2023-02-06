@@ -35,4 +35,10 @@ public class Passenger extends User {
             inverseJoinColumns = @JoinColumn(name = "favorite_id", referencedColumnName = "id")
     )
     Set<Favorite> favoriteRoutes = new HashSet<>();
+
+    public Passenger(String name, String surname, byte[] profilePicture, String telephoneNumber, String email, String address, String password, Authority authority, Set<Note> notes, boolean isBlocked, boolean isActive, Set<Ride> rides, Set<Favorite> favoriteRoutes) {
+        super(name, surname, profilePicture, telephoneNumber, email, address, password, authority, notes, isBlocked, isActive);
+        this.rides = rides;
+        this.favoriteRoutes = favoriteRoutes;
+    }
 }

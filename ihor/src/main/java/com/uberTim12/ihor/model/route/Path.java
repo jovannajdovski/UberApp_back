@@ -17,6 +17,7 @@ public class Path {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+
     @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH})
     @JoinColumn(name = "startpoint_id", referencedColumnName = "id")
     private Location startPoint;
@@ -27,4 +28,10 @@ public class Path {
 
     @Column(name = "distance")
     private Double distance;
+
+    public Path(Location startPoint, Location endPoint, Double distance) {
+        this.startPoint = startPoint;
+        this.endPoint = endPoint;
+        this.distance = distance;
+    }
 }
