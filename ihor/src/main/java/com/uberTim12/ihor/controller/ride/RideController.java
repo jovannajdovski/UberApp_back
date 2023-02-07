@@ -149,7 +149,7 @@ public class RideController {
 
         if (jwtUtil.extractRole(token).equals("ROLE_DRIVER") &&
                 !jwtUtil.extractId(token).equals(driverId.toString()))
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Active ride does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Accepted rides don't exist!");
 
         try {
             Driver driver;
@@ -219,14 +219,18 @@ public class RideController {
     }
 
     @PutMapping(value = "/specific-rides", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getRidesById(@RequestBody RideIdListDTO rideIdListDTO) {
+    public ResponseEntity<?> getRidesById(@RequestBody RideIdListDTO rideIdListDTO, @RequestHeader("Authorization") String authHeader) {
+        System.out.println("usao");
         List<RideFullDTO> rideFullDTOS = new ArrayList<>();
         try {
             for (int id : rideIdListDTO.getIds()) {
-                if (id != 0) {
+                if (id > 0) {
                     Ride ride = rideService.get(id);
                     rideFullDTOS.add(new RideFullDTO(ride));
                 }
+                if(id<0)
+                    return new ResponseEntity<>(new ResponseMessageDTO("Wrong format of some field"),
+                            HttpStatus.BAD_REQUEST);
             }
 
             ObjectListResponseDTO<RideFullDTO> res = new ObjectListResponseDTO<>(rideFullDTOS.size(), rideFullDTOS);

@@ -8,6 +8,7 @@ import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.users.Passenger;
 import com.uberTim12.ihor.model.vehicle.VehicleCategory;
 import com.uberTim12.ihor.model.vehicle.VehicleType;
+import com.uberTim12.ihor.repository.communication.IPanicRepository;
 import com.uberTim12.ihor.repository.ride.IActiveDriverRepository;
 import com.uberTim12.ihor.repository.ride.IRideRepository;
 import com.uberTim12.ihor.repository.route.ILocationRepository;
@@ -55,6 +56,7 @@ public class Seeder implements BeforeEachCallback, AfterEachCallback {
     private static IRideRepository rideRepository;
     private static IActiveDriverRepository activeDriverRepository;
     private static IPathRepository pathRepository;
+    private static IPanicRepository panicRepository;
 
     private void initializeDependencies(final ExtensionContext context) {
         authorityRepository = SpringExtension.getApplicationContext(context).getBean(IAuthorityRepository.class);
@@ -69,6 +71,7 @@ public class Seeder implements BeforeEachCallback, AfterEachCallback {
         seedUtils = SpringExtension.getApplicationContext(context).getBean(SeedUtils.class);
         activeDriverRepository = SpringExtension.getApplicationContext(context).getBean(IActiveDriverRepository.class);
         pathRepository = SpringExtension.getApplicationContext(context).getBean(IPathRepository.class);
+        panicRepository=SpringExtension.getApplicationContext(context).getBean(IPanicRepository.class);
     }
 
     public static int ADMIN_ID;
@@ -90,8 +93,8 @@ public class Seeder implements BeforeEachCallback, AfterEachCallback {
     private void dropAll() {
         administratorRepository.deleteAll();
         activeDriverRepository.deleteAll();
+        panicRepository.deleteAll();
         rideRepository.deleteAll();
-        administratorRepository.deleteAll();
         workHoursRepository.deleteAll();
         driverRepository.deleteAll();
         passengerRepository.deleteAll();
