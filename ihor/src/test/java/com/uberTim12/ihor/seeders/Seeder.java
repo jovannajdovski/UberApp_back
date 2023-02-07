@@ -9,6 +9,7 @@ import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.users.Passenger;
 import com.uberTim12.ihor.model.vehicle.VehicleCategory;
 import com.uberTim12.ihor.model.vehicle.VehicleType;
+import com.uberTim12.ihor.repository.communication.IPanicRepository;
 import com.uberTim12.ihor.repository.ride.IActiveDriverRepository;
 import com.uberTim12.ihor.repository.ride.IFavoriteRepository;
 import com.uberTim12.ihor.repository.ride.IRideRepository;
@@ -58,6 +59,7 @@ public class Seeder implements BeforeEachCallback, AfterEachCallback {
     private static IActiveDriverRepository activeDriverRepository;
     private static IPathRepository pathRepository;
     private static IFavoriteRepository favoriteRepository;
+    private static IPanicRepository panicRepository;
 
     private void initializeDependencies(final ExtensionContext context) {
         authorityRepository = SpringExtension.getApplicationContext(context).getBean(IAuthorityRepository.class);
@@ -73,6 +75,7 @@ public class Seeder implements BeforeEachCallback, AfterEachCallback {
         activeDriverRepository = SpringExtension.getApplicationContext(context).getBean(IActiveDriverRepository.class);
         pathRepository = SpringExtension.getApplicationContext(context).getBean(IPathRepository.class);
         favoriteRepository = SpringExtension.getApplicationContext(context).getBean(IFavoriteRepository.class);
+        panicRepository=SpringExtension.getApplicationContext(context).getBean(IPanicRepository.class);
     }
 
     private void seed() {
@@ -84,6 +87,7 @@ public class Seeder implements BeforeEachCallback, AfterEachCallback {
         seedVehicles();
      //   seedActiveDrivers();
         seedAdmin();
+        seedPath();
      //   seedWorkHours();
     //    seedRides();
         seedPath();
@@ -92,8 +96,8 @@ public class Seeder implements BeforeEachCallback, AfterEachCallback {
     private void dropAll() {
         administratorRepository.deleteAll();
         activeDriverRepository.deleteAll();
+        panicRepository.deleteAll();
         rideRepository.deleteAll();
-        administratorRepository.deleteAll();
         workHoursRepository.deleteAll();
         driverRepository.deleteAll();
         passengerRepository.deleteAll();
@@ -128,7 +132,6 @@ public class Seeder implements BeforeEachCallback, AfterEachCallback {
     public static String PASSENGER_FOURTH_EMAIL = "miki@gmail.com";
 
     public static String PASSWORD = "NekaSifra123";
-
 
     private void seedPassengers() {
         var firstPassenger = new Passenger("Petar", "Petrovic", null, "3816563122",
@@ -188,7 +191,9 @@ public class Seeder implements BeforeEachCallback, AfterEachCallback {
     public static int DRIVER_THIRD_ID;
     public static String DRIVER_THIRD_EMAIL = "sica@gmail.com";
     public static int DRIVER_FOURTH_ID;
-    public static String DRIVER_FOURTH_EMAIL = "bogdan@gmail.com";
+
+    public static String PASSWORD="NekaSifra123";
+
 
     public void seedDrivers() {
         var firstDriver = new Driver("Zivorad", "Stajic", null, "3816563122",
@@ -233,6 +238,16 @@ public class Seeder implements BeforeEachCallback, AfterEachCallback {
                 authorityAdmin, new HashSet<>(), false, true);
 
         ADMIN_ID = administratorRepository.save(admin).getId();
+    }
+    public static int PATH_FIRST_ID;
+    public static int PATH_SECOND_ID;
+    public static int PATH_THIRD_ID;
+    public static int PATH_FOURTH_ID;
+    private void seedPath(){
+        PATH_FIRST_ID = seedUtils.insertPath(LOCATION_FIRST_ID, LOCATION_SECOND_ID, 500d);
+        PATH_SECOND_ID = seedUtils.insertPath(LOCATION_FOURTH_ID, LOCATION_FIRST_ID, 1500d);
+        PATH_THIRD_ID = seedUtils.insertPath(LOCATION_THIRD_ID, LOCATION_SECOND_ID, 700d);
+        PATH_FOURTH_ID = seedUtils.insertPath(LOCATION_SECOND_ID, LOCATION_FOURTH_ID, 800d);
     }
 
 
