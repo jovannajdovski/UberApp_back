@@ -12,7 +12,6 @@ import com.uberTim12.ihor.model.vehicle.VehicleCategory;
 import com.uberTim12.ihor.security.JwtUtil;
 import com.uberTim12.ihor.seeders.SeedUtils;
 import com.uberTim12.ihor.seeders.Seeder;
-import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +24,6 @@ import org.springframework.test.context.ActiveProfiles;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Timer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -120,7 +118,7 @@ public class RideControllerTest {
 
     @Test
     public void createRide_whenInvalidCreateRideDTO_returnsBadRequest() {
-        setUpPassenger();
+        setUpPassenger(Seeder.PASSENGER_FIRST_EMAIL, Seeder.PASSWORD);
 
         LocationDTO startLocation = new LocationDTO("Bulevar Cara Lazara 90", 45.2405129, 19.8265563);
         LocationDTO endLocation = new LocationDTO("Bulevar Patrijaha Pavla 2", 45.23984, 19.82062);

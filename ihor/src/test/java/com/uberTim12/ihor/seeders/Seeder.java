@@ -192,8 +192,6 @@ public class Seeder implements BeforeEachCallback, AfterEachCallback {
     public static String DRIVER_THIRD_EMAIL = "sica@gmail.com";
     public static int DRIVER_FOURTH_ID;
 
-    public static String PASSWORD="NekaSifra123";
-
 
     public void seedDrivers() {
         var firstDriver = new Driver("Zivorad", "Stajic", null, "3816563122",
@@ -269,17 +267,6 @@ public class Seeder implements BeforeEachCallback, AfterEachCallback {
         RIDE_FIRST_ID = seedUtils.insertRide(LocalDateTime.now().minusDays(1),LocalDateTime.now().minusDays(1).plusMinutes(30),
                 300.0, DRIVER_FIRST_ID, 30.0, RideStatus.FINISHED, true,
                 true, VEHICLETYPE_FIRST_ID, false, LocalDateTime.now().minusDays(1));
-    }
-
-    public static int PATH_FIRST_ID;
-    public static int PATH_SECOND_ID;
-    public static int PATH_THIRD_ID;
-    public static int PATH_FOURTH_ID;
-    private void seedPath(){
-        PATH_FIRST_ID = seedUtils.insertPath(LOCATION_FIRST_ID, LOCATION_SECOND_ID, 500d);
-        PATH_SECOND_ID = seedUtils.insertPath(LOCATION_FOURTH_ID, LOCATION_FIRST_ID, 1500d);
-        PATH_THIRD_ID = seedUtils.insertPath(LOCATION_THIRD_ID, LOCATION_SECOND_ID, 700d);
-        PATH_FOURTH_ID = seedUtils.insertPath(LOCATION_SECOND_ID, LOCATION_FOURTH_ID, 800d);
     }
 
     @Override

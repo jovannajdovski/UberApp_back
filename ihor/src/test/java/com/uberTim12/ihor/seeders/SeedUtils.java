@@ -134,43 +134,6 @@ public class SeedUtils {
         });
     }
 
-    public void addPassengerToRide(int passengerID, int rideID) {
-        final String sql = "INSERT INTO PASSENGER_RIDE ( PASSENGER_ID , RIDE_ID ) VALUES (?, ?)";
-
-        jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, String.valueOf(passengerID));
-            ps.setString(2, String.valueOf(rideID));
-            return ps;
-        });
-    }
-
-    public int insertPath(int startLocationID, int endLocationID, double distance) {
-        final String sql = "INSERT INTO PATH (startpoint_id, endpoint_id, distance) VALUES (?, ?, ?);";
-
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, String.valueOf(startLocationID));
-            ps.setString(2, String.valueOf(endLocationID));
-            ps.setString(3, String.valueOf(distance));
-            return ps;
-        }, keyHolder);
-
-        return keyHolder.getKey().intValue();
-    }
-
-    public void addPathToRide(int rideId, int pathId) {
-        final String sql = "INSERT INTO RIDE_PATH (RIDE_ID, PATH_ID) VALUES (?, ?)";
-
-        jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, String.valueOf(rideId));
-            ps.setString(2, String.valueOf(pathId));
-            return ps;
-        });
-    }
-
     public void addPathToFavorite(int pathID, int favoriteID) {
         final String sql = "INSERT INTO FAVORITE_PATH ( FAVORITE_ID , PATH_ID ) VALUES (?, ?)";
 
