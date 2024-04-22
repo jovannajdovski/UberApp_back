@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @Setter
 public class PassengerDTO {
-
     private Integer id;
     private String name;
     private String surname;
@@ -20,9 +19,10 @@ public class PassengerDTO {
     private String telephoneNumber;
     private String email;
     private String address;
+    private boolean isBlocked;
 
     public PassengerDTO(Passenger passenger){
         this(passenger.getId(), passenger.getName(), passenger.getSurname(), ImageConverter.encodeToString(passenger.getProfilePicture()),
-                passenger.getTelephoneNumber(), passenger.getEmail(), passenger.getAddress());
+                passenger.getTelephoneNumber(), passenger.getEmail(), passenger.getAddress(), passenger.isBlocked());
     }
 }

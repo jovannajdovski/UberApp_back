@@ -1,11 +1,11 @@
 package com.uberTim12.ihor.service.ride.impl;
 
 import com.uberTim12.ihor.dto.ride.CreateFavoriteDTO;
+import com.uberTim12.ihor.dto.route.FavoriteRouteForPassengerDTO;
 import com.uberTim12.ihor.dto.route.PathDTO;
 import com.uberTim12.ihor.dto.users.UserRideDTO;
-import com.uberTim12.ihor.exception.AccessDeniedException;
+import com.uberTim12.ihor.exception.EntityPropertyIsNullException;
 import com.uberTim12.ihor.exception.FavoriteRideExceedException;
-import com.uberTim12.ihor.exception.UnauthorizedException;
 import com.uberTim12.ihor.model.ride.Favorite;
 import com.uberTim12.ihor.model.route.Location;
 import com.uberTim12.ihor.model.route.Path;
@@ -19,11 +19,9 @@ import com.uberTim12.ihor.service.users.interfaces.IPassengerService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,14 +31,12 @@ public class FavoriteService extends JPAService<Favorite> implements IFavoriteSe
     private final IFavoriteRepository favoriteRepository;
     private final IPassengerService passengerService;
     private final IPathService pathService;
-    private final AuthUtil authUtil;
 
     @Autowired
-    public FavoriteService(IFavoriteRepository favoriteRepository, IPassengerService passengerService, IPathService pathService, AuthUtil authUtil) {
+    public FavoriteService(IFavoriteRepository favoriteRepository, IPassengerService passengerService, IPathService pathService) {
         this.favoriteRepository = favoriteRepository;
         this.passengerService = passengerService;
         this.pathService = pathService;
-        this.authUtil = authUtil;
     }
 
     @Override
@@ -49,7 +45,15 @@ public class FavoriteService extends JPAService<Favorite> implements IFavoriteSe
     }
 
     @Override
-    public Favorite create(CreateFavoriteDTO favoriteDTO) throws FavoriteRideExceedException, EntityNotFoundException {
+    public Favorite create(CreateFavoriteDTO favoriteDTO) throws FavoriteRideExceedException, EntityNotFoundException, EntityPropertyIsNullException {
+
+        if (favoriteDTO.getFavoriteName()==null || favoriteDTO.getFavoriteName().equals("")){
+            throw new EntityPropertyIsNullException("Favorite name cant be empty!");
+        }
+        if (favoriteDTO.getLocations().isEmpty()){
+            throw new EntityPropertyIsNullException("Favorite path cant be empty!");
+        }
+
         for (UserRideDTO user: favoriteDTO.getPassengers()){
             Passenger passenger = passengerService.get(user.getId());
             if (passenger.getFavoriteRoutes().size()>9){
@@ -91,20 +95,32 @@ public class FavoriteService extends JPAService<Favorite> implements IFavoriteSe
     }
 
     @Override
-    public Set<Favorite> getForPassenger() throws UnauthorizedException, AccessDeniedException {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication instanceof AnonymousAuthenticationToken) {
-            throw new UnauthorizedException("Unauthorized!");
+    public List<Favorite> getForPassenger(Integer id) throws EntityNotFoundException{
+        Passenger passenger = passengerService.findByIdWithFavorites(id);
+        if (passenger == null) throw  new EntityNotFoundException("Passenger does not exist!");
+        return new ArrayList<>(passenger.getFavoriteRoutes());
+    }
+
+    @Override
+    public FavoriteRouteForPassengerDTO isFavoriteRouteForPassenger(String from, String to, Integer passengerId) throws EntityNotFoundException{
+        Passenger passenger = passengerService.get(passengerId);
+
+        List<Favorite> favoritesForPassenger = favoriteRepository.findAllForPassengers(passenger);
+
+        FavoriteRouteForPassengerDTO favoriteRouteForPassengerDTO = new FavoriteRouteForPassengerDTO(false,0);
+        if (favoritesForPassenger.isEmpty()){
+            return favoriteRouteForPassengerDTO;
         }
 
-        if (!authUtil.hasRole("PASSENGER")){
-            throw new AccessDeniedException("Access denied!");
+        for (Favorite favorite: favoritesForPassenger){
+            if (favorite.getPaths().iterator().next().getStartPoint().getAddress().equals(from) &&
+                    favorite.getPaths().iterator().next().getEndPoint().getAddress().equals(to)){
+                favoriteRouteForPassengerDTO.setFavorite(true);
+                favoriteRouteForPassengerDTO.setFavoriteId(favorite.getId());
+                return  favoriteRouteForPassengerDTO;
+            }
         }
-
-        String currentUserName = authentication.getName();
-        Passenger passenger = passengerService.findByEmailWithFavorites(currentUserName);
-
-        return passenger.getFavoriteRoutes();
+        return  favoriteRouteForPassengerDTO;
     }
 
     @Override

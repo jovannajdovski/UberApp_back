@@ -66,7 +66,7 @@ public class PassengerService extends JPAService<Passenger> implements IPassenge
 
     @Override
     public Passenger update(Integer passengerId, String name, String surname, String profilePicture,
-                            String telephoneNumber, String email, String address, String password)
+                            String telephoneNumber, String email, String address)
             throws EntityNotFoundException {
         Passenger passenger = get(passengerId);
         passenger.setName(name);
@@ -75,8 +75,6 @@ public class PassengerService extends JPAService<Passenger> implements IPassenge
         passenger.setTelephoneNumber(telephoneNumber);
         passenger.setEmail(email);
         passenger.setAddress(address);
-        if (password != null)
-            passenger.setPassword(password);
         return save(passenger);
     }
 
@@ -86,13 +84,19 @@ public class PassengerService extends JPAService<Passenger> implements IPassenge
     }
 
     @Override
-    public Page<Ride> findAllById(Integer passengerId, LocalDateTime start, LocalDateTime end, Pageable page){
-        Optional<Passenger> passenger=passengerRepository.findById(passengerId);
+    public Page<Ride> findAllById(Integer passengerId, LocalDateTime start, LocalDateTime end, Pageable page) {
+        Optional<Passenger> passenger = passengerRepository.findById(passengerId);
         return passenger.map(value -> rideRepository.findAllInRangeForPassenger(value, start, end, page)).orElse(null);
     }
 
     @Override
-    public Page<Ride> findAllById(Passenger passenger, Pageable page){
+    public Page<Ride> findAllByIdFinished(Integer passengerId, Pageable page) {
+        Optional<Passenger> passenger = passengerRepository.findById(passengerId);
+        return passenger.map(value -> rideRepository.findAllFinishedForPassenger(value, RideStatus.FINISHED, page)).orElse(null);
+    }
+
+    @Override
+    public Page<Ride> findAllById(Passenger passenger, Pageable page) {
         return rideRepository.findAllForPassenger(passenger, page);
     }
 
@@ -102,8 +106,8 @@ public class PassengerService extends JPAService<Passenger> implements IPassenge
     }
 
     @Override
-    public Optional<Passenger> findByIdWithFavorites(Integer id) {
-        return passengerRepository.findById(id);
+    public Passenger findByIdWithFavorites(Integer id) {
+        return passengerRepository.findByIdWithFavorites(id);
     }
 
     @Override
@@ -114,16 +118,15 @@ public class PassengerService extends JPAService<Passenger> implements IPassenge
     @Override
     public boolean isPassengersFree(Ride newRide) {
         LocalDateTime rideStart, rideEnd;
-        LocalDateTime newRideStart=newRide.getStartTime(), newRideEnd=newRideStart.plusMinutes(newRide.getEstimatedTime().longValue());
-        for(Passenger passenger: newRide.getPassengers())
-        {
-            for(Ride ride: passenger.getRides())
-            {
-                rideStart=ride.getStartTime();
-                rideEnd=rideStart.plusMinutes(ride.getEstimatedTime().longValue());
-                if(rideService.hasIntersectionBetweenRides(rideStart, rideEnd, newRideStart,newRideEnd) &&
-                        (ride.getRideStatus()== RideStatus.ACCEPTED || ride.getRideStatus()==RideStatus.STARTED))
-                    return false;
+        LocalDateTime newRideStart = newRide.getStartTime(), newRideEnd = newRideStart.plusMinutes(newRide.getEstimatedTime().longValue());
+        for (Passenger passenger : newRide.getPassengers()) {
+            for (Ride ride : passenger.getRides()) {
+                if (ride.getRideStatus() == RideStatus.ACCEPTED || ride.getRideStatus() == RideStatus.STARTED) {
+                    rideStart = ride.getStartTime();
+                    rideEnd = rideStart.plusMinutes(ride.getEstimatedTime().longValue());
+                    if (rideService.hasIntersectionBetweenRides(rideStart, rideEnd, newRideStart, newRideEnd))
+                        return false;
+                }
             }
         }
         return true;

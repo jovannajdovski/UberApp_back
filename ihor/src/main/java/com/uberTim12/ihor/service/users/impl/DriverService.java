@@ -6,6 +6,8 @@ import com.uberTim12.ihor.model.ride.ActiveDriverCriticalRide;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.ride.RideStatus;
 import com.uberTim12.ihor.model.users.Driver;
+import com.uberTim12.ihor.model.vehicle.Vehicle;
+import com.uberTim12.ihor.repository.ride.IActiveDriverRepository;
 import com.uberTim12.ihor.repository.users.IDriverRepository;
 import com.uberTim12.ihor.service.base.impl.JPAService;
 import com.uberTim12.ihor.service.ride.interfaces.IRideService;
@@ -29,13 +31,15 @@ public class DriverService extends JPAService<Driver> implements IDriverService 
     private final IRideService rideService;
     private final PasswordEncoder passwordEncoder;
     private final IAuthorityRepository authorityRepository;
+    private final IActiveDriverRepository activeDriverRepository;
 
     @Autowired
-    DriverService(IDriverRepository driverRepository, IRideService rideService, PasswordEncoder passwordEncoder, IAuthorityRepository authorityRepository) {
+    DriverService(IDriverRepository driverRepository, IRideService rideService, PasswordEncoder passwordEncoder, IAuthorityRepository authorityRepository, IActiveDriverRepository activeDriverRepository) {
         this.driverRepository = driverRepository;
         this.rideService = rideService;
         this.passwordEncoder = passwordEncoder;
         this.authorityRepository = authorityRepository;
+        this.activeDriverRepository = activeDriverRepository;
     }
 
     @Override
@@ -60,7 +64,7 @@ public class DriverService extends JPAService<Driver> implements IDriverService 
 
     @Override
     public Driver update(Integer driverId, String name, String surname, String profilePicture,
-                         String telephoneNumber, String email, String address, String password)
+                         String telephoneNumber, String email, String address)
             throws EntityNotFoundException {
         Driver driver = get(driverId);
         driver.setName(name);
@@ -69,8 +73,6 @@ public class DriverService extends JPAService<Driver> implements IDriverService 
         driver.setTelephoneNumber(telephoneNumber);
         driver.setEmail(email);
         driver.setAddress(address);
-        if (password != null)
-            driver.setPassword(password);
         return save(driver);
     }
 
@@ -81,10 +83,20 @@ public class DriverService extends JPAService<Driver> implements IDriverService 
         LocalDateTime rideStart, rideEnd;
         for(Ride ride: driver.getRides())
         {
-            rideStart=ride.getStartTime();
-            rideEnd=rideStart.plusMinutes(ride.getEstimatedTime().longValue());
-            if(rideService.hasIntersectionBetweenRides(rideStart, rideEnd, newRideStart,newRideEnd) &&
-                    (ride.getRideStatus()== RideStatus.ACCEPTED || ride.getRideStatus()==RideStatus.STARTED))
+            if (ride.getRideStatus() == RideStatus.ACCEPTED || ride.getRideStatus() == RideStatus.STARTED) {
+                rideStart=ride.getStartTime();
+                rideEnd=rideStart.plusMinutes(ride.getEstimatedTime().longValue());
+                if(rideService.hasIntersectionBetweenRides(rideStart, rideEnd, newRideStart,newRideEnd))
+                    return false;
+            }
+        }
+        return true;
+    }
+    @Override
+    public boolean isDriverFreeForRide(Driver driver) {
+        for(Ride ride: driver.getRides())
+        {
+            if(ride.getRideStatus()==RideStatus.STARTED)
                 return false;
         }
         return true;
@@ -106,6 +118,11 @@ public class DriverService extends JPAService<Driver> implements IDriverService 
         return activeDriversCriticalRides;
     }
 
+    @Override
+    public List<ActiveDriver> getActiveDrivers() {
+        return activeDriverRepository.findAll();
+    }
+
     public static Comparator<ActiveDriverCriticalRide> RideEndComparator=new Comparator<ActiveDriverCriticalRide>() {
         @Override
         public int compare(ActiveDriverCriticalRide o1, ActiveDriverCriticalRide o2) {
@@ -114,5 +131,4 @@ public class DriverService extends JPAService<Driver> implements IDriverService 
             return end1.compareTo(end2);
         }
     };
-
 }

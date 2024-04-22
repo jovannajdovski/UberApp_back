@@ -4,10 +4,12 @@ import com.uberTim12.ihor.exception.EntityPropertyIsNullException;
 import com.uberTim12.ihor.exception.ShiftAlreadyStartedException;
 import com.uberTim12.ihor.exception.ShiftIsNotOngoingException;
 import com.uberTim12.ihor.exception.WorkTimeExceededException;
+import com.uberTim12.ihor.model.ride.ActiveDriver;
 import com.uberTim12.ihor.model.ride.Ride;
 import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.users.WorkHours;
 import com.uberTim12.ihor.model.users.WorkHoursComp;
+import com.uberTim12.ihor.repository.ride.IActiveDriverRepository;
 import com.uberTim12.ihor.repository.users.IWorkHoursRepository;
 import com.uberTim12.ihor.service.base.impl.JPAService;
 import com.uberTim12.ihor.service.ride.interfaces.IRideService;
@@ -25,6 +27,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.List;
@@ -35,14 +38,16 @@ public class WorkHoursService extends JPAService<WorkHours> implements IWorkHour
     private final IDriverService driverService;
     private final IVehicleService vehicleService;
     private final IRideService rideService;
+    private final IActiveDriverRepository activeDriverRepository;
 
     @Autowired
     WorkHoursService(IWorkHoursRepository workHoursRepository, IDriverService driverService,
-                     IVehicleService vehicleService, IRideService rideService) {
+                     IVehicleService vehicleService, IRideService rideService, IActiveDriverRepository activeDriverRepository) {
         this.workHoursRepository = workHoursRepository;
         this.driverService = driverService;
         this.vehicleService = vehicleService;
         this.rideService = rideService;
+        this.activeDriverRepository = activeDriverRepository;
     }
 
     @Override
@@ -67,19 +72,23 @@ public class WorkHoursService extends JPAService<WorkHours> implements IWorkHour
         if(workHours.getEndTime()!=null)
             throw new ShiftIsNotOngoingException("No shift is ongoing!");
         workHours.setEndTime(endTime);
+        activeDriverRepository.deleteActiveDriverByDriverId(driver.getId());
         return save(workHours);
     }
 
     @Override
-    public WorkHours startShift(Integer driverId, WorkHours workHours) throws EntityNotFoundException,
+    public void startShift(Integer driverId, WorkHours workHours) throws EntityNotFoundException,
             EntityPropertyIsNullException, ShiftAlreadyStartedException,
             WorkTimeExceededException {
         Driver driver = driverService.get(driverId);
         vehicleService.getVehicleOf(driverId);
         canShiftStart(driverId, workHours.getStartTime());
-
+        ActiveDriver activeDriver=new ActiveDriver();
+        activeDriver.setDriver(driver);
+        activeDriver.setLocation(driver.getVehicle().getCurrentLocation());
+        activeDriverRepository.save(activeDriver);
         workHours.setDriver(driver);
-        return save(workHours);
+        save(workHours);
     }
 
     private void canShiftStart(Integer driverId, LocalDateTime date)
@@ -119,11 +128,15 @@ public class WorkHoursService extends JPAService<WorkHours> implements IWorkHour
         return workHoursRepository.findByDriverIdAndDateRange(driverId, from, to, pageable);
     }
 
+    public List<WorkHours> findAll(Integer driverId, LocalDateTime from, LocalDateTime to) {
+        return new ArrayList<>(workHoursRepository.findByDriverIdAndDateRange(driverId, from, to));
+    }
+
     @Override
-    public long getWorkingMinutesByDriverAtChosenDay(Integer driverId, LocalDate date)
+    public int getWorkingMinutesByDriverAtChosenDay(Integer driverId, LocalDate date)
     {
         List<WorkHours> workHoursList=workHoursRepository.findByDriverIdAndStartTimeBetween(driverId,date.atStartOfDay(),date.atTime(23,59,59));
-        long sum=0;
+        int sum=0;
         for(WorkHours workHours:workHoursList)
         {
             if(workHours.getEndTime()!=null)

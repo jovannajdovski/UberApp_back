@@ -1,10 +1,11 @@
 package com.uberTim12.ihor.service.ride.interfaces;
 
-import com.uberTim12.ihor.dto.ride.RideRequestDTO;
 import com.uberTim12.ihor.dto.ride.RideResponseDTO;
+import com.uberTim12.ihor.exception.NoAcceptedRideException;
 import com.uberTim12.ihor.exception.NoActiveRideException;
 import com.uberTim12.ihor.exception.RideStatusException;
 import com.uberTim12.ihor.model.ride.Ride;
+import com.uberTim12.ihor.model.ride.RideStatus;
 import com.uberTim12.ihor.model.route.Path;
 import com.uberTim12.ihor.model.users.Driver;
 import com.uberTim12.ihor.model.users.Passenger;
@@ -23,21 +24,23 @@ public interface IRideService extends IJPAService<Ride> {
 
     Page<Ride> findFilteredRides(Integer driverId, LocalDateTime from, LocalDateTime to, Pageable pageable);
 
+    Page<Ride> findFilteredFinishedRidesDriver(Integer driverId, Pageable pageable);
+
+    Page<Ride> findFilteredFinishedRidesAdmin(Pageable pageable);
+
     Page<Ride> findFilteredRidesForUser(Integer userId, LocalDateTime from, LocalDateTime to, Pageable pageable);
 
     Page<Ride> findFilteredRidesForUser(Integer userId, Pageable pageable);
 
     RideResponseDTO getEstimatedRoute(Ride ride);
 
-    Page<Ride> getRides(Integer userId, LocalDateTime start, LocalDateTime end, Pageable page);
-
     Ride findActiveByDriver(Driver driver) throws NoActiveRideException;
+
+    List<Ride> findAcceptedByDriver(Driver driver) throws NoAcceptedRideException;
 
     Ride findActiveByPassenger(Passenger passenger) throws NoActiveRideException;
 
     List<Passenger> findPassengersForRide(Integer id);
-
-    List<Path> findPathsForRide(Integer id);
 
     double getTimeOfNextRidesByDriverAtChoosedDay(Integer driverId, LocalDate now);
 
@@ -47,7 +50,7 @@ public interface IRideService extends IJPAService<Ride> {
     
     Ride cancel(Integer id) throws EntityNotFoundException, RideStatusException;
 
-    Ride start(Integer id) throws EntityNotFoundException, RideStatusException;
+    Ride start(Integer id, Integer driverId) throws EntityNotFoundException, RideStatusException;
 
     Ride accept(Integer id) throws EntityNotFoundException, RideStatusException;
 
@@ -56,4 +59,14 @@ public interface IRideService extends IJPAService<Ride> {
     Ride reject(Integer id, String reason) throws EntityNotFoundException, RideStatusException;
 
     List<Ride> findPendingRides(Integer driverId);
+
+    Ride findNextRide(Integer driverId) throws NoAcceptedRideException;
+
+    List<Ride> findRidesWithStatusForDriver(Integer id, RideStatus status, LocalDateTime from, LocalDateTime to);
+
+    List<Ride> findRidesWithStatusForPassenger(Integer id, RideStatus status, LocalDateTime from, LocalDateTime to);
+
+    List<Ride> findAcceptedRides(Integer id, LocalDateTime from, LocalDateTime to);
+
+    List<Ride> findAllRidesWithStatusInTimeRange(RideStatus status, LocalDateTime from, LocalDateTime to);
 }

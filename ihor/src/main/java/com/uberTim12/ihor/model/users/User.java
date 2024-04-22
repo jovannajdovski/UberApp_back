@@ -71,4 +71,18 @@ public abstract class User {
         this.setBlocked(false);
         this.setActive(true);
     }
+
+    public User(String name, String surname, byte[] profilePicture, String telephoneNumber, String email, String address, String password, Authority authority, Set<Note> notes, boolean isBlocked, boolean isActive) {
+        this.name = name;
+        this.surname = surname;
+        this.profilePicture = profilePicture;
+        this.telephoneNumber = telephoneNumber;
+        this.email = email;
+        this.address = address;
+        this.password = password;
+        this.authority = authority;
+        this.notes = notes;
+        this.isBlocked = isBlocked;
+        this.isActive = isActive;
+    }
 }

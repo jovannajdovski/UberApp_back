@@ -24,7 +24,7 @@ public class SendingMessageDTO {
     private String message;
     @NotNull
     private MessageType type;
-    @Min(value = 1)
+
     private Integer rideId;
 }
 

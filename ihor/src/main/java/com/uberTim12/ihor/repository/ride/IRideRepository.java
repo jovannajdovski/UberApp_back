@@ -20,9 +20,25 @@ public interface IRideRepository extends JpaRepository<Ride, Integer> {
     @Query("select r from Ride r where r.driver.id =?1")
     Page<Ride> findByDriverId(Integer driverId, Pageable pageable);
 
+
+    List<Ride> findAllByDriverIdAndRideStatusOrderByStartTime(Integer driver_id, RideStatus rideStatus);
+
     List<Ride> findAllByDriverIdAndRideStatus(Integer driver_id, RideStatus rideStatus);
+
+    @Query("select r from Ride r where r.driver.id =?1 and r.rideStatus = ?2 and r.scheduledTime between ?3 and ?4")
+    List<Ride> findAllByDriverIdAndRideStatusInTimeRange(Integer driver_id, RideStatus rideStatus, LocalDateTime from, LocalDateTime to);
+
+    @Query("select r from Ride r where r.driver.id =?1 and r.rideStatus!=0 and r.rideStatus != 3 and r.rideStatus != 5 and r.startTime between ?2 and ?3")
+    List<Ride> findAllAccepted(Integer driver_id, LocalDateTime from, LocalDateTime to);
+
     @Query("select r from Ride r where r.driver.id =?1 and r.startTime between ?2 and ?3")
     Page<Ride> findAllInRangeForDriver(Integer id, LocalDateTime start, LocalDateTime end, Pageable pageable);
+
+    @Query("select r from Ride r where r.driver.id =?1 and r.rideStatus = ?2")
+    Page<Ride> findAllFinishedForDriver(Integer id, RideStatus rideStatus, Pageable pageable);
+
+    @Query("select r from Ride r where r.rideStatus = ?1")
+    Page<Ride> findAllFinishedForAdmin(RideStatus rideStatus, Pageable pageable);
 
     @Query("select r from Ride r join Passenger p on p.id = ?1 where r.startTime between ?2 and ?3") //or r.driver.id=?1 and
     Page<Ride> findAllInRangeForUser(Integer id, LocalDateTime start, LocalDateTime end, Pageable pageable);
@@ -32,6 +48,12 @@ public interface IRideRepository extends JpaRepository<Ride, Integer> {
 
     @Query("select r from Ride r where ?1 member of r.passengers and r.startTime between ?2 and ?3")
     Page<Ride> findAllInRangeForPassenger(Passenger passenger, LocalDateTime start, LocalDateTime end, Pageable pageable);
+
+    @Query("select r from Ride r where ?1 member of r.passengers and r.rideStatus = ?2")
+    Page<Ride> findAllFinishedForPassenger(Passenger passenger, RideStatus rideStatus, Pageable pageable);
+
+    @Query("select r from Ride r where ?1 member of r.passengers and r.rideStatus = ?2 and r.scheduledTime between ?3 and ?4")
+    List<Ride> findAllByPassengerIdAndRideStatusInTimeRange(Passenger passenger, RideStatus status, LocalDateTime start, LocalDateTime end);
 
     @Query("select r from Ride r join r.passengers p where ?1 member of r.passengers")
     Page<Ride> findAllForPassenger(Passenger passenger, Pageable pageable);
@@ -53,5 +75,8 @@ public interface IRideRepository extends JpaRepository<Ride, Integer> {
 
     /*@Query("select sum(r.estimatedTime) from Ride r where r.driver.id=?1 and r.endTime IS NULL")
     public double sumEstimatedTimeOfNextRidesByDriverAtThatDay(Integer driverId);*/
+
+    @Query("select r from Ride r where r.rideStatus =?1 and r.scheduledTime between ?2 and ?3")
+    List<Ride> findAllByRideStatusInTimeRange(RideStatus rideStatus, LocalDateTime from, LocalDateTime to);
 
 }

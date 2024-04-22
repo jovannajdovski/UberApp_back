@@ -20,16 +20,14 @@ public class DriverRegistrationDTO {
     private String name;
     @NotEmpty
     private String surname;
-
     private String profilePicture;
     @Pattern(regexp = "[0-9 +]?[0-9]+[0-9 \\-]+")
     private String telephoneNumber;
-
     @Email(regexp = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")
     private String email;
     @NotEmpty
     private String address;
-    @Length(min = 6)
+//    @Length(min = 6)
     private String password;
 
     public DriverRegistrationDTO(Driver driver)
